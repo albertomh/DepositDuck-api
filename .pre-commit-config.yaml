@@ -17,6 +17,13 @@ repos:
       - id: trailing-whitespace
         args: [ --markdown-linebreak-ext=md ]
 
+  - repo: https://github.com/DavidAnson/markdownlint-cli2
+    rev: v0.12.1
+    hooks:
+      - id: markdownlint-cli2
+        args:
+          - --config .markdownlint-cli2.yaml
+
   - repo: https://github.com/alessandrojcm/commitlint-pre-commit-hook
     rev: v9.13.0
     hooks:
