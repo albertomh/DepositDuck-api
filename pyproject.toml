@@ -1,0 +1,35 @@
+[project]
+name = "depositduck"
+version = "0.0.0"
+description = ""  # TODO
+authors = [
+  {name = "Alberto Morón Hernández", email = "alberto.moronh@gmail.com"},
+]
+license = {file = "LICENSE"}
+readme = "README.md"
+classifiers = [
+  "Development Status :: 1 - Planning",
+
+  "Framework :: FastAPI",
+  "Framework :: Pydantic :: 2",
+
+  "License :: OSI Approved :: MIT License",
+  "Natural Language :: English",
+
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.12",
+]
+
+requires-python = ">= 3.12"
+dependencies = []
+
+[project.optional-dependencies]
+dev = []
+test = []
+
+[project.urls]
+Homepage = "https://github.com/albertomh/DepositDuck"
+Documentation = "https://github.com/albertomh/DepositDuck"
+Repository = "https://github.com/albertomh/DepositDuck.git"
+Issues = "https://github.com/albertomh/DepositDuck/issues"
+Changelog = "https://github.com/albertomh/DepositDuck/blob/main/CHANGELOG.md"
