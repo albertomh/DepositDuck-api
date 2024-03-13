@@ -31,6 +31,8 @@ Pre-commit hooks are available to prevent common gotchas and to lint & format co
 pre-commit install
 ```
 
+`commitlint` is enabled as a pre-commit hook. Valid commit types are defined in `.commitlintrc.yaml`.
+
 ### Manage dependencies
 
 Dependencies are defined in `.in` files in the `requirements/` directory.  
@@ -46,6 +48,12 @@ make pin-deps-dev
 # update dependency versions
 make update-deps
 make update-deps-dev
+```
+
+When patching dependencies remember to also run:
+
+```sh
+pre-commit autoupdate
 ```
 
 ## Test
