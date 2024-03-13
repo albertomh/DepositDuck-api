@@ -17,9 +17,14 @@ A `makefile` defines common development tasks.
 ```sh
 # install dependencies in a virtualenv
 make install-deps-dev
+
+# run server
+make run
 ```
 
 ### Dev workflow
+
+Pre-commit hooks are available to prevent common gotchas and to lint & format code.
 
 ```sh
 # install pre-commit hooks

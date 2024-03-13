@@ -69,3 +69,9 @@ update-deps-test:
 		--upgrade \
 		--resolver backtracking \
 		-o $(REQS_DIR)/test.txt
+
+# run the application locally
+run: venv
+	@$(ACTIVATE_VENV) && \
+	cd depositduck/ && \
+	uvicorn main:app --reload
