@@ -10,6 +10,15 @@ To develop DepositDuck, the following must be available:
 - [uv](https://github.com/astral-sh/uv)
 - [pre-commit](https://pre-commit.com/)
 
+### Run locally
+
+A `makefile` defines common development tasks.
+
+```sh
+# install dependencies in a virtualenv
+make install-deps-dev
+```
+
 ### Dev workflow
 
 ```sh
@@ -24,16 +33,14 @@ Dependencies are defined in `.in` files in the `requirements/` directory.
 
 ```sh
 # pin base dependencies
-uv pip compile pyproject.toml -o requirements/base.txt
+make pin-deps
 
 # pin development dependencies (will include base as well)
-uv pip compile pyproject.toml --extra dev -o requirements/dev.txt
+make pin-deps-dev
 
 # update dependency versions
-uv pip compile pyproject.toml --upgrade --resolver backtracking -o requirements/base.txt
-uv pip compile pyproject.toml --extra dev --upgrade --resolver backtracking -o requirements/dev.txt
-
-# inspiration: https://hynek.me/til/pip-tools-and-pyproject-toml/
+make update-deps
+make update-deps-dev
 ```
 
 ## Test
