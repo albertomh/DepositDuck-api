@@ -19,13 +19,7 @@ classifiers = [
   "Programming Language :: Python :: 3",
   "Programming Language :: Python :: 3.12",
 ]
-
 requires-python = ">= 3.12"
-dependencies = []
-
-[project.optional-dependencies]
-dev = []
-test = []
 
 [project.urls]
 Homepage = "https://github.com/albertomh/DepositDuck"

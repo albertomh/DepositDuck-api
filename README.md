@@ -18,8 +18,8 @@ pre-commit install
 
 ### Manage dependencies
 
-Dependencies are defined in `pyproject.toml`.  
-Requirements files with pinned versions live in the `requirements/` directory.
+Dependencies are defined in `.in` files in the `requirements/` directory.  
+`.txt` files in that directory list pinned versions.
 
 ```sh
 # pin base dependencies
