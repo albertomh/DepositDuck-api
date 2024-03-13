@@ -6,6 +6,7 @@
 
 To develop DepositDuck, the following must be available:
 
+- [make](https://www.gnu.org/software/make/)
 - [uv](https://github.com/astral-sh/uv)
 - [pre-commit](https://pre-commit.com/)
 
