@@ -24,12 +24,17 @@ requires-python = ">= 3.12"
 [tool.ruff]
 target-version = "py312"
 line-length = 90
-# pyflakes, pycodestyle, isort
-select = [
-  "E", "F",
-  "W",
-  "I"
-]
+indent-width = 4
+
+[tool.ruff.lint]
+# Pyflakes (`F`), pycodestyle (`E`), pycodestyle warnings (`W`) & isort (`I`)
+select = ["E", "I", "F", "W"]
+ignore = []
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
 
 [project.urls]
 Homepage = "https://github.com/albertomh/DepositDuck"
