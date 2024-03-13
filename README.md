@@ -58,6 +58,11 @@ pre-commit autoupdate
 
 ## Test
 
+```sh
+# run unit tests
+make test
+```
+
 ## Deploy
 
 ---

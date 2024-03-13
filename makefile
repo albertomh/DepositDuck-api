@@ -1,3 +1,4 @@
+# DepositDuck - local development tooling
 #
 # (c) 2024 Alberto Morón Hernández
 
@@ -12,6 +13,9 @@ APP_DIR=depositduck
 REQS_DIR=requirements
 
 .PHONY: *
+
+# default target
+all: run
 
 # create a venv if one does not exist
 venv:
@@ -29,8 +33,12 @@ install-deps: venv
 install-deps-dev: venv
 	@$(ACTIVATE_VENV)
 	@$(UV) pip sync \
-	$(REQS_DIR)/base.txt \
 	$(REQS_DIR)/dev.txt
+
+install-deps-test:
+	@$(ACTIVATE_VENV)
+	@$(UV) pip sync \
+	$(REQS_DIR)/test.txt
 
 # generate requirements files with pinned dependencies
 pin-deps:
@@ -73,5 +81,10 @@ update-deps-test:
 # run the application locally
 run: venv
 	@$(ACTIVATE_VENV) && \
-	cd depositduck/ && \
-	uvicorn main:app --reload
+	uvicorn depositduck.main:app --reload
+
+# run tests
+test: venv
+	@$(ACTIVATE_VENV) && \
+	$(UV) pip sync $(REQS_DIR)/test.txt && \
+	$(PYTHON) -m pytest
