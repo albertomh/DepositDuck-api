@@ -87,4 +87,5 @@ run: venv
 test: venv
 	@$(ACTIVATE_VENV) && \
 	$(UV) pip sync $(REQS_DIR)/test.txt && \
-	$(PYTHON) -m pytest
+	export IS_TEST=true && \
+	$(PYTHON) -m pytest -s -vvv

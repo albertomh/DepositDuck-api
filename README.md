@@ -18,9 +18,16 @@ A `makefile` defines common development tasks.
 # install dependencies in a virtualenv
 make install-deps-dev
 
-# run server
+# create a .env file and populate as needed (see `Settings` class in `config.py`)
+cp .env.in .env
+
+# run server on port 8000
 make run
 ```
+
+The following are now available:
+
+- [0.0.0.0:8000/docs](http://0.0.0.0:8000/docs) - interactive API docs
 
 ### Dev workflow
 
@@ -57,6 +64,14 @@ pre-commit autoupdate
 ```
 
 ## Test
+
+### Prerequisites
+
+The tools listed under 'Develop > Prerequisites' must be available in order to run tests.
+
+### Run tests locally
+
+The application picks up the `.env.test` file as config if the env var `IS_TEST=true` is set.
 
 ```sh
 # run unit tests
