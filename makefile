@@ -15,7 +15,7 @@ REQS_DIR=requirements
 .PHONY: *
 
 # default target
-all: run
+all: help
 
 # create a venv if one does not exist
 venv:
@@ -56,7 +56,7 @@ pin-deps-test:
 	$(REQS_DIR)/test.in \
 	-o $(REQS_DIR)/test.txt
 
-# bump dependency versions, following constraints in requirements/*.in files
+# bump dependency versions in line with constraints in requirements/*.in files
 update-deps:
 	@$(UV) pip compile \
 		$(REQS_DIR)/base.in \
@@ -89,3 +89,19 @@ test: venv
 	$(UV) pip sync $(REQS_DIR)/test.txt && \
 	export IS_TEST=true && \
 	$(PYTHON) -m pytest -s -vvv
+
+help:
+	@echo "usage: make [target]"
+	@echo "  help              Show this help message\n"
+	@echo "  install-deps      Sync project dependencies to virtualenv"
+	@echo "  install-deps-dev  Sync dev dependencies to virtualenv"
+	@echo "  install-deps-test Sync test dependencies to virtualenv\n"
+	@echo "  pin-deps          Generate base requirements file with pinned dependencies"
+	@echo "  pin-deps-dev      Generate dev requirements file with pinned dependencies"
+	@echo "  pin-deps-test     Generate test requirements file with pinned dependencies\n"
+	@echo "  run               Run the application locally using Uvicorn"
+	@echo "  test              Run test suite\n"
+	@echo "  update-deps       Bump dependency versions in line with constraints in base.in"
+	@echo "  update-deps-dev   Bump dependency versions in line with constraints in dev.in"
+	@echo "  update-deps-test  Bump dependency versions in line with constraints in test.in\n"
+	@echo "  venv              Create a venv if one does not exist\n"

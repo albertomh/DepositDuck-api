@@ -12,7 +12,8 @@ To develop DepositDuck, the following must be available:
 
 ### Run locally
 
-A `makefile` defines common development tasks.
+A `makefile` defines common development tasks. Run `make` or `make help` to show all
+available targets.
 
 ```sh
 # install dependencies in a virtualenv
@@ -31,6 +32,11 @@ The following are now available:
 
 ### Dev workflow
 
+This repo follows trunk-based development. This means:
+
+- the `main` branch should always be in a releasable state
+- use short-lived feature branches
+
 Pre-commit hooks are available to prevent common gotchas and to lint & format code.
 
 ```sh
@@ -38,6 +44,8 @@ Pre-commit hooks are available to prevent common gotchas and to lint & format co
 pre-commit install
 ```
 
+Pleas follow the [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/)
+guidelines when writing commit messages.
 `commitlint` is enabled as a pre-commit hook. Valid commit types are defined in `.commitlintrc.yaml`.
 
 ### Manage dependencies
@@ -71,7 +79,8 @@ The tools listed under 'Develop > Prerequisites' must be available in order to r
 
 ### Run tests locally
 
-The application picks up the `.env.test` file as config if the env var `IS_TEST=true` is set.
+The application picks up the `.env.test` file as config if the env var `IS_TEST=true` is
+set.
 
 ```sh
 # run unit tests

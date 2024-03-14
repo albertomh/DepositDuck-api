@@ -5,7 +5,7 @@ config:
   # https://github.com/DavidAnson/markdownlint/tree/main/doc
   line-length:                      # MD013
     code_blocks: false
-    line_length: 100
+    line_length: 90
     tables: false
   no-duplicate-heading:             # MD024
     # allow duplicate headings in eg. CHANGELOG.md
