@@ -81,7 +81,7 @@ update-deps-test:
 # run the application locally
 run: venv
 	@$(ACTIVATE_VENV) && \
-	uvicorn depositduck.main:app --reload
+	uvicorn depositduck.main:webapp --reload
 
 # run tests
 test: venv
