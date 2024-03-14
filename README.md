@@ -49,6 +49,11 @@ Please follow the [Conventional Commits](https://www.conventionalcommits.org/en/
 guidelines when writing commit messages.
 `commitlint` is enabled as a pre-commit hook. Valid commit types are defined in `.commitlintrc.yaml`.
 
+### Project structure
+
+The project is split into two packages, `web` & `api`. Each corresponds to a separate FastAPI
+app defined in the `main` module. `apiapp` is mounted on `webapp` under the `/api` path.
+
 ### Manage dependencies
 
 Dependencies are defined by `.in` files in the `requirements/` directory.  
