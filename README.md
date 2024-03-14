@@ -16,10 +16,11 @@ A `makefile` defines common development tasks. Run `make` or `make help` to show
 available targets.
 
 ```sh
-# install dependencies in a virtualenv
+# install base + dev dependencies in a virtualenv
 make install-deps-dev
 
-# create a .env file and populate as needed (see `Settings` class in `config.py`)
+# create a .env file and populate as needed
+# (see `Settings` class in `config.py`)
 cp .env.in .env
 
 # run server on port 8000
@@ -44,25 +45,26 @@ Pre-commit hooks are available to prevent common gotchas and to lint & format co
 pre-commit install
 ```
 
-Pleas follow the [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/)
+Please follow the [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/)
 guidelines when writing commit messages.
 `commitlint` is enabled as a pre-commit hook. Valid commit types are defined in `.commitlintrc.yaml`.
 
 ### Manage dependencies
 
-Dependencies are defined in `.in` files in the `requirements/` directory.  
+Dependencies are defined by `.in` files in the `requirements/` directory.  
 `.txt` files in that directory list pinned versions.
 
 ```sh
-# pin base dependencies
+# pin dependencies
 make pin-deps
-
-# pin development dependencies (will include base as well)
 make pin-deps-dev
+make pin-deps-test
 
-# update dependency versions
+# update dependency versions in line with
+# constraints in requirements/*.in files
 make update-deps
 make update-deps-dev
+make update-deps-test
 ```
 
 When patching dependencies remember to also run:
@@ -80,7 +82,7 @@ The tools listed under 'Develop > Prerequisites' must be available in order to r
 ### Run tests locally
 
 The application picks up the `.env.test` file as config if the env var `IS_TEST=true` is
-set.
+set (this is done for you when using the relevant makefile targets).
 
 ```sh
 # run unit tests
