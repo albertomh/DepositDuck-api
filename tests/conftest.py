@@ -2,10 +2,17 @@
 (c) 2024 Alberto Morón Hernández
 """
 
+import logging
+
 import pytest_asyncio
 from httpx import ASGITransport, AsyncClient
 
 from depositduck.main import app
+
+
+@pytest_asyncio.fixture(scope="session", autouse=True)
+def LOG():
+    return logging.getLogger(__name__)
 
 
 @pytest_asyncio.fixture
