@@ -90,6 +90,8 @@ The application picks up the `.env.test` file as config if the env var `IS_TEST=
 set (this is done for you when using the relevant makefile targets).
 
 ```sh
+make install-deps-test
+
 # run unit tests
 make test
 ```
