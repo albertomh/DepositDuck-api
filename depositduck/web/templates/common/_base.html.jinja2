@@ -16,12 +16,20 @@
     </head>
 
     <body>
+        {% block header %}
+        {% include "/common/_header.html.jinja2" %}
+        {% endblock %}
+
         <div id="content">
             <h1>Header</h1>
             <p>name: {{ app_name }}</p>
             {% block content %}
             {% endblock %}
         </div>
+
+        {% block footer %}
+        {% include "/common/_footer.html.jinja2" %}
+        {% endblock %}
     </body>
 
 </html>
