@@ -6,6 +6,7 @@
 - [ ] sort out routine dependency patching (dependabot, etc.)
 - [ ] automated releases (release-it?)
 - [ ] add CD pipelines
+- [ ] ensure auto `/docs` are disabled when not in debug mode
 
 ## Feature wishlist
 

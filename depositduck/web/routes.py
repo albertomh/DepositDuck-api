@@ -18,7 +18,8 @@ async def root(
     templates: Annotated[Jinja2Templates, Depends(get_templates)],
     request: Request,
 ):
-    context = {"app_name": settings.app_name}
-    return templates.TemplateResponse(
-        request=request, name="main.html.jinja2", context=context
-    )
+    context = {
+        "app_name": settings.app_name,
+        "request": request,
+    }
+    return templates.TemplateResponse("home.html.jinja2", context)
