@@ -5,8 +5,8 @@
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 
-from depositduck.web.routes import web_router
 from depositduck.api.routes import api_router
+from depositduck.web.routes import web_router
 
 
 def get_webapp() -> FastAPI:

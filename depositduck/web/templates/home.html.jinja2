@@ -1,6 +1,26 @@
+{#
+ #  (c) 2024 Alberto Morón Hernández
+ #}
 {% extends "common/_base.html.jinja2" %}
 
 {% block content %}
 <h1>Header</h1>
+
+    {% block motd %}
+    <div id="motd">
+        <p>{% if motd %}{{ motd }}{% else %}---{% endif %}</p>
+        {% if motd is not defined %}
+        <button hx-get="/motd" hx-trigger="click" hx-target="#motd">
+            🔄 Refresh
+        </button>
+        {% endif %}
+    </div>
+    {% endblock %}
+
+
 <p>name: {{ app_name }}</p>
+
+<div hx-get="/fragment" hx-trigger="load">
+    Loading...
+</div>
 {% endblock %}
