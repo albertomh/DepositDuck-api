@@ -7,6 +7,7 @@ from pathlib import Path
 
 from fastapi.templating import Jinja2Templates
 from jinja2 import select_autoescape
+from jinja2_fragments.fastapi import Jinja2Blocks
 
 from depositduck import config
 
@@ -19,9 +20,9 @@ def get_settings():
 
 
 @lru_cache
-def get_templates():
+def get_templates() -> Jinja2Templates:
     templates_dir_path = BASE_DIR / "web" / "templates"
-    return Jinja2Templates(
+    return Jinja2Blocks(
         directory=str(templates_dir_path),
         autoescape=select_autoescape(("html", "jinja2")),
     )
