@@ -8,7 +8,7 @@ import pytest_asyncio
 from fastapi import FastAPI
 from httpx import ASGITransport, AsyncClient
 
-from depositduck.main import webapp
+from depositduck.main import apiapp, webapp
 
 
 @pytest_asyncio.fixture(scope="session", autouse=True)
@@ -18,6 +18,13 @@ def LOG():
 
 async def get_aclient(app: FastAPI, url: str):
     return AsyncClient(transport=ASGITransport(app=app), base_url=url)
+
+
+@pytest_asyncio.fixture
+async def api_client():
+    api_client = await get_aclient(apiapp, "http://apitest")
+    async with api_client as client:
+        yield client
 
 
 @pytest_asyncio.fixture
