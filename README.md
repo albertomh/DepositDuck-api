@@ -93,7 +93,7 @@ The tools listed under 'Develop > Prerequisites' must be available in order to r
 ### Run tests locally
 
 The application picks up the `.env.test` file as config if the env var `IS_TEST=true` is
-set (this is done for you when using the relevant makefile targets).
+set. This is done for you when using `make test`.
 
 ```sh
 make install-deps-test
@@ -101,6 +101,11 @@ make install-deps-test
 # run unit tests
 make test
 ```
+
+##  Continuous Integration
+
+A Continuous Integration pipeline runs via GitHub Actions on push.  
+This pipeline is defined by the YAML in the `.github/workflows/` directory.
 
 ## Deploy
 
