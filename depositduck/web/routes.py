@@ -7,7 +7,7 @@ from fastapi.templating import Jinja2Templates
 from typing_extensions import Annotated
 
 from depositduck import config
-from depositduck.dependencies import get_settings, get_templates
+from depositduck.dependables import get_settings, get_templates
 
 web_router = APIRouter()
 

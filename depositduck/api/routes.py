@@ -6,7 +6,7 @@ from fastapi import APIRouter, Depends
 from typing_extensions import Annotated
 
 from depositduck import config
-from depositduck.dependencies import get_settings
+from depositduck.dependables import get_settings
 
 api_router = APIRouter()
 

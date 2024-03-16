@@ -54,10 +54,16 @@ guidelines when writing commit messages.
 The project is split into two packages, `web` & `api`. Each corresponds to a separate FastAPI
 app defined in the `main` module. `apiapp` is mounted on `webapp` under the `/api` path.
 
-### Manage dependencies
+### Dependables
 
-Dependencies are defined by `.in` files in the `requirements/` directory.  
-`.txt` files in that directory list pinned versions.
+Callables for use with FastAPI's dependency injection system are made available in the
+`dependables` module. These include utilities to access the `structlog` logger, a configured
+settings object and a Jinja fragments context.
+
+### Manage requirements
+
+Packages required by the application are defined by `.in` files in the `requirements/`
+directory. `.txt` files in that directory list pinned versions.
 
 ```sh
 # pin dependencies
