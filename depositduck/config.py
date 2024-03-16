@@ -15,7 +15,6 @@ def is_running_under_pytest() -> bool:
 class Settings(BaseSettings):
     app_name: str = "DepositDuck"
     debug: bool = False
-    log_level: str = "warn"
 
     env_file: ClassVar = ".env.test" if is_running_under_pytest() else ".env"
     model_config = SettingsConfigDict(env_file=env_file)
