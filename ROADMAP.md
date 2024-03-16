@@ -7,7 +7,8 @@
 - [ ] automated releases (release-it?)
 - [ ] add CD pipelines
 - [ ] ensure auto `/docs` are disabled when not in debug mode
-- [ ] write script to check latest version of htmx since it is vendored
+- [ ] write script to check latest version of htmx & Bootstrap since they are vendored
+- [ ] similarly, check for updates to GitHub actions
 
 ## Feature wishlist
 
