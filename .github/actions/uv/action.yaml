@@ -1,0 +1,20 @@
+# Re-usable steps for a GitHub Action that needs `uv`.
+#
+# Usage:
+#   ```
+#   steps:
+#     - uses: ./.github/actions/uv
+#   ```
+#
+# (c) 2024 Alberto Morón Hernández
+name: 'Install uv'
+description: 'Check out, set up Python, install uv'
+
+runs:
+  using: 'composite'
+  steps:
+    - uses: actions/setup-python@v5
+    - run: |
+        curl -LsSf https://astral.sh/uv/install.sh | sh
+        make venv
+      shell: bash
