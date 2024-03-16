@@ -35,7 +35,7 @@ install-deps-dev: venv
 	@$(UV) pip sync \
 	$(REQS_DIR)/dev.txt
 
-install-deps-test:
+install-deps-test: venv
 	@$(ACTIVATE_VENV)
 	@$(UV) pip sync \
 	$(REQS_DIR)/test.txt
