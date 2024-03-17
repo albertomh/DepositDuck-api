@@ -1,0 +1,20 @@
+# Re-usable steps for a GitHub Action that ...
+#
+# Usage:
+#   ```
+#   steps:
+#     - uses: ./.github/actions/FOO
+#   ```
+#
+# (c) 2024 Alberto Morón Hernández
+name: 'test'
+description: 'Run unit and integration tests'
+
+runs:
+  using: 'composite'
+  steps:
+    - uses: ./.github/actions/uv
+    - run: |
+        make install-deps-test
+        make test
+      shell: bash

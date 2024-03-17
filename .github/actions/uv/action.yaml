@@ -8,7 +8,7 @@
 #
 # (c) 2024 Alberto Morón Hernández
 name: 'Install uv'
-description: 'Check out, set up Python, install uv'
+description: 'Check out project code, set up Python, install uv'
 
 runs:
   using: 'composite'

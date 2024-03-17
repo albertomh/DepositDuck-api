@@ -1,0 +1,28 @@
+# DepositDuck Continuous Integration pipeline
+# Runs when a commit on a feature branch is pushed up to GitHub.
+#
+# (c) 2024 Alberto Morón Hernández
+name: PR
+
+on:
+  push:
+    branches-ignore:
+      - main
+  pull_request:
+    branches-ignore:
+      - main
+
+jobs:
+  pre_commit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/pre-commit
+
+  test:
+    needs:
+      - pre_commit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/test
