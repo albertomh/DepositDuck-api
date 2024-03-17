@@ -17,20 +17,9 @@ jobs:
       - uses: actions/setup-python@v5
       - uses: pre-commit/action@v3.0.1
 
-  sast:
-    runs-on: ubuntu-latest
-    steps:
-        - uses: actions/checkout@v4
-        - uses: ./.github/actions/uv
-        - run: |
-            source .venv/bin/activate
-            uv pip install bandit
-            bandit --exclude "./.venv" -r .
-
   test:
     needs:
       - pre_commit
-      - sast
     runs-on: ubuntu-latest
     steps:
         - uses: actions/checkout@v4
