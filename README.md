@@ -4,7 +4,7 @@
 
 ### Prerequisites
 
-To develop DepositDuck, the following must be available:
+To develop DepositDuck, the following must be available locally:
 
 - [make](https://www.gnu.org/software/make/)
 - [uv](https://github.com/astral-sh/uv)
@@ -67,15 +67,11 @@ directory. `.txt` files in that directory list pinned versions.
 
 ```sh
 # pin dependencies
-make pin-deps
-make pin-deps-dev
-make pin-deps-test
+make [ pin-deps | pin-deps-dev | pin-deps-test ]
 
 # update dependency versions in line with
 # constraints in requirements/*.in files
-make update-deps
-make update-deps-dev
-make update-deps-test
+make [ update-deps | update-deps-dev | update-deps-test ]
 ```
 
 When patching dependencies remember to also run:
@@ -83,6 +79,9 @@ When patching dependencies remember to also run:
 ```sh
 pre-commit autoupdate
 ```
+
+Dependabot is configured to run weekly and update Python packages & GitHub Actions. See
+`.github/dependabot.yaml`.
 
 ## Test
 
