@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Two separate FastAPI apps, webapp & apiapp, to keep the API separate from serving the frontend.
 - A htmx frontend.
+- Bootstrap 5 to style the frontend.
 - A dependable that provides access to `structlog` in the FastAPI application.
 - A CI pipeline using GitHub actions. Runs pre-commit hooks and tests.
 - SAST scanning by adding `bandit` as a pre-commit hook.

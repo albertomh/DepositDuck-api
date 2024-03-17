@@ -3,6 +3,7 @@
 """
 
 from fastapi import APIRouter, Depends, Request
+from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 from typing_extensions import Annotated
 
@@ -12,7 +13,7 @@ from depositduck.dependables import get_settings, get_templates
 web_router = APIRouter()
 
 
-@web_router.get("/")
+@web_router.get("/", response_class=HTMLResponse)
 async def root(
     settings: Annotated[config.Settings, Depends(get_settings)],
     templates: Annotated[Jinja2Templates, Depends(get_templates)],
@@ -25,7 +26,7 @@ async def root(
     return templates.TemplateResponse("home.html.jinja2", context)
 
 
-@web_router.get("/motd")
+@web_router.get("/motd", response_class=HTMLResponse)
 async def get_motd(
     templates: Annotated[Jinja2Templates, Depends(get_templates)],
     request: Request,
@@ -36,7 +37,7 @@ async def get_motd(
     )
 
 
-@web_router.get("/fragment")
+@web_router.get("/fragment", response_class=HTMLResponse)
 async def get_fragment(
     templates: Annotated[Jinja2Templates, Depends(get_templates)],
     request: Request,
