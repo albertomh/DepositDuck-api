@@ -113,8 +113,37 @@ make test
 
 ##  Continuous Integration
 
-A Continuous Integration pipeline runs via GitHub Actions on push.  
-This pipeline is defined by the YAML in the `.github/workflows/` directory.
+Continuous Integration pipelines run via GitHub Actions on push.  
+Pipelines are defined by YAML files in the `.github/workflows/` directory.
+There are two workflows:
+
+- When a commit on a feature branch is pushed up to GitHub - `pr.yaml`
+- When a Pull Request is merged into the 'main' branch - `ci.yaml`
+
+They both run pre-commit hooks and tests against the codebase. `ci.yaml` additionally
+Dockerises the app and pushes the image to the GitHub Container Registry.  
+The build artefact is a multi-arch Docker image to ensure compatibility with both
+Apple Silicon (ARM64) and GCP Cloud Run (x86_64).
+
+To run a Docker image locally:
+
+1. Visit [github.com/settings/tokens/new?scopes=write:packages](https://github.com/settings/tokens/new?scopes=write:packages)
+1. Select all relevant `packages` scopes and create a new Personal Access Token (PAT).
+1. Save the PAT as a environment variable: `export GHCR_PAT=YOUR_TOKEN`
+
+```sh
+# 4. Sign in to the Container Registry:
+echo $GHCR_PAT | docker login ghcr.io -u USERNAME --password-stdin
+
+# 5. Pull the latest image
+docker pull ghcr.io/albertomh/depositduck/main:latest
+
+# 6. Run the webapp on port 80
+docker run -d -p 80:80 --name depositduck_web depositduck
+
+# 7. Clean up
+docker stop depositduck_web && docker rm depositduck_web
+```
 
 ## Deploy
 

@@ -13,5 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - A htmx frontend.
 - Bootstrap 5 to style the frontend.
 - A dependable that provides access to `structlog` in the FastAPI application.
-- A CI pipeline using GitHub actions. Runs pre-commit hooks and tests.
-- SAST scanning by adding `bandit` as a pre-commit hook.
+- A CI pipeline using GitHub actions. Runs pre-commit hooks and tests for each commit. When
+  PRs are merged, in addition to these checks a pipeline Dockerises the app and pushes it
+  to the GitHub Container Registry.
+- SAST scanning via `bandit` as a pre-commit hook.
