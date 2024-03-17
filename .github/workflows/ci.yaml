@@ -35,8 +35,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: |
-          # assign the branch name to GIT_REF & lowercase repository name to REPO_NAME
-          echo "GIT_REF=${{ github.event.pull_request && github.head_ref || github.ref_name }}" >> $GITHUB_ENV
+          # assign the base branch name to GIT_REF & lowercase repository name to REPO_NAME
+          echo "GIT_REF=${{ github.event.pull_request.base.ref }}" >> $GITHUB_ENV
           echo "REPO_NAME=${GITHUB_REPOSITORY@L}" >> "${GITHUB_ENV}"
         shell: bash
       - uses: ./.github/actions/containerise
