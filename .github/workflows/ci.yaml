@@ -12,6 +12,8 @@ on:
 jobs:
   pre_commit:
     runs-on: ubuntu-latest
+    env:
+      SKIP: ${{ github.ref == 'refs/heads/master' && 'no-commit-to-branch' || '' }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
