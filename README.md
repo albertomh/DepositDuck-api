@@ -139,10 +139,17 @@ echo $GHCR_PAT | docker login ghcr.io -u USERNAME --password-stdin
 docker pull ghcr.io/albertomh/depositduck/main:latest
 
 # 6. Run the webapp on port 80
-docker run -d -p 80:80 --name depositduck_web ghcr.io/albertomh/depositduck/main
+docker run \
+ --rm \
+ --detach \
+ --read-only \
+ --volume ./.env:/app/.env \
+ --publish 80:80 \
+ --name depositduck_web \
+ ghcr.io/albertomh/depositduck/main
 
-# 7. Clean up
-docker stop depositduck_web && docker rm depositduck_web
+# 7. Stop the container
+docker stop depositduck_web
 ```
 
 ## Deploy
