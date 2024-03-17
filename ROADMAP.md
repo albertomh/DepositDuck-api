@@ -2,11 +2,13 @@
 
 ## TODO
 
+- [ ] find 'TODO's in code
 - [ ] automated releases (release-it?)
 - [ ] add CD pipelines
-- [ ] ensure auto `/docs` are disabled when not in debug mode
 - [ ] write script to check latest version of htmx & Bootstrap since they are vendored
 - [ ] similarly, check for updates to GitHub actions
+- [ ] customise FastAPI /docs favicon: <https://github.com/tiangolo/fastapi/issues/2581>
+      for both apps
 
 ## Feature wishlist
 

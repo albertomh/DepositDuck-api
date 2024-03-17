@@ -1,4 +1,4 @@
-# DepositDuck Continuous Integration pipeline
+# DepositDuck Pull Request pipeline
 # Runs when a commit on a feature branch is pushed up to GitHub.
 #
 # (c) 2024 Alberto Morón Hernández

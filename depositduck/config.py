@@ -14,6 +14,7 @@ def is_running_under_pytest() -> bool:
 
 class Settings(BaseSettings):
     app_name: str = "DepositDuck"
+    # controls FastAPI's debug mode and whether or not to show `/docs`.
     debug: bool = False
 
     env_file: ClassVar = ".env.test" if is_running_under_pytest() else ".env"
