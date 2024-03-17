@@ -1,11 +1,12 @@
 # DepositDuck Continuous Integration pipeline
+# Runs when a Pull Request is merged into the 'main' branch.
 #
 # (c) 2024 Alberto Morón Hernández
 name: CI
 
 on:
   pull_request:
-  push:
+    types: [closed]
     branches:
       - main
 
@@ -15,44 +16,32 @@ env:
 jobs:
   pre_commit:
     runs-on: ubuntu-latest
-    env:
-      SKIP: "no-commit-to-branch"
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-      - uses: pre-commit/action@v3.0.1
+      - uses: ./.github/actions/pre-commit
 
   test:
     needs:
       - pre_commit
     runs-on: ubuntu-latest
     steps:
-        - uses: actions/checkout@v4
-        - uses: ./.github/actions/uv
-        - run: |
-            make install-deps-test
-            make test
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/test
 
   containerise:
     needs:
       - test
     runs-on: ubuntu-latest
     steps:
-        - uses: actions/checkout@v4
-        - run: |
-            echo "GIT_REF=${{ github.event.pull_request && github.head_ref || github.ref_name }}" >> $GITHUB_ENV
-            echo "REPO_NAME=${GITHUB_REPOSITORY@L}" >> "${GITHUB_ENV}"
-          shell: bash
-        - uses: docker/setup-buildx-action@v3
-        - uses: docker/login-action@v3
-          with:
-            registry: ${{ env.REGISTRY }}
-            username: ${{ github.actor }}
-            password: ${{ github.token }}
-        - uses: docker/build-push-action@v5
-          with:
-            context: .
-            file: ./Dockerfile
-            platforms: linux/amd64,linux/arm64  # GCP Cloud Run, Apple Silicon
-            push: true
-            tags: ${{ env.REGISTRY }}/${{ env.REPO_NAME }}/${{ env.GIT_REF }}:latest
+      - uses: actions/checkout@v4
+      - run: |
+          # assign the branch name to GIT_REF & lowercase repository name to REPO_NAME
+          echo "GIT_REF=${{ github.event.pull_request && github.head_ref || github.ref_name }}" >> $GITHUB_ENV
+          echo "REPO_NAME=${GITHUB_REPOSITORY@L}" >> "${GITHUB_ENV}"
+        shell: bash
+      - uses: ./.github/actions/containerise
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ github.token }}
+          tags: ${{ env.REGISTRY }}/${{ env.REPO_NAME }}/${{ env.GIT_REF }}:latest
