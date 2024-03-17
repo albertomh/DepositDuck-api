@@ -1,0 +1,13 @@
+.github/
+
+.mypy_cache/
+.pytest_cache/
+.ruff_cache/
+.venv/
+
+*.yaml
+*.MD
+LICENSE
+.editorconfig
+
+tests/
