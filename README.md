@@ -1,5 +1,9 @@
 # DepositDuck
 
+_Get what's yours_ <!-- markdownlint-disable-line MD036 -->  
+
+## Develop
+
 [![python: 3.12](https://img.shields.io/badge/3.12-4584b6?logo=python&logoColor=ffde57)](https://docs.python.org/3.12/whatsnew/3.12.html)
 [![uv](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/uv/main/assets/badge/v0.json&labelColor=261230&color=de60e9)](https://github.com/astral-sh/uv)
 [![fastapi](https://img.shields.io/badge/FastAPI-009688?logo=fastapi&logoColor=white)](https://github.com/tiangolo/fastapi)
@@ -10,8 +14,6 @@
 [![ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json&labelColor=261230&color=d8ff64)](https://github.com/astral-sh/ruff)
 [![CI](https://github.com/albertomh/DepositDuck/actions/workflows/ci.yaml/badge.svg)](https://github.com/albertomh/DepositDuck/actions/workflows/ci.yaml)
 
-## Develop
-
 ### Prerequisites
 
 To develop DepositDuck, the following must be available locally:
@@ -19,6 +21,7 @@ To develop DepositDuck, the following must be available locally:
 - [make](https://www.gnu.org/software/make/)
 - [uv](https://github.com/astral-sh/uv)
 - [pre-commit](https://pre-commit.com/)
+- [Docker](https://docs.docker.com/)
 
 ### Run locally
 
@@ -32,6 +35,9 @@ make install-deps-dev
 # create a .env file and populate as needed
 # (see `Settings` class in `config.py`)
 cp .env.in .env
+
+# start database in a container
+make db
 
 # run server on port 8000
 make run
@@ -59,17 +65,6 @@ Please follow the [Conventional Commits](https://www.conventionalcommits.org/en/
 guidelines when writing commit messages.
 `commitlint` is enabled as a pre-commit hook. Valid commit types are defined in `.commitlintrc.yaml`.
 
-### Project structure
-
-The project is split into two packages, `web` & `api`. Each corresponds to a separate FastAPI
-app defined in the `main` module. `apiapp` is mounted on `webapp` under the `/api` path.
-
-### Dependables
-
-Callables for use with FastAPI's dependency injection system are made available in the
-`dependables` module. These include utilities to access the `structlog` logger, a configured
-settings object and a Jinja fragments context.
-
 ### Manage requirements
 
 Packages required by the application are defined by `.in` files in the `requirements/`
@@ -92,6 +87,25 @@ pre-commit autoupdate
 
 Dependabot is configured to run weekly and update Python packages & GitHub Actions. See
 `.github/dependabot.yaml`.
+
+## Project structure
+
+The project is split into two packages, `web` & `api`. Each corresponds to a separate FastAPI
+app defined in the `main` module. `apiapp` is mounted on `webapp` under the `/api` path.
+
+### Dependables
+
+Callables for use with FastAPI's dependency injection system are made available in the
+`dependables` module. These include utilities to access the `structlog` logger, a configured
+settings object and a Jinja fragments context.
+
+### Database
+
+The web service is backed by a PostgreSQL instance. Use v15 since this is the latest version
+supported by GCP Cloud SQL ([docs](https://cloud.google.com/sql/docs/postgres/db-versions)).
+
+Locally the database is made available via a container. `make db` brings the database up.
+Inspired by the approach described in [perrygeo.com/dont-install-postgresql-using-containers-for-local-development](https://www.perrygeo.com/dont-install-postgresql-using-containers-for-local-development)
 
 ## Test
 
@@ -127,11 +141,14 @@ Apple Silicon (ARM64) and GCP Cloud Run (x86_64).
 
 To run a Docker image locally:
 
-1. Visit [github.com/settings/tokens/new?scopes=write:packages](https://github.com/settings/tokens/new?scopes=write:packages)
-1. Select all relevant `packages` scopes and create a new Personal Access Token (PAT).
-1. Save the PAT as a environment variable: `export GHCR_PAT=YOUR_TOKEN`
-
 ```sh
+# 1. Visit https://github.com/settings/tokens/new?scopes=write:packages
+
+# 2. Select all relevant `packages` scopes and create a new Personal Access Token (PAT).
+
+# 3. Save the PAT as an environment variable:
+export GHCR_PAT=YOUR_TOKEN
+
 # 4. Sign in to the Container Registry:
 echo $GHCR_PAT | docker login ghcr.io -u USERNAME --password-stdin
 
