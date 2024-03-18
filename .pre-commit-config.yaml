@@ -21,6 +21,9 @@ repos:
     rev: v1.9.0
     hooks:
     -   id: mypy
+        additional_dependencies:
+        -   "pydantic==v2.6.4"
+        -   "sqlmodel==0.0.16"
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: v0.3.3
