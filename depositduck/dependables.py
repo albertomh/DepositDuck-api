@@ -12,7 +12,7 @@ from jinja2_fragments.fastapi import Jinja2Blocks
 from structlog import configure, make_filtering_bound_logger
 from structlog import get_logger as get_structlogger
 
-from depositduck import config
+from depositduck.settings import Settings
 
 BASE_DIR = Path(__file__).resolve().parent
 
@@ -35,7 +35,7 @@ def get_logger():
 
 @lru_cache
 def get_settings():
-    return config.Settings()
+    return Settings()
 
 
 @lru_cache
