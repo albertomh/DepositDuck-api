@@ -17,6 +17,15 @@ REQS_DIR=requirements
 # default target
 all: help
 
+# re-usable function to load the contents of a
+# .env file as environment variables
+# usage: `$(call load_env,.env)`
+define load_env
+	set -o allexport; \
+	source $(1); \
+	set +o allexport;
+endef
+
 # create a venv if one does not exist
 venv:
 	@test -d $(VENV_DIR) || $(UV) venv
@@ -81,13 +90,14 @@ update-deps-test:
 # run the application locally
 run: venv
 	@$(ACTIVATE_VENV) && \
+	$(call load_env,.env) \
 	uvicorn depositduck.main:webapp --reload
 
 # run tests
 test: venv
 	@$(ACTIVATE_VENV) && \
+	$(call load_env,.env.test) \
 	$(UV) pip sync $(REQS_DIR)/test.txt && \
-	export IS_TEST=true && \
 	$(PYTHON) -m pytest -s -vvv
 
 help:
@@ -99,7 +109,7 @@ help:
 	@echo "  pin-deps          Generate base requirements file with pinned dependencies"
 	@echo "  pin-deps-dev      Generate dev requirements file with pinned dependencies"
 	@echo "  pin-deps-test     Generate test requirements file with pinned dependencies\n"
-	@echo "  run               Run the application locally using Uvicorn"
+	@echo "  run               Run the application using uvicorn. Load config from .env."
 	@echo "  test              Run test suite\n"
 	@echo "  update-deps       Bump dependency versions in line with constraints in base.in"
 	@echo "  update-deps-dev   Bump dependency versions in line with constraints in dev.in"

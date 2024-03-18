@@ -6,15 +6,15 @@ from fastapi import APIRouter, Depends, Request
 from fastapi.templating import Jinja2Templates
 from typing_extensions import Annotated
 
-from depositduck import config
 from depositduck.dependables import get_settings, get_templates
+from depositduck.settings import Settings
 
 web_router = APIRouter()
 
 
 @web_router.get("/")
 async def root(
-    settings: Annotated[config.Settings, Depends(get_settings)],
+    settings: Annotated[Settings, Depends(get_settings)],
     templates: Annotated[Jinja2Templates, Depends(get_templates)],
     request: Request,
 ):
