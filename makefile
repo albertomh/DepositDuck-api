@@ -89,9 +89,9 @@ run: venv
 
 # run tests
 test: venv
-# setting env vars from .env.test in GitHub Actions is handled in a separate step
-# of the `test` action to the one that invokes `make test`. This is because
-# environment variables are only available in steps after the one that sets them.
+# setting env vars using `.env.test` in GitHub Actions is handled in a step of the
+# `test` action separate from the one that invokes `make test`. This is because
+# environment variables are only available in steps following the one that sets them.
 ifdef CI
 	@$(ACTIVATE_VENV) && \
 	$(PYTHON) -m pytest -s -vvv -W always
