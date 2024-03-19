@@ -6,7 +6,30 @@ re-exports the table models defined here.
 (c) 2024 Alberto Morón Hernández
 """
 
+from datetime import datetime
+from uuid import UUID
+
+from sqlalchemy import Column, DateTime, func
 from sqlmodel import Field, SQLModel
+
+
+class TableMixin(SQLModel):
+    id: UUID | None = Field(
+        primary_key=True,
+        nullable=False,
+        sa_column_kwargs=dict(server_default=func.gen_random_uuid()),
+    )
+    created_at: datetime = Field(
+        sa_column=Column(DateTime(timezone=True), server_default=func.now())
+    )
+
+    # TODO: created_by
+    # updated_at, updated_by, etc. should be inferred from an `audit` table
+    # updated_at: datetime | None = Field(
+    #     sa_column=Column(DateTime(timezone=True), onupdate=func.now())
+    # )
+
+    deleted_at: datetime | None = Field(sa_column=Column(DateTime(timezone=True)))
 
 
 class PersonBase(SQLModel):
@@ -14,5 +37,5 @@ class PersonBase(SQLModel):
     family_name: str
 
 
-class Person(PersonBase, table=True):
-    id: int = Field(default=None, primary_key=True)
+class Person(PersonBase, TableMixin, table=True):
+    pass
