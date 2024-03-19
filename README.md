@@ -99,13 +99,33 @@ Callables for use with FastAPI's dependency injection system are made available 
 `dependables` module. These include utilities to access the `structlog` logger, a configured
 settings object and a Jinja fragments context.
 
+### Models
+
+The `models` package defines physical and virtual models for entities used in the application.
+It contains two modules:
+
+- `sql`: SQLModel classes defining base and table models. Base models are stored here for
+  convenience, immediately before each model that defines a database table.
+- `dto`: Data Transfer Objects building on base models.
+
+Table models are exported in `tables.__init__.py` so can be imported as
+`from depositduck import tables`.
+
 ### Database
 
 The web service is backed by a PostgreSQL instance. Use v15 since this is the latest version
 supported by GCP Cloud SQL ([docs](https://cloud.google.com/sql/docs/postgres/db-versions)).
 
-Locally the database is made available via a container. `make db` brings the database up.
-Inspired by the approach described in [perrygeo.com/dont-install-postgresql-using-containers-for-local-development](https://www.perrygeo.com/dont-install-postgresql-using-containers-for-local-development)
+Locally the database is made available via a container. Inspired by the approach described
+in [perrygeo.com/dont-install-postgresql-using-containers-for-local-development](https://www.perrygeo.com/dont-install-postgresql-using-containers-for-local-development).
+
+```sh
+# start the containerised postgres database
+make db
+
+# delete the local database
+rm -rf local/database/pgdata/pgdata15
+```
 
 ## Test
 
