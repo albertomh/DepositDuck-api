@@ -1,4 +1,8 @@
 """
+FastAPI routes for `webapp`, which serves DepositDuck's frontend.
+Responsible for RESTful responses (in the original sense) thanks
+to returning template snippets ready to be consumed by `htmx`.
+
 (c) 2024 Alberto Morón Hernández
 """
 

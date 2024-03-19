@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 
-# When running this script the working directory must be `local/database/`.
+# Usage:
+# ```
+# ./local/database/run_postgres.sh .env
+# ```
 #
 # Once the database is up, connect with:
 #   docker exec -it depositduck_db psql postgresql://postgres:password@localhost:5432/depositduck

@@ -1,4 +1,10 @@
 """
+FastAPI application entrypoint.
+Defines two apps: `webapp` and `apiapp`. The first is the main app
+and entrypoint, with the latter mounted on the former under `/api`.
+
+Point compatible ASGI servers (eg. uvicorn) to `webapp` in this module.
+
 (c) 2024 Alberto Morón Hernández
 """
 
@@ -16,6 +22,7 @@ from depositduck.web.routes import web_router
 
 VERSION = f"{VERSION_MAJOR}.{VERSION_MINOR}.{VERSION_PATCH}"
 settings = get_settings()
+db_engine = get_db_engine(settings)
 
 
 @asynccontextmanager

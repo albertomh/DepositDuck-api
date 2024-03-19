@@ -1,4 +1,8 @@
 """
+Callables to use with FastAPI's Dependency Injection system.
+Expose functionality and data common across various routes,
+eg. database sessions or application configuration.
+
 (c) 2024 Alberto Morón Hernández
 """
 
