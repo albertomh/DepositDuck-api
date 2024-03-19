@@ -4,12 +4,16 @@
 # Usage:
 #   ```
 #   steps:
+#     - run: |
+#         echo "GIT_REF=${{ github.event.pull_request.base.ref }}" >> $GITHUB_ENV
+#         echo "REPO_NAME=${GITHUB_REPOSITORY@L}" >> "${GITHUB_ENV}"
+#       shell: bash
 #     - uses: ./.github/actions/containerise
 #         with:
 #           registry: ${{ env.REGISTRY }}
 #           username: ${{ env.username }}
 #           password: ${{ env.password }}
-#           tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+#           tags: ${{ env.REGISTRY }}/${{ env.REPO_NAME }}/${{ env.GIT_REF }}:latest
 #   ```
 #
 # (c) 2024 Alberto Morón Hernández
