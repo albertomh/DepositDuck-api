@@ -98,7 +98,12 @@ test: venv
 	@$(ACTIVATE_VENV) && \
 	$(call load_env,.env.test) \
 	$(UV) pip sync $(REQS_DIR)/test.txt && \
-	$(PYTHON) -m pytest -s -vvv
+	$(PYTHON) -m pytest -s -vvv -W always
+
+# start a Dockerised instance of PostgreSQL on :5432
+db:
+	cd local/database/ && \
+	./run_postgres.sh
 
 help:
 	@echo "usage: make [target]"
@@ -109,6 +114,7 @@ help:
 	@echo "  pin-deps          Generate base requirements file with pinned dependencies"
 	@echo "  pin-deps-dev      Generate dev requirements file with pinned dependencies"
 	@echo "  pin-deps-test     Generate test requirements file with pinned dependencies\n"
+	@echo "  db                start a Dockerised instance of PostgreSQL on :5432"
 	@echo "  run               Run the application using uvicorn. Load config from .env."
 	@echo "  test              Run test suite\n"
 	@echo "  update-deps       Bump dependency versions in line with constraints in base.in"
