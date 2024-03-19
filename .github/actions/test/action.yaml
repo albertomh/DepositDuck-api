@@ -3,7 +3,7 @@
 # Usage:
 #   ```
 #   steps:
-#     - uses: ./.github/actions/FOO
+#     - uses: ./.github/actions/test
 #   ```
 #
 # (c) 2024 Alberto Morón Hernández
@@ -14,6 +14,10 @@ runs:
   using: 'composite'
   steps:
     - uses: ./.github/actions/uv
+    # must run in its own step because environment variables are
+    # only available in steps after the one that sets them.
+    - run: ./local/read_dotenv.sh .env.test
+      shell: bash
     - run: |
         make install-deps-test
         make test

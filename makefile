@@ -1,5 +1,8 @@
 # DepositDuck - local development tooling
 #
+# Some targets check the `CI` variable to modify behaviour
+# if being run in a GitHub Actions pipeline.
+#
 # (c) 2024 Alberto Morón Hernández
 
 # run all targets & commands in the same shell instance
@@ -16,15 +19,6 @@ REQS_DIR=requirements
 
 # default target
 all: help
-
-# re-usable function to load the contents of a
-# .env file as environment variables
-# usage: `$(call load_env,.env)`
-define load_env
-	set -o allexport; \
-	source $(1); \
-	set +o allexport;
-endef
 
 # create a venv if one does not exist
 venv:
@@ -90,20 +84,27 @@ update-deps-test:
 # run the application locally
 run: venv
 	@$(ACTIVATE_VENV) && \
-	$(call load_env,.env) \
+	. ./local/read_dotenv.sh .env && \
 	uvicorn depositduck.main:webapp --reload
 
 # run tests
 test: venv
+# setting env vars from .env.test in GitHub Actions is handled in a separate step
+# of the `test` action to the one that invokes `make test`. This is because
+# environment variables are only available in steps after the one that sets them.
+ifdef CI
 	@$(ACTIVATE_VENV) && \
-	$(call load_env,.env.test) \
+	$(PYTHON) -m pytest -s -vvv -W always
+else
+	@$(ACTIVATE_VENV) && \
+	. ./local/read_dotenv.sh .env.test && \
 	$(UV) pip sync $(REQS_DIR)/test.txt && \
 	$(PYTHON) -m pytest -s -vvv -W always
+endif
 
 # start a Dockerised instance of PostgreSQL on :5432
 db:
-	cd local/database/ && \
-	./run_postgres.sh
+	./local/database/run_postgres.sh .env
 
 help:
 	@echo "usage: make [target]"
