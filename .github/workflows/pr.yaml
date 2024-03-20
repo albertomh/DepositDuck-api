@@ -1,6 +1,11 @@
 # DepositDuck Pull Request pipeline
 # Runs when a commit on a feature branch is pushed up to GitHub.
 #
+# Step 'open-release-pr' requires that a GH_TOKEN repository secret exist in GitHub:
+# https://github.com/albertomh/DepositDuck/settings/secrets/actions
+# the value must be a PAT with read & write permissions on "Contents", "Merge queues"
+# and "Pull requests".
+#
 # (c) 2024 Alberto Morón Hernández
 name: PR
 
@@ -11,6 +16,9 @@ on:
   pull_request:
     branches-ignore:
       - main
+
+env:
+  GH_TOKEN: ${{ secrets.GH_TOKEN }}
 
 jobs:
   pre_commit:
@@ -26,3 +34,15 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: ./.github/actions/test
+
+  open-release-pr:
+    # run only for pushes to a 'release-X-Y-Z' branch
+    # the process to create these branches is automated via `make release v=X.Y.Z`
+    if: ${{ github.event_name == 'push' && startsWith(github.ref_name, 'release-') }}
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: gh pr create --base main --title "${{ github.ref_name }}" --body ""
+        shell: bash
+    # TODO: explore reinstating `gh pr merge --auto --rebase`
