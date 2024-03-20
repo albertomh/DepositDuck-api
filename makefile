@@ -122,21 +122,27 @@ migrate: venv
 	. ./local/read_dotenv.sh .env && \
 	$(PYTHON) -m alembic upgrade ${rev}
 
+# cut a release and raise a pull request for it
+release:
+	@$(if $(v),,$(error please specify 'v=X.Y.Z' tag for the release))
+	./local/cut_release.sh $(v)
+
 help:
 	@echo "usage: make [target]"
-	@echo "  help              Show this help message\n"
-	@echo "  install-deps      Sync project dependencies to virtualenv"
-	@echo "  install-deps-dev  Sync dev dependencies to virtualenv"
-	@echo "  install-deps-test Sync test dependencies to virtualenv\n"
-	@echo "  pin-deps          Generate base requirements file with pinned dependencies"
-	@echo "  pin-deps-dev      Generate dev requirements file with pinned dependencies"
-	@echo "  pin-deps-test     Generate test requirements file with pinned dependencies\n"
-	@echo "  db                Start a Dockerised instance of PostgreSQL on :5432"
-	@echo "  migration m=\"<m>\" Create an Alembic migration with message 'm'"
-	@echo "  migrate [rev=<r>] Upgrade migrations to a revision - latest if none given\n"
-	@echo "  run               Run the application using uvicorn. Load config from .env."
-	@echo "  test              Run test suite\n"
-	@echo "  update-deps       Bump dependency versions in line with constraints in base.in"
-	@echo "  update-deps-dev   Bump dependency versions in line with constraints in dev.in"
-	@echo "  update-deps-test  Bump dependency versions in line with constraints in test.in\n"
-	@echo "  venv              Create a virtual environment in '.venv/' if one does not exist\n"
+	@echo "  help                Show this help message\n"
+	@echo "  install-deps        Sync project dependencies to virtualenv"
+	@echo "  install-deps-dev    Sync dev dependencies to virtualenv"
+	@echo "  install-deps-test   Sync test dependencies to virtualenv\n"
+	@echo "  pin-deps            Generate base requirements file with pinned dependencies"
+	@echo "  pin-deps-dev        Generate dev requirements file with pinned dependencies"
+	@echo "  pin-deps-test       Generate test requirements file with pinned dependencies\n"
+	@echo "  db                  Start a Dockerised instance of PostgreSQL on :5432"
+	@echo "  migration m=\"<m>\"   Create an Alembic migration with message 'm'"
+	@echo "  migrate [rev=<r>]   Upgrade migrations to a revision - latest if none given\n"
+	@echo "  run                 Run the application using uvicorn. Load config from .env."
+	@echo "  test                Run test suite\n"
+	@echo "  release v=X.Y.Z     Cut a release and raise a pull request for it\n"
+	@echo "  update-deps         Bump dependency versions in line with constraints in base.in"
+	@echo "  update-deps-dev     Bump dependency versions in line with constraints in dev.in"
+	@echo "  update-deps-test    Bump dependency versions in line with constraints in test.in\n"
+	@echo "  venv                Create a virtual environment in '.venv/' if one does not exist\n"
