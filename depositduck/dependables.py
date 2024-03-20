@@ -59,17 +59,22 @@ def get_templates() -> Jinja2Templates:
     )
 
 
-@lru_cache
-def get_db_engine(
-    settings: Annotated[Settings, Depends(get_settings)],
-) -> AsyncEngine:
+def get_db_connection_string(settings=None) -> str:
+    if not settings:
+        settings = get_settings()
     user = settings.db_user
     password = settings.db_password
     name = settings.db_name
     host = settings.db_host
     port = settings.db_port
-    connection_str = f"postgresql+asyncpg://{user}:{password}@{host}:{port}/{name}"
-    return create_async_engine(connection_str, echo=settings.debug)
+    return f"postgresql+asyncpg://{user}:{password}@{host}:{port}/{name}"
+
+
+@lru_cache
+def get_db_engine(
+    settings: Annotated[Settings, Depends(get_settings)],
+) -> AsyncEngine:
+    return create_async_engine(get_db_connection_string(), echo=settings.debug)
 
 
 async def get_db_session(
