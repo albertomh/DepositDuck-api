@@ -1,19 +1,19 @@
-# web framework
-fastapi ~= 0.110.0
-# templating engine
-jinja2 ~= 3.1.3
-jinja2-fragments ~= 1.3.0
 # postgres adapter
 asyncpg ~= 0.29.0
+# web framework
+fastapi ~= 0.110.0
 # required by sqlalchemy but not included in 2.0.28
 # see https://github.com/sqlalchemy/sqlalchemy/issues/11129
 # hopefully resolved in sqlalchemy@2.1 and can remove explicit dependency
 greenlet ~= 3.0.3
+# templating engine
+jinja2 ~= 3.1.3
+jinja2-fragments ~= 1.3.0
 # FastAPI settings
 pydantic-settings ~= 2.2.1
-# logging
-structlog ~= 24.1.0
 # ORM
 sqlmodel ~= 0.0.16
+# logging
+structlog ~= 24.1.0
 # ASGI server
 uvicorn[standard] ~= 0.28.0
