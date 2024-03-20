@@ -127,6 +127,12 @@ make db
 rm -rf local/database/pgdata/pgdata15
 ```
 
+### Migrations
+
+Migrations are provided by Alembic. Alembic was initialised with the `async` template to
+enable it to use a SQLAlchemy async engine.  
+The migrations directory is `depositduck/models/migrations/`.
+
 ## Test
 
 ### Prerequisites
