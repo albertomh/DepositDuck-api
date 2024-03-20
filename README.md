@@ -49,7 +49,7 @@ After doing the above the following are now available:
 - [0.0.0.0:8000/docs](http://0.0.0.0:8000/docs) - interactive docs for the `webapp`
 - [0.0.0.0:8000/api/docs](http://0.0.0.0:8000/api/docs) - interactive docs for the `apiapp`
 
-### Dev workflow
+### Development workflow
 
 This repo follows trunk-based development. This means:
 
@@ -207,6 +207,19 @@ docker stop depositduck_web
 ```
 
 ## Deploy
+
+### Cut a release
+
+Releases must be tagged using semver. To start, pick a semver and run:
+
+```sh
+make release v=X.Y.Z
+```
+
+This will stamp the changelog, commit and push a `release-X.Y.Z` branch to GitHub.
+A GitHub Actions pipeline will detect `release-X.Y.Z` as a release branch and will open a
+PR. Merging this PR will tag main as `X.Y.Z` at the git head and push a container
+to the GitHub Container Registry.
 
 ---
 &copy; 2024 Alberto MH  
