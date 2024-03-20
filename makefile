@@ -20,7 +20,7 @@ REQS_DIR=requirements
 # default target
 all: help
 
-# create a venv if one does not exist
+# create a virtual environment in '.venv/' if one does not exist
 venv:
 	@test -d $(VENV_DIR) || $(UV) venv
 
@@ -106,6 +106,22 @@ endif
 db:
 	./local/database/run_postgres.sh .env
 
+# create an Alembic migration
+# usage: `make migration m=<message>`
+migration: venv
+	@$(if $(m),,$(error please specify 'm=<message>' for the new migration))
+	@$(ACTIVATE_VENV) && \
+	. ./local/read_dotenv.sh .env && \
+	$(PYTHON) -m alembic revision --autogenerate -m "$(m)"
+
+# upgrade migrations to a revision - latest if one is not specified
+# usage: `migrate [rev=<r>]`
+rev ?= head
+migrate: venv
+	@$(ACTIVATE_VENV) && \
+	. ./local/read_dotenv.sh .env && \
+	$(PYTHON) -m alembic upgrade ${rev}
+
 help:
 	@echo "usage: make [target]"
 	@echo "  help              Show this help message\n"
@@ -115,10 +131,12 @@ help:
 	@echo "  pin-deps          Generate base requirements file with pinned dependencies"
 	@echo "  pin-deps-dev      Generate dev requirements file with pinned dependencies"
 	@echo "  pin-deps-test     Generate test requirements file with pinned dependencies\n"
-	@echo "  db                start a Dockerised instance of PostgreSQL on :5432"
+	@echo "  db                Start a Dockerised instance of PostgreSQL on :5432"
+	@echo "  migration m=\"<m>\" Create an Alembic migration with message 'm'"
+	@echo "  migrate [rev=<r>] Upgrade migrations to a revision - latest if none given\n"
 	@echo "  run               Run the application using uvicorn. Load config from .env."
 	@echo "  test              Run test suite\n"
 	@echo "  update-deps       Bump dependency versions in line with constraints in base.in"
 	@echo "  update-deps-dev   Bump dependency versions in line with constraints in dev.in"
 	@echo "  update-deps-test  Bump dependency versions in line with constraints in test.in\n"
-	@echo "  venv              Create a venv if one does not exist\n"
+	@echo "  venv              Create a virtual environment in '.venv/' if one does not exist\n"
