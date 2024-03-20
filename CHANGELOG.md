@@ -13,7 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - A htmx frontend.
 - Bootstrap 5 to style the frontend.
 - Configuration to store state in a PostgreSQL database.
-- SQLModel as an ORM.
+- SQLModel as an ORM and Alembic to manage database migrations.
 - Dockerised PostgreSQL instance for local development
 - A minimal Person model & table.
 - A dependable that provides access to `structlog` in the FastAPI application.
