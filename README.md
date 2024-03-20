@@ -23,7 +23,7 @@ To develop DepositDuck, the following must be available locally:
 - [pre-commit](https://pre-commit.com/)
 - [Docker](https://docs.docker.com/)
 
-### Run locally
+### Quickstart: run locally
 
 A `makefile` defines common development tasks. Run `make` or `make help` to show all
 available targets.
@@ -43,9 +43,11 @@ make db
 make run
 ```
 
-The following are now available:
+After doing the above the following are now available:
 
-- [0.0.0.0:8000/docs](http://0.0.0.0:8000/docs) - interactive API docs
+- [0.0.0.0:8000](http://0.0.0.0:8000) - web frontend
+- [0.0.0.0:8000/docs](http://0.0.0.0:8000/docs) - interactive docs for the `webapp`
+- [0.0.0.0:8000/api/docs](http://0.0.0.0:8000/api/docs) - interactive docs for the `apiapp`
 
 ### Dev workflow
 
@@ -132,6 +134,15 @@ rm -rf local/database/pgdata/pgdata15
 Migrations are provided by Alembic. Alembic was initialised with the `async` template to
 enable it to use a SQLAlchemy async engine.  
 The migrations directory is `depositduck/models/migrations/`.
+
+```sh
+# make a migration with the message 'add_person'
+make migration m="add Person"
+
+# apply the latest migration
+# (optionally specify a revision with `rev=<id>`)
+make migrate
+```
 
 ## Test
 
