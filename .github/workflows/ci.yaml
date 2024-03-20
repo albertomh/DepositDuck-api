@@ -1,6 +1,10 @@
 # DepositDuck Continuous Integration pipeline
 # Runs when a Pull Request is merged into the 'main' branch.
 #
+# Step 'release' requires that a GH_TOKEN repository secret exist in GitHub:
+# https://github.com/albertomh/DepositDuck/settings/secrets/actions
+# the value must be a PAT scoped to read & write pull requests.
+#
 # (c) 2024 Alberto Morón Hernández
 name: CI
 
@@ -11,6 +15,7 @@ on:
       - main
 
 env:
+  GH_TOKEN: ${{ secrets.GH_TOKEN }}
   REGISTRY: ghcr.io
 
 jobs:
@@ -28,20 +33,48 @@ jobs:
       - uses: actions/checkout@v4
       - uses: ./.github/actions/test
 
-  containerise:
+  # tag and containerise when a 'release-' branch is merged
+  release:
+    if: ${{ startsWith(github.head_ref, 'release-') }}
     needs:
       - test
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - run: |
-          # assign the base branch name to GIT_REF & lowercase repository name to REPO_NAME
-          echo "GIT_REF=${{ github.event.pull_request.base.ref }}" >> $GITHUB_ENV
-          echo "REPO_NAME=${GITHUB_REPOSITORY@L}" >> "${GITHUB_ENV}"
+          echo "REPO_NAME=${GITHUB_REPOSITORY@L}" >> $GITHUB_ENV
+          echo "TAG=${GITHUB_BASE_REF#release-}" >> $GITHUB_ENV
+        shell: bash
+      - uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.git.createRef({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              ref: 'refs/tags/${{ env.TAG }}',
+              sha: context.sha
+            })
+      - uses: ./.github/actions/containerise
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ github.token }}
+          tags: ${{ env.REGISTRY }}/${{ env.REPO_NAME }}/${GITHUB_BASE_REF}:${{ env.TAG }}
+
+  # containerisation for non-release branches
+  containerise:
+    if: ${{ ! startsWith(github.head_ref, 'release-') }}
+    needs:
+      - test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: |
+          echo "REPO_NAME=${GITHUB_REPOSITORY@L}" >> $GITHUB_ENV
         shell: bash
       - uses: ./.github/actions/containerise
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ github.token }}
-          tags: ${{ env.REGISTRY }}/${{ env.REPO_NAME }}/${{ env.GIT_REF }}:latest
+          tags: ${{ env.REGISTRY }}/${{ env.REPO_NAME }}/${GITHUB_REF_NAME}:latest
