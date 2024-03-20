@@ -1,0 +1,19 @@
+name: sandbox
+
+on:
+  push:  # TODO: remove
+  pull_request:
+    # types: [closed]
+    # branches:
+    #   - main
+
+env:
+  PR_TITLE: ${{ github.event.pull_request.title }}
+
+jobs:
+  sandbox:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: echo PR title is $PR_TITLE
+        shell: bash
