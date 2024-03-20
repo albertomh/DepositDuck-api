@@ -1,3 +1,5 @@
+# database migrations
+alembic ~= 1.13.1
 # postgres adapter
 asyncpg ~= 0.29.0
 # web framework
