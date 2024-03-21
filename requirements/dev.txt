@@ -27,6 +27,9 @@ markupsafe==2.1.5
     # via
     #   jinja2
     #   mako
+numpy==1.26.4
+    # via pgvector
+pgvector==0.2.5
 pydantic==2.6.4
     # via
     #   fastapi
