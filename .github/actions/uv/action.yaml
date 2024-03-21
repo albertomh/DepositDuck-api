@@ -4,9 +4,12 @@
 #   ```
 #   steps:
 #     - uses: ./.github/actions/uv
+#     - run: uv ...
+#       shell: bash
 #   ```
 #
 # (c) 2024 Alberto Morón Hernández
+
 name: 'Install uv'
 description: 'Check out project code, set up Python, install uv'
 

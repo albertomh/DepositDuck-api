@@ -1,4 +1,4 @@
-# Re-usable steps for a GitHub Action that runs all pre-commit hooks.
+# Re-usable GitHub Action that runs all pre-commit hooks.
 #
 # Usage:
 #   ```
@@ -7,6 +7,7 @@
 #   ```
 #
 # (c) 2024 Alberto Morón Hernández
+
 name: 'pre-commit'
 description: 'Run all pre-commit hooks against the codebase'
 
