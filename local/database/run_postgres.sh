@@ -31,10 +31,12 @@ fi
 # this is the source of variables prefixed with 'DB_'
 . $script_dir/../read_dotenv.sh $dotenv_file
 
-IMAGE=postgres:15-alpine
+PG_VERSION=15
+IMAGE="postgres:$PG_VERSION-bookworm"
 NAME=depositduck_db
 
 docker run --rm \
+  --detach \
   --name $NAME \
   --volume $script_dir/pgdata:/var/lib/postgresql/data \
   --volume $script_dir/mnt_data:/mnt/data \
@@ -50,3 +52,9 @@ docker run --rm \
   postgres \
     -c 'hba_file=/etc/postgresql/pg_hba.conf' \
     -c 'config_file=/etc/postgresql/postgresql.conf'
+
+PGVECTOR="postgresql-$PG_VERSION-pgvector"
+docker exec $NAME apt-get update
+docker exec $NAME apt-get install $PGVECTOR
+
+docker logs --follow $NAME
