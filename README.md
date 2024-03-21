@@ -210,15 +210,15 @@ docker stop depositduck_web
 
 ### Cut a release
 
-Releases must be tagged using semver. To start, pick a semver and run:
-
-```sh
-make release v=X.Y.Z
-```
-
-This will stamp the changelog, commit and push a `release-X.Y.Z` branch to GitHub.
-A GitHub Actions pipeline will detect `release-X.Y.Z` and open a PR. Merging this PR will
-tag main as `X.Y.Z` at the git head and push a container to the GitHub Container Registry.
+1. Pick the semver number (`X.Y.Z`) for the release.
+1. Run `make release v=X.Y.Z`  
+   This stamps the changelog and triggers a GitHub pipeline.
+1. Wait for the pipeline to succeed. It will have raised a PR for this release.
+1. Review and merge (merge-and-rebase) the PR.
+1. This will trigger a pipeline to tag the `main` branch, create a GitHub release, build
+   a container and push it to the GitHub Container Registry.
+1. Wait for the pipeline to succeed and check a new tagged Docker container is available
+   in the project's [container registry](https://github.com/albertomh/DepositDuck/pkgs/container/depositduck%2Fmain).
 
 ---
 &copy; 2024 Alberto MH  
