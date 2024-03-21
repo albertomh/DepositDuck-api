@@ -41,8 +41,11 @@ markupsafe==2.1.5
     # via
     #   jinja2
     #   mako
+numpy==1.26.4
+    # via pgvector
 packaging==24.0
     # via pytest
+pgvector==0.2.5
 pluggy==1.4.0
     # via pytest
 pydantic==2.6.4
