@@ -64,21 +64,18 @@ update-deps:
 	@$(UV) pip compile \
 		$(REQS_DIR)/base.in \
 		--upgrade \
-		--resolver backtracking \
 		-o $(REQS_DIR)/base.txt
 
 update-deps-dev:
 	@$(UV) pip compile \
 		$(REQS_DIR)/dev.in \
 		--upgrade \
-		--resolver backtracking \
 		-o $(REQS_DIR)/dev.txt
 
 update-deps-test:
 	@$(UV) pip compile \
 		$(REQS_DIR)/test.in \
 		--upgrade \
-		--resolver backtracking \
 		-o $(REQS_DIR)/test.txt
 
 # run the application locally
