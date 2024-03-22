@@ -15,6 +15,7 @@ from fastapi.staticfiles import StaticFiles
 from depositduck import VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH
 from depositduck.api.routes import api_router
 from depositduck.dependables import get_db_engine, get_settings
+from depositduck.llm.routes import llm_router
 from depositduck.web.routes import web_router
 
 VERSION = f"{VERSION_MAJOR}.{VERSION_MINOR}.{VERSION_PATCH}"
@@ -24,7 +25,7 @@ db_engine = get_db_engine(settings)
 
 def get_webapp() -> FastAPI:
     webapp = FastAPI(
-        title=f"{settings.app_name} webapp",
+        title=f"🦆 {settings.app_name} webapp",
         description="",
         version=VERSION,
         debug=settings.debug,
@@ -38,7 +39,7 @@ def get_webapp() -> FastAPI:
 
 def get_apiapp() -> FastAPI:
     apiapp = FastAPI(
-        title=f"{settings.app_name} apiapp",
+        title=f"⚙️ {settings.app_name} apiapp",
         description="",
         version=VERSION,
         debug=settings.debug,
@@ -47,9 +48,24 @@ def get_apiapp() -> FastAPI:
     return apiapp
 
 
+def get_llmapp() -> FastAPI:
+    llmapp = FastAPI(
+        title=f"🤖 {settings.app_name} llmapp",
+        description="",
+        version=VERSION,
+        debug=settings.debug,
+        openapi_url="/openapi.json" if settings.debug else None,
+    )
+    return llmapp
+
+
 webapp = get_webapp()
 webapp.include_router(web_router)
 
 apiapp = get_apiapp()
 webapp.mount("/api", apiapp)
 apiapp.include_router(api_router)
+
+llmapp = get_llmapp()
+webapp.mount("/llm", llmapp)
+llmapp.include_router(llm_router)
