@@ -13,6 +13,7 @@ This Changelog is automatically stamped by `cut_release.sh` as part of creating 
 
 - LLM-specific config options to the Settings object.
 - Install the `pgvector` extension in the local Postgres container.
+- Another FastAPI app - llmapp - to house generative functionality.
 
 ## [0.1.0] - 2024-03-21
 
