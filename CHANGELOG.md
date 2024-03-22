@@ -5,10 +5,13 @@ Notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+This Changelog is automatically stamped by `cut_release.sh` as part of creating a new release.
+
 ## [Unreleased]
 
 ## Added
 
+- LLM-specific config options to the Settings object.
 - Install the `pgvector` extension in the local Postgres container.
 
 ## [0.1.0] - 2024-03-21

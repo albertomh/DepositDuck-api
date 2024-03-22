@@ -6,11 +6,12 @@ import pytest
 from sqlalchemy.ext.asyncio import AsyncEngine
 
 from depositduck.dependables import get_db_engine, get_settings
+from depositduck.settings import Settings
 
 
-@pytest.mark.skip(reason="TODO: stub")
-def test_get_templates():
-    pass
+def test_get_settings():
+    settings = get_settings()
+    assert isinstance(settings, Settings)
 
 
 def test_get_db_engine(monkeypatch):
@@ -29,3 +30,8 @@ def test_get_db_engine(monkeypatch):
     assert engine.url.password == patched_settings["db_password"]
     assert engine.url.database == patched_settings["db_name"]
     assert engine.url.port == 5432
+
+
+@pytest.mark.skip(reason="TODO: stub")
+def test_get_templates():
+    pass
