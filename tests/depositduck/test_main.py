@@ -4,33 +4,24 @@
 
 from starlette.routing import Mount
 
-from depositduck.main import get_webapp, webapp
+from depositduck.main import webapp
 
 
-def test_get_webapp_mounts_static_dir():
+def test_app_mounts():
     """
-    Test that get_webapp returns an app with static files mounted at '/static'.
+    Test that mounts for static files, the api & llm apps are present on the webapp.
     """
-    app = get_webapp()
-    static_found = False
-
-    for route in app.routes:
-        if isinstance(route, Mount) and route.path == "/static":
-            static_found = True
-            break
-
-    assert static_found, "static files are not mounted under '/static'."
-
-
-def test_apiapp_mounted_on_webapp():
-    """
-    Test that apiapp is mounted on the webapp at '/api'.
-    """
-    api_mount_found = False
+    mounts = {
+        "webapp static": {"path": "/static", "observed": False},
+        "apiapp": {"path": "/api", "observed": False},
+        "llmapp": {"path": "/llm", "observed": False},
+    }
 
     for route in webapp.routes:
-        if isinstance(route, Mount) and route.path == "/api":
-            api_mount_found = True
-            break
+        for k, v in mounts.items():
+            if isinstance(route, Mount) and route.path == v["path"]:
+                mounts[k]["observed"] = True
+                break
 
-    assert api_mount_found, "apiapp is not mounted under '/api'."
+    for k, v in mounts.items():
+        assert v["observed"], f"{k} not mounted under '{v["path"]}'."
