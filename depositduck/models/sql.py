@@ -13,29 +13,39 @@ from sqlalchemy import Column, DateTime, func
 from sqlmodel import Field, SQLModel
 
 
-class TableMixin(SQLModel):
+class IdMixin(SQLModel):
     id: UUID | None = Field(
         primary_key=True,
         nullable=False,
         sa_column_kwargs=dict(server_default=func.gen_random_uuid()),
     )
+
+
+class CreatedAtMixin(SQLModel):
     created_at: datetime = Field(
         sa_column=Column(DateTime(timezone=True), server_default=func.now())
     )
 
-    # TODO: created_by
-    # updated_at, updated_by, etc. should be inferred from an `audit` table
-    # updated_at: datetime | None = Field(
-    #     sa_column=Column(DateTime(timezone=True), onupdate=func.now())
-    # )
 
+# TODO: created_by
+# updated_at, updated_by, etc. should be inferred from an `audit` table
+# updated_at: datetime | None = Field(
+#     sa_column=Column(DateTime(timezone=True), onupdate=func.now())
+# )
+
+
+class DeletedAtMixin(SQLModel):
     deleted_at: datetime | None = Field(sa_column=Column(DateTime(timezone=True)))
 
 
-class PersonBase(SQLModel):
-    name: str
-    family_name: str
-
-
-class Person(PersonBase, TableMixin, table=True):
+class TableMixin(IdMixin, CreatedAtMixin, DeletedAtMixin):
     pass
+
+
+# class PersonBase(SQLModel):
+#     name: str
+#     family_name: str
+#
+#
+# class Person(PersonBase, TableMixin, table=True):
+#     pass
