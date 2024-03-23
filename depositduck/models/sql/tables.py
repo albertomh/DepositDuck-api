@@ -6,4 +6,4 @@ only table models in the alembic `env` module.
 """
 
 # ruff: noqa: F401
-from depositduck.models.sql.llm import LLM
+from depositduck.models.sql.llm import LLM, EmbeddingMiniLML6V2
