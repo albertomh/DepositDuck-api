@@ -64,5 +64,5 @@ class EmbeddingMiniLML6V2(
             Vector(AvailableLLM.MINILM_L6_V2.value.dimensions), nullable=False
         )
     )
-    llm_id: str = Field(default=None, foreign_key="llm__llm.name")
+    llm_name: str = Field(default=None, foreign_key="llm__llm.name")
     llm: LLM = Relationship(back_populates="minilml6v2_embeddings")

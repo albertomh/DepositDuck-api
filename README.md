@@ -209,6 +209,25 @@ docker run \
 docker stop depositduck_web
 ```
 
+## Data pipeline
+
+⚠️ This workflow is in flux and subject to change.  
+
+To load a PDF as a source of data for Retrieval Augmented Generation:
+
+```sh
+# place the source PDF in the data_pipeline directory
+cp source.pdf ./local/data_pipeline/
+
+# run a script to extract text from the PDF and save
+# to `sourcetext.tmp` in the data_pipeline directory
+python ./local/data_pipeline/pdf_to_raw_sourcetext.py source.pdf
+
+# insert extracted data as a SourceText record in the database
+# - assumes previous step wrote to `sourcetext.tmp`
+PGPASSWORD=password ./local/data_pipeline/raw_sourcetext_to_database.sh
+```
+
 ## Deploy
 
 ### Cut a release
