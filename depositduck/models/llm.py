@@ -16,8 +16,8 @@ class SourceTextBase(BaseModel):
     """
 
     name: str
-    filename: str | None
-    url: str | None
+    filename: str | None = None
+    url: str | None = None
     description: str
     content: str
 
@@ -51,11 +51,18 @@ class AvailableLLM(Enum):
     MINILM_L6_V2 = LLMBase(name="all-minilm:l6-v2", dimensions=384)
 
 
-class EmbeddingMiniLML6V2Base(BaseModel):
+class EmbeddingBase(BaseModel):
     """
-    An embedding generated using the 'all-minilm:l6-v2' model.
+    All embedding models & tables must inherit from this one
+    for SQLAlchemy ORM mapping to work.
     """
 
     text: str
     vector: list[float]
     llm_id: str
+
+
+class EmbeddingMiniLML6V2Base(EmbeddingBase):
+    """
+    An embedding generated using the 'all-minilm:l6-v2' model.
+    """
