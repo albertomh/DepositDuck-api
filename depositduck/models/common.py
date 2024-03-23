@@ -1,6 +1,6 @@
 """
-SQLModel derived classes and mixins to help build base models and tables in the
-context-specific modules (auth, LLM, etc.) in this package.
+Mixins to help build base models and tables in the context-specific
+modules (auth, LLM, etc.) in this package.
 
 (c) 2024 Alberto Morón Hernández
 """
