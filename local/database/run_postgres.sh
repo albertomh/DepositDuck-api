@@ -35,6 +35,8 @@ PG_VERSION=15
 IMAGE="postgres:$PG_VERSION-bookworm"
 NAME=depositduck_db
 
+docker stop $NAME || true
+
 docker run --rm \
   --detach \
   --name $NAME \

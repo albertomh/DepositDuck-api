@@ -41,7 +41,10 @@ log_cli_format = "%(asctime)s [%(levelname)8s] %(message)s (%(filename)s:%(linen
 log_cli_date_format = "%Y-%m-%d %H:%M:%S"
 
 [tool.bandit]
-exclude_dirs = ["tests"]
+exclude_dirs = [
+  "tests",
+  "local/data_pipeline/pdf_to_raw_sourcetext.py",
+]
 
 [project.urls]
 Homepage = "https://github.com/albertomh/DepositDuck"

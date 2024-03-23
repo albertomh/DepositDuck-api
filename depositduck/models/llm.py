@@ -59,7 +59,7 @@ class EmbeddingBase(BaseModel):
 
     text: str
     vector: list[float]
-    llm_id: str
+    llm_name: str
 
 
 class EmbeddingMiniLML6V2Base(EmbeddingBase):
