@@ -6,11 +6,12 @@ Create Date: ${create_date}
 
 (c) 2024 Alberto Morón Hernández
 """
+
 from typing import Sequence, Union
 
-from alembic import op
 import sqlalchemy as sa
 import sqlmodel
+from alembic import op
 ${imports if imports else ""}
 
 # revision identifiers, used by Alembic.

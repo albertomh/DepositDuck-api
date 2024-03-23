@@ -26,12 +26,12 @@ class CreatedAtMixin:
 # TODO: created_by
 # updated_at, updated_by, etc. should be inferred from an `audit` table
 # updated_at: datetime | None = Field(
-#     sa_column=Column(DateTime(timezone=True), onupdate=func.now())
+#     sa_column=Column(DateTime(), onupdate=func.now())
 # )
 
 
 class DeletedAtMixin:
-    deleted_at: datetime | None = Field(sa_column=Column(DateTime(timezone=True)))
+    deleted_at: datetime | None = Field(sa_column=Column(DateTime()))
 
 
 class TableBase(SQLModel, IdMixin, CreatedAtMixin, DeletedAtMixin):
