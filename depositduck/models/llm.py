@@ -5,6 +5,7 @@ Base models for LLM functionality.
 """
 
 from enum import Enum
+from uuid import UUID
 
 from pydantic import BaseModel, PositiveInt
 
@@ -19,6 +20,16 @@ class SourceTextBase(BaseModel):
     url: str | None
     description: str
     content: str
+
+
+class SnippetBase(BaseModel):
+    """
+    A small amount of text of a size suitable for use to generate an embedding
+    or include in the context window of an LLM prompt.
+    """
+
+    content: str
+    source_text_id: UUID
 
 
 class LLMBase(BaseModel):
@@ -38,3 +49,13 @@ class AvailableLLM(Enum):
 
     # https://www.sbert.net/docs/pretrained_models.html
     MINILM_L6_V2 = LLMBase(name="all-minilm:l6-v2", dimensions=384)
+
+
+class EmbeddingMiniLML6V2Base(BaseModel):
+    """
+    An embedding generated using the 'all-minilm:l6-v2' model.
+    """
+
+    text: str
+    vector: list[float]
+    llm_id: str
