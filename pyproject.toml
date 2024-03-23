@@ -31,6 +31,9 @@ indent-width = 4
 select = ["E", "I", "F", "W"]
 ignore = []
 
+[tool.pyright]
+reportInvalidTypeForm = false
+
 [tool.pytest.ini_options]
 log_cli = true
 log_cli_level = "WARN"
