@@ -10,7 +10,7 @@ from sqlmodel import SQLModel
 from depositduck.dependables import get_db_connection_string
 
 # ensure alembic can detect table models
-from depositduck.models import tables  # noqa: F401
+from depositduck.models.sql import tables  # noqa: F401
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.

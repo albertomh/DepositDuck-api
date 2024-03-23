@@ -13,35 +13,24 @@ a Settings object can be decorated with @lru_cache.
 (c) 2024 Alberto Morón Hernández
 """
 
-from enum import Enum
-
 from pydantic import (
     BaseModel,
     ConfigDict,
-    Field,
-    PositiveInt,
     model_validator,
 )
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
+from depositduck.models.llm import AvailableLLM, LLMBase
 
-class EmbeddingModel(BaseModel):
-    # `name` is a tag from the ollama model library: https://ollama.com/library
-    name: str = Field(frozen=True)
-    dimensions: PositiveInt = Field(frozen=True)
 
+class LLMChoice(LLMBase):
     model_config = ConfigDict(frozen=True)
-
-
-class EmbeddingModelChoice(Enum):
-    # https://www.sbert.net/docs/pretrained_models.html
-    MINILM_L6_V2 = EmbeddingModel(name="all-minilm:l6-v2", dimensions=384)
 
 
 class LLMSettings(BaseModel):
     embedding_model_name: str
     # not in dotenv, computed from `embedding_model_name` which _is_ in dotenv
-    embedding_model: EmbeddingModel | None = None
+    embedding_model: LLMChoice | None = None
 
     @model_validator(mode="after")
     def embedding_model_from_name(self) -> "LLMSettings":
@@ -49,7 +38,8 @@ class LLMSettings(BaseModel):
         model_choice = getattr(self, "embedding_model_name")
         self.model_config["frozen"] = False
         try:
-            self.embedding_model = EmbeddingModelChoice[model_choice].value
+            llm_choice = AvailableLLM[model_choice].value
+            self.embedding_model = LLMChoice(**llm_choice.model_dump())
         except KeyError:
             raise ValueError(
                 f"invalid model choice '{model_choice}' - "
