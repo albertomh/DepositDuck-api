@@ -8,7 +8,7 @@ modules (auth, LLM, etc.) in this package.
 from datetime import datetime
 from uuid import UUID
 
-from sqlalchemy import Column, DateTime, func
+from sqlalchemy import func
 from sqlmodel import Field, SQLModel
 
 
@@ -31,7 +31,7 @@ class CreatedAtMixin:
 
 
 class DeletedAtMixin:
-    deleted_at: datetime | None = Field(sa_column=Column(DateTime()))
+    deleted_at: datetime | None = Field()
 
 
 class TableBase(SQLModel, IdMixin, CreatedAtMixin, DeletedAtMixin):

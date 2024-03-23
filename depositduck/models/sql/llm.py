@@ -8,15 +8,19 @@ from pgvector.sqlalchemy import Vector
 from sqlalchemy import Column
 from sqlmodel import Field, Relationship, SQLModel
 
-from depositduck.models.common import CreatedAtMixin, DeletedAtMixin, IdMixin
-from depositduck.models.llm import AvailableLLM, LLMBase
+from depositduck.models.common import CreatedAtMixin, DeletedAtMixin, IdMixin, TableBase
+from depositduck.models.llm import AvailableLLM, LLMBase, SourceTextBase
+
+
+class SourceText(SourceTextBase, TableBase, table=True):
+    __tablename__ = "llm__source_text"
 
 
 class LLM(LLMBase, CreatedAtMixin, DeletedAtMixin, SQLModel, table=True):
     """
-    The source of truth for LLMs available or previously used is the AvailableLLM enum.
-    We must keep track of these LLM options in the database in order to eg. link
-    embeddings to the model used to generate them.
+    The source of truth for LLMs available now or used previously is the AvailableLLM
+    enum. We must keep track of these LLM options in the database in order to
+    eg. link embeddings to the model used to generate them.
     """
 
     __tablename__ = "llm__llm"
