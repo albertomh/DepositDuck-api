@@ -104,10 +104,13 @@ settings object and a Jinja fragments context.
 ### Models
 
 The `models` package defines physical and virtual models for entities used in the application.
-It contains two modules:
+It contains:
 
-- `sql`: SQLModel classes defining base and table models. Base models are stored here for
-  convenience, immediately before each model that defines a database table.
+- the `common` module - mixins to help build base models and tables elsewhere.
+- the `llm` module - models used when interacting with LLMs and storing their output
+  (embeddings, etc.)
+- the `sql` package - table models inheriting the models defined elsewhere. Uses SQLModel.
+- the `migrations` package (Alembic migrations, see below)
 - `dto`: Data Transfer Objects building on base models.
 
 Table models are exported in `tables.__init__.py` so can be imported as
