@@ -7,7 +7,7 @@ eg. database sessions or application configuration.
 """
 
 import logging
-from functools import lru_cache
+from functools import cache
 from pathlib import Path
 from typing import Annotated, AsyncGenerator, TypeVar
 
@@ -28,7 +28,7 @@ T = TypeVar("T")
 AYieldFixture = AsyncGenerator[T, None]
 
 
-@lru_cache
+@cache
 def get_logger():
     """
     Usage:
@@ -44,12 +44,12 @@ def get_logger():
     return get_structlogger()
 
 
-@lru_cache
+@cache
 def get_settings() -> Settings:
     return Settings()
 
 
-@lru_cache
+@cache
 def get_templates() -> Jinja2Templates:
     templates_dir_path = BASE_DIR / "web" / "templates"
 
@@ -70,7 +70,7 @@ def get_db_connection_string(settings=None) -> str:
     return f"postgresql+asyncpg://{user}:{password}@{host}:{port}/{name}"
 
 
-@lru_cache
+@cache
 def get_db_engine(
     settings: Annotated[Settings, Depends(get_settings)],
 ) -> AsyncEngine:
