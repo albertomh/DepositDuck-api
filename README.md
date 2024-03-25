@@ -111,10 +111,9 @@ It contains:
   (embeddings, etc.)
 - the `sql` package - table models inheriting the models defined elsewhere. Uses SQLModel.
 - the `migrations` package (Alembic migrations, see below)
-- `dto`: Data Transfer Objects building on base models.
+- the `dto` package: Data Transfer Objects building on base models.
 
-Table models are exported in `tables.__init__.py` so can be imported as
-`from depositduck import tables`.
+Table models are exported in `sql.tables` for convenience.
 
 ### Database
 
