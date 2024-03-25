@@ -24,4 +24,4 @@ sqlmodel ~= 0.0.16
 # logging
 structlog ~= 24.1.0
 # ASGI server
-uvicorn[standard] ~= 0.28.0
+uvicorn[standard] ~= 0.29.0
