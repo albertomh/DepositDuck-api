@@ -5,8 +5,20 @@ the core <X>Base Pydantic objects which define the fields for each model.
 (c) 2024 Alberto Morón Hernández
 """
 
+from uuid import UUID
+
+from pydantic import BaseModel
+
 from depositduck.models.llm import SourceTextBase
 
 
 class SourceTextCreate(SourceTextBase):
     pass
+
+
+class SourceTextById(BaseModel):
+    id: UUID
+
+
+class SnippetCreationResponse(BaseModel):
+    snippets_created_count: int
