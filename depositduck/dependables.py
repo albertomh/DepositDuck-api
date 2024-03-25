@@ -15,8 +15,12 @@ from fastapi import Depends
 from fastapi.templating import Jinja2Templates
 from jinja2 import select_autoescape
 from jinja2_fragments.fastapi import Jinja2Blocks
-from sqlalchemy.ext.asyncio import AsyncEngine, async_sessionmaker, create_async_engine
-from sqlmodel.ext.asyncio.session import AsyncSession
+from sqlalchemy.ext.asyncio import (
+    AsyncEngine,
+    AsyncSession,
+    async_sessionmaker,
+    create_async_engine,
+)
 from structlog import configure, make_filtering_bound_logger
 from structlog import get_logger as get_structlogger
 
