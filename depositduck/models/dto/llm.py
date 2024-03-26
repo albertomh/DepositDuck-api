@@ -20,5 +20,5 @@ class SourceTextById(BaseModel):
     id: UUID
 
 
-class SnippetCreationResponse(BaseModel):
-    snippets_created_count: int
+class TwoOhOneCreatedCount(BaseModel):
+    created_count: int

@@ -19,6 +19,11 @@ down_revision: Union[str, None] = "cb55ea348903"
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 
+MODEL_TABLE_NAMES = [
+    "embedding_minilm_l6_v2",
+    "embedding_minilm_l6_multiqa",
+]
+
 
 def upgrade() -> None:
     op.create_table(
@@ -41,6 +46,15 @@ def upgrade() -> None:
         ),
         sa.PrimaryKeyConstraint("id"),
     )
+
+    for model in MODEL_TABLE_NAMES:
+        op.add_column(
+            f"llm__{model}",
+            sa.Column("snippet_id", sqlmodel.sql.sqltypes.GUID(), nullable=False),
+        )
+        op.create_foreign_key(
+            None, f"llm__{model}", "llm__snippet", ["snippet_id"], ["id"]
+        )
 
 
 def downgrade() -> None:
