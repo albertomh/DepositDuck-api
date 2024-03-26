@@ -48,6 +48,9 @@ class LLM(SQLModel, LLMBase, CreatedAtMixin, DeletedAtMixin, table=True):
     minilml6v2_embeddings: list["EmbeddingMiniLML6V2"] = Relationship(
         back_populates="llm"
     )
+    minilml6multiqa_embeddings: list["EmbeddingMiniLML6MultiQA"] = Relationship(
+        back_populates="llm"
+    )
 
 
 # Each LLM has a different number of dimensions, so we need
@@ -61,7 +64,7 @@ class EmbeddingMiniLML6V2(
     __tablename__ = "llm__embedding_minilm_l6_v2"
 
     snippet_id: UUID = Field(default=None, foreign_key="llm__snippet.id")
-    snippet: Snippet = Relationship(back_populates="minilml6v2_snippets")
+    # snippet: Snippet = Relationship(back_populates="minilml6v2_snippets")
     llm_name: str = Field(default=None, foreign_key="llm__llm.name")
     llm: LLM = Relationship(back_populates="minilml6v2_embeddings")
     vector: list[float] = Field(
@@ -77,7 +80,7 @@ class EmbeddingMiniLML6MultiQA(
     __tablename__ = "llm__embedding_minilm_l6_multiqa"
 
     snippet_id: UUID = Field(default=None, foreign_key="llm__snippet.id")
-    snippet: Snippet = Relationship(back_populates="minilml6multiqa_snippets")
+    # snippet: Snippet = Relationship(back_populates="minilml6multiqa_snippets")
     llm_name: str = Field(default=None, foreign_key="llm__llm.name")
     llm: LLM = Relationship(back_populates="minilml6multiqa_embeddings")
     vector: list[float] = Field(
@@ -85,3 +88,9 @@ class EmbeddingMiniLML6MultiQA(
             Vector(AvailableLLM.MINILM_L6_V2.value.dimensions), nullable=False
         )
     )
+
+
+LLM_MODEL_TO_EMBEDDING_TABLE = {
+    AvailableLLM.MINILM_L6_V2.value.name: EmbeddingMiniLML6V2,
+    AvailableLLM.MULTI_QA_MINILM_L6_COS_V1.value.name: EmbeddingMiniLML6MultiQA,
+}
