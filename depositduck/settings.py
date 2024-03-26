@@ -30,6 +30,11 @@ class LLMChoice(LLMBase):
 class LLMSettings(BaseModel):
     embedding_model_name: str
     # not in dotenv, computed from `embedding_model_name` which _is_ in dotenv
+    # TODO: can simplify to remove LLMChoice and use AvailableLLM directly?
+    # TODO: rework so that this is not nullable. Perhaps by using a cached dependable
+    #   that acts as a 'getter' as done in embedding_model_from_name below that always
+    #   returns a value. Ensure this is the case by keeping the validator below and not
+    #   starting up if `embedding_model_name` doesn't correspond to an AvailableLLM.
     embedding_model: LLMChoice | None = None
 
     @model_validator(mode="after")
