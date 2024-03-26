@@ -49,6 +49,7 @@ class AvailableLLM(Enum):
 
     # https://www.sbert.net/docs/pretrained_models.html
     MINILM_L6_V2 = LLMBase(name="all-minilm:l6-v2", dimensions=384)
+    MULTI_QA_MINILM_L6_COS_V1 = LLMBase(name="multi-qa-MiniLM-L6-cos-v1", dimensions=384)
 
 
 class EmbeddingBase(BaseModel):
@@ -57,12 +58,22 @@ class EmbeddingBase(BaseModel):
     for SQLAlchemy ORM mapping to work.
     """
 
-    text: str
-    vector: list[float]
+    snippet_id: UUID
     llm_name: str
+    vector: list[float]
 
 
 class EmbeddingMiniLML6V2Base(EmbeddingBase):
     """
     An embedding generated using the 'all-minilm:l6-v2' model.
+    All-round model tuned for many use-cases.
+    https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2
+    """
+
+
+class EmbeddingMiniLML6MultiQABase(EmbeddingBase):
+    """
+    An embedding generated using the 'multi-qa-MiniLM-L6-cos-v1'  model.
+    Model tuned for semantic search.
+    https://huggingface.co/sentence-transformers/multi-qa-MiniLM-L6-cos-v1
     """
