@@ -13,6 +13,7 @@ from sqlmodel import Field, Relationship, SQLModel
 from depositduck.models.common import CreatedAtMixin, DeletedAtMixin, IdMixin, TableBase
 from depositduck.models.llm import (
     AvailableLLM,
+    EmbeddingMiniLML6MultiQABase,
     EmbeddingMiniLML6V2Base,
     LLMBase,
     SnippetBase,
@@ -59,10 +60,28 @@ class EmbeddingMiniLML6V2(
 ):
     __tablename__ = "llm__embedding_minilm_l6_v2"
 
+    snippet_id: UUID = Field(default=None, foreign_key="llm__snippet.id")
+    snippet: Snippet = Relationship(back_populates="minilml6v2_snippets")
+    llm_name: str = Field(default=None, foreign_key="llm__llm.name")
+    llm: LLM = Relationship(back_populates="minilml6v2_embeddings")
     vector: list[float] = Field(
         sa_column=Column(
             Vector(AvailableLLM.MINILM_L6_V2.value.dimensions), nullable=False
         )
     )
+
+
+class EmbeddingMiniLML6MultiQA(
+    SQLModel, EmbeddingMiniLML6MultiQABase, IdMixin, CreatedAtMixin, table=True
+):
+    __tablename__ = "llm__embedding_minilm_l6_multiqa"
+
+    snippet_id: UUID = Field(default=None, foreign_key="llm__snippet.id")
+    snippet: Snippet = Relationship(back_populates="minilml6multiqa_snippets")
     llm_name: str = Field(default=None, foreign_key="llm__llm.name")
-    llm: LLM = Relationship(back_populates="minilml6v2_embeddings")
+    llm: LLM = Relationship(back_populates="minilml6multiqa_embeddings")
+    vector: list[float] = Field(
+        sa_column=Column(
+            Vector(AvailableLLM.MINILM_L6_V2.value.dimensions), nullable=False
+        )
+    )
