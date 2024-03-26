@@ -8,8 +8,11 @@ modules (auth, LLM, etc.) in this package.
 from datetime import datetime
 from uuid import UUID
 
+from pydantic import BaseModel
 from sqlalchemy import func
 from sqlmodel import Field, SQLModel
+
+# --- Table models -----------------------------------------------------------------------
 
 
 class IdMixin:
@@ -36,3 +39,17 @@ class DeletedAtMixin:
 
 class TableBase(SQLModel, IdMixin, CreatedAtMixin, DeletedAtMixin):
     pass
+
+
+# --- Request bodies ---------------------------------------------------------------------
+
+
+class EntityById(BaseModel):
+    id: UUID
+
+
+# --- Response objects -------------------------------------------------------------------
+
+
+class TwoOhOneCreatedCount(BaseModel):
+    created_count: int
