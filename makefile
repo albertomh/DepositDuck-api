@@ -79,7 +79,7 @@ update-deps-test:
 		-o $(REQS_DIR)/test.txt
 
 # run the application locally
-run: venv
+run: migrate
 	@$(ACTIVATE_VENV) && \
 	. ./local/read_dotenv.sh .env && \
 	uvicorn depositduck.main:webapp --reload
