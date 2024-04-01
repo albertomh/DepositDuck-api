@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # Given a semver tag, parse the CHANGELOG and
 # return the release notes for that tag.
@@ -40,7 +40,7 @@ while IFS= read -r line; do
             break
         fi
         line="${line//###/#}"  # convert ### to #
-        change+=("$line")
+        changes+=("$line")
     fi
 done < "$changelog_file"
 

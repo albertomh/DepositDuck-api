@@ -79,7 +79,9 @@ update-deps-test:
 		-o $(REQS_DIR)/test.txt
 
 # run the application locally
+# stop anything already running on :8000 first
 run: migrate
+	@lsof -t  -i :8000 | awk '{print $2}' | xargs -I {} kill -9 {}
 	@$(ACTIVATE_VENV) && \
 	. ./local/read_dotenv.sh .env && \
 	uvicorn depositduck.main:webapp --reload
