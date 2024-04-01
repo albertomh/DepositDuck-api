@@ -91,6 +91,6 @@ class EmbeddingMiniLML6MultiQA(
 
 
 LLM_MODEL_TO_EMBEDDING_TABLE = {
-    AvailableLLM.MINILM_L6_V2.value.name: EmbeddingMiniLML6V2,
-    AvailableLLM.MULTI_QA_MINILM_L6_COS_V1.value.name: EmbeddingMiniLML6MultiQA,
+    AvailableLLM.MINILM_L6_V2: EmbeddingMiniLML6V2,
+    AvailableLLM.MULTI_QA_MINILM_L6_COS_V1: EmbeddingMiniLML6MultiQA,
 }
