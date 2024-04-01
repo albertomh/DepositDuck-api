@@ -8,7 +8,6 @@ eg. database sessions or application configuration.
 
 import logging
 from functools import cache
-from pathlib import Path
 from typing import Annotated, AsyncGenerator, TypeVar
 
 from fastapi import Depends
@@ -24,9 +23,8 @@ from sqlalchemy.ext.asyncio import (
 from structlog import configure, make_filtering_bound_logger
 from structlog import get_logger as get_structlogger
 
+from depositduck import BASE_DIR
 from depositduck.settings import Settings
-
-BASE_DIR = Path(__file__).resolve().parent
 
 T = TypeVar("T")
 AYieldFixture = AsyncGenerator[T, None]
