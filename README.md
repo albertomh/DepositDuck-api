@@ -164,7 +164,7 @@ make install-deps-test
 make test
 ```
 
-##  Continuous Integration
+## Continuous Integration
 
 Continuous Integration pipelines run via GitHub Actions on push.  
 Pipelines are defined by YAML files in the `.github/workflows/` directory.
