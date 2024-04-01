@@ -6,6 +6,8 @@ asyncpg ~= 0.29.0
 fastapi ~= 0.110.0
 # embeddings framework
 gensim ~= 4.3.2
+# async http client
+httpx ~= 0.27.0
 # required by sqlalchemy but not included in 2.0.28
 # see https://github.com/sqlalchemy/sqlalchemy/issues/11129
 # hopefully resolved in sqlalchemy@2.1 and can remove explicit dependency
