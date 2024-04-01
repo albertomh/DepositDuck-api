@@ -24,10 +24,15 @@ runs:
   steps:
     - uses: actions/checkout@v4
     - run: |
-        echo "RELEASE_NOTES=$(bash ./.github/get_changelog_for_tag.sh ${{ inputs.tag }})" >> $GITHUB_ENV
+        {
+          echo 'RELEASE_NOTES<<EOF'
+          bash ./.github/get_changelog_for_tag.sh ${{ inputs.tag }}
+          echo EOF
+        } >> "$GITHUB_ENV"
       shell: bash
       # gh release creates the tag if it doesn't yet exist
-    - run: gh release create ${{ inputs.tag }} \
-        --title ${{ inputs.tag }} \
-        --notes ${{ env.RELEASE_NOTES }}
+    - run: |
+        gh release create ${{ inputs.tag }} \
+          --title ${{ inputs.tag }} \
+          --notes ${{ env.RELEASE_NOTES }}
       shell: bash
