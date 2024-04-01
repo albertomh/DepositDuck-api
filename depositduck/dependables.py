@@ -7,28 +7,30 @@ eg. database sessions or application configuration.
 """
 
 import logging
-from functools import lru_cache
-from pathlib import Path
+from functools import cache
 from typing import Annotated, AsyncGenerator, TypeVar
 
 from fastapi import Depends
 from fastapi.templating import Jinja2Templates
 from jinja2 import select_autoescape
 from jinja2_fragments.fastapi import Jinja2Blocks
-from sqlalchemy.ext.asyncio import AsyncEngine, async_sessionmaker, create_async_engine
-from sqlmodel.ext.asyncio.session import AsyncSession
+from sqlalchemy.ext.asyncio import (
+    AsyncEngine,
+    AsyncSession,
+    async_sessionmaker,
+    create_async_engine,
+)
 from structlog import configure, make_filtering_bound_logger
 from structlog import get_logger as get_structlogger
 
+from depositduck import BASE_DIR
 from depositduck.settings import Settings
-
-BASE_DIR = Path(__file__).resolve().parent
 
 T = TypeVar("T")
 AYieldFixture = AsyncGenerator[T, None]
 
 
-@lru_cache
+@cache
 def get_logger():
     """
     Usage:
@@ -44,12 +46,12 @@ def get_logger():
     return get_structlogger()
 
 
-@lru_cache
+@cache
 def get_settings() -> Settings:
     return Settings()
 
 
-@lru_cache
+@cache
 def get_templates() -> Jinja2Templates:
     templates_dir_path = BASE_DIR / "web" / "templates"
 
@@ -70,7 +72,7 @@ def get_db_connection_string(settings=None) -> str:
     return f"postgresql+asyncpg://{user}:{password}@{host}:{port}/{name}"
 
 
-@lru_cache
+@cache
 def get_db_engine(
     settings: Annotated[Settings, Depends(get_settings)],
 ) -> AsyncEngine:

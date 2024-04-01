@@ -32,6 +32,15 @@ def upgrade() -> None:
         sa.PrimaryKeyConstraint("name"),
     )
 
+    llm_table = sa.Table("llm__llm", sa.MetaData(), autoload_with=op.get_bind())
+    op.bulk_insert(
+        llm_table,
+        [
+            {"name": "all-minilm:l6-v2", "dimensions": 384},
+            {"name": "multi-qa-MiniLM-L6-cos-v1", "dimensions": 384},
+        ],
+    )
+
 
 def downgrade() -> None:
     op.drop_table("llm__llm")

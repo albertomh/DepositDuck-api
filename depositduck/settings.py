@@ -13,6 +13,8 @@ a Settings object can be decorated with @lru_cache.
 (c) 2024 Alberto Morón Hernández
 """
 
+from functools import cached_property
+
 from pydantic import (
     BaseModel,
     ConfigDict,
@@ -20,36 +22,31 @@ from pydantic import (
 )
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
-from depositduck.models.llm import AvailableLLM, LLMBase
-
-
-class LLMChoice(LLMBase):
-    model_config = ConfigDict(frozen=True)
+from depositduck.models.llm import AvailableLLM
 
 
 class LLMSettings(BaseModel):
     embedding_model_name: str
+
     # not in dotenv, computed from `embedding_model_name` which _is_ in dotenv
-    embedding_model: LLMChoice | None = None
+    @cached_property
+    def embedding_model(self) -> AvailableLLM:
+        model_name = self.embedding_model_name
+        for llm in AvailableLLM:
+            if llm.value.name == model_name:
+                return llm
+        raise ValueError(
+            f"no AvailableLLM found matching 'embedding_model_name={model_name}'"
+        )
 
     @model_validator(mode="after")
-    def embedding_model_from_name(self) -> "LLMSettings":
-        # toggle model_config's 'frozen' attribute to enable setting the derived field.
-        model_choice = getattr(self, "embedding_model_name")
-        self.model_config["frozen"] = False
+    def check_embedding_model(self: "LLMSettings") -> "LLMSettings":
         try:
-            llm_choice = AvailableLLM[model_choice].value
-            self.embedding_model = LLMChoice(**llm_choice.model_dump())
-        except KeyError:
-            raise ValueError(
-                f"invalid model choice '{model_choice}' - "
-                "check LLM__EMBEDDING_MODEL_NAME in .env "
-            )
-        self.model_config["frozen"] = True
-        return self
+            self.embedding_model
+            return self
+        except ValueError:
+            raise
 
-    # 'frozen' must be True here or pydantic will not know to generate hash function for
-    # this class, meaning it couldn't be used in a dependable decorated with @lru_cache.
     model_config = ConfigDict(frozen=True)
 
 

@@ -111,10 +111,9 @@ It contains:
   (embeddings, etc.)
 - the `sql` package - table models inheriting the models defined elsewhere. Uses SQLModel.
 - the `migrations` package (Alembic migrations, see below)
-- `dto`: Data Transfer Objects building on base models.
+- the `dto` package: Data Transfer Objects building on base models.
 
-Table models are exported in `tables.__init__.py` so can be imported as
-`from depositduck import tables`.
+Table models are exported in `sql.tables` for convenience.
 
 ### Database
 
@@ -165,7 +164,7 @@ make install-deps-test
 make test
 ```
 
-##  Continuous Integration
+## Continuous Integration
 
 Continuous Integration pipelines run via GitHub Actions on push.  
 Pipelines are defined by YAML files in the `.github/workflows/` directory.
@@ -207,6 +206,25 @@ docker run \
 
 # 7. Stop the container
 docker stop depositduck_web
+```
+
+## Data pipeline
+
+⚠️ This workflow is in flux and subject to change.  
+
+To load a PDF as a source of data for Retrieval Augmented Generation:
+
+```sh
+# place the source PDF in the data_pipeline directory
+cp source.pdf ./local/data_pipeline/
+
+# run a script to extract text from the PDF and save
+# to `sourcetext.tmp` in the data_pipeline directory
+python ./local/data_pipeline/pdf_to_raw_sourcetext.py source.pdf
+
+# insert extracted data as a SourceText record in the database
+# - assumes previous step wrote to `sourcetext.tmp`
+PGPASSWORD=password ./local/data_pipeline/raw_sourcetext_to_database.sh
 ```
 
 ## Deploy
