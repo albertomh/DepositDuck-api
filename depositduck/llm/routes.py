@@ -15,8 +15,8 @@ from typing_extensions import Annotated
 from depositduck.dependables import get_db_session, get_settings
 from depositduck.llm.embeddings import embed_documents
 from depositduck.models.common import EntityById, TwoOhOneCreatedCount
-from depositduck.models.llm import EmbeddingBase, SnippetBase
-from depositduck.models.sql.llm import LLM_MODEL_TO_EMBEDDING_TABLE, Snippet, SourceText
+from depositduck.models.llm import NOMIC, EmbeddingBase, SnippetBase
+from depositduck.models.sql.llm import EmbeddingNomic, Snippet, SourceText
 from depositduck.settings import Settings
 
 llm_router = APIRouter()
@@ -107,24 +107,6 @@ async def embeddings_from_snippets(
     except HTTPException:
         raise
 
-    # TODO: find way to package & bake into single docker layer for portability and speed
-    selected_model = settings.llm.embedding_model
-    if not selected_model:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="settings.llm.embedding_model is not set",
-        )
-
-    embedding_table = LLM_MODEL_TO_EMBEDDING_TABLE.get(selected_model)
-    if not embedding_table:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=(
-                f"could not find table for '{selected_model.name}' - "
-                "check settings.llm.embedding_model"
-            ),
-        )
-
     snippets_query = await db_session.execute(
         select(Snippet).filter_by(source_text_id=source_text.id)
     )
@@ -142,10 +124,10 @@ async def embeddings_from_snippets(
     embeddings = embed_documents(snippets_contents)
 
     await db_session.execute(
-        insert(embedding_table),
+        insert(EmbeddingNomic),
         [
             EmbeddingBase(
-                snippet_id=snippet.id, llm_name=selected_model.name, vector=embedding
+                snippet_id=snippet.id, llm_name=NOMIC.name, vector=embedding
             ).model_dump()
             for snippet, embedding in zip(snippets, embeddings)
         ],
