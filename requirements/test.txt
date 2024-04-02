@@ -36,12 +36,15 @@ iniconfig==2.0.0
 jinja2==3.1.3
     # via jinja2-fragments
 jinja2-fragments==1.3.0
+joblib==1.3.2
+    # via nltk
 mako==1.3.2
     # via alembic
 markupsafe==2.1.5
     # via
     #   jinja2
     #   mako
+nltk==3.8.1
 numpy==1.26.4
     # via
     #   gensim
@@ -85,6 +88,8 @@ sqlmodel==0.0.16
 starlette==0.37.2
     # via fastapi
 structlog==24.1.0
+tqdm==4.66.2
+    # via nltk
 typing-extensions==4.10.0
     # via
     #   alembic
