@@ -9,7 +9,7 @@ from uuid import UUID
 import httpx
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import insert, select
-from sqlalchemy.exc import MultipleResultsFound, NoResultFound
+from sqlalchemy.exc import IntegrityError, MultipleResultsFound, NoResultFound
 from sqlalchemy.ext.asyncio import AsyncSession
 from typing_extensions import Annotated
 
@@ -48,10 +48,14 @@ async def find_by_id(db_session: AsyncSession, T: Type[Any], id: UUID) -> Source
         record = result.scalar_one()
 
     except (NoResultFound, MultipleResultsFound) as e:
-        status = 404 if isinstance(e, NoResultFound) else 409
-        message = "zero" if isinstance(e, NoResultFound) else "more than one"
+        if isinstance(e, NoResultFound):
+            status_code = status.HTTP_404_NOT_FOUND
+            message = "zero"
+        else:
+            status_code = status.HTTP_409_CONFLICT
+            message = "more than one"
         raise HTTPException(
-            status_code=status,
+            status_code=status_code,
             detail=f"{message} {str(T)} instances for [id={id}]",
         )
 
@@ -77,16 +81,19 @@ async def snippets_from_sourcetext(
     # split on two or more consecutive newlines, removing empty strings
     paragraphs = [p for p in re.split(r"\n{2,}", source_text.content) if p]
 
-    await db_session.execute(
-        insert(Snippet),
-        [
-            SnippetBase(
-                content=paragraph.strip(), source_text_id=source_text.id
-            ).model_dump()
-            for paragraph in paragraphs
-        ],
-    )
-    await db_session.commit()
+    try:
+        await db_session.execute(
+            insert(Snippet),
+            [
+                SnippetBase(
+                    content=paragraph.strip(), source_text_id=source_text.id
+                ).model_dump()
+                for paragraph in paragraphs
+            ],
+        )
+        await db_session.commit()
+    except IntegrityError as e:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e._message))
 
     return TwoOhOneCreatedCount(created_count=len(paragraphs))
 
