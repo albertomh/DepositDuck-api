@@ -10,6 +10,7 @@ import logging
 from functools import cache
 from typing import Annotated, AsyncGenerator, TypeVar
 
+import httpx
 from fastapi import Depends
 from fastapi.templating import Jinja2Templates
 from jinja2 import select_autoescape
@@ -89,3 +90,15 @@ async def get_db_session(
     )
     async with async_session() as session:
         yield session
+
+
+# @cache
+async def get_drallam_client(
+    settings: Annotated[Settings, Depends(get_settings)],
+) -> AYieldFixture[httpx.AsyncClient]:
+    drallam_url = (
+        f"{settings.drallam_protocol}://{settings.drallam_host}:{settings.drallam_port}"
+    )
+    # create a new client for each request and close it once it is done
+    async with httpx.AsyncClient(base_url=drallam_url) as client:
+        yield client
