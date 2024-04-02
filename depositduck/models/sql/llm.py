@@ -27,6 +27,7 @@ class SourceText(SourceTextBase, TableBase, table=True):
 class Snippet(SnippetBase, TableBase, table=True):
     __tablename__ = "llm__snippet"
 
+    # TODO: add composite constraint ensuring unique source_text + content combinations.
     source_text_id: UUID = Field(default=None, foreign_key="llm__source_text.id")
     source_text: SourceText = Relationship(back_populates="snippets")
     nomic_embedding: "EmbeddingNomic" = Relationship(back_populates="snippet")
