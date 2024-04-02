@@ -78,6 +78,15 @@ update-deps-test:
 		--upgrade \
 		-o $(REQS_DIR)/test.txt
 
+# run the draLLaM embeddings service in a container
+# https://github.com/albertomh/draLLaM
+drallam:
+	@docker run \
+	  --rm \
+	  --publish 11434:11434 \
+	  --name drallam \
+	  drallam:0.1.0
+
 # run the application locally
 # stop anything already running on :8000 first
 run: migrate
@@ -135,6 +144,7 @@ help:
 	@echo "  pin-deps            Generate base requirements file with pinned dependencies"
 	@echo "  pin-deps-dev        Generate dev requirements file with pinned dependencies"
 	@echo "  pin-deps-test       Generate test requirements file with pinned dependencies\n"
+	@echo "  drallam             Start a Dockerised instance of the draLLaM service on :11434"
 	@echo "  db                  Start a Dockerised instance of PostgreSQL on :5432"
 	@echo "  migration m=\"<m>\"   Create an Alembic migration with message 'm'"
 	@echo "  migrate [rev=<r>]   Upgrade migrations to a revision - latest if none given\n"
