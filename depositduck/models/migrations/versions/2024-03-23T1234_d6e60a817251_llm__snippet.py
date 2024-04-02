@@ -41,7 +41,11 @@ def upgrade() -> None:
         ),
         sa.PrimaryKeyConstraint("id"),
     )
+    op.create_unique_constraint(
+        "uq_source_text_content", "llm__snippet", ["source_text_id", "content"]
+    )
 
 
 def downgrade() -> None:
+    op.drop_constraint("uq_source_text_content", "llm__snippet", type_="unique")
     op.drop_table("llm__snippet")
