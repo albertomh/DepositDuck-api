@@ -123,12 +123,20 @@ migration: venv
 	$(PYTHON) -m alembic revision --autogenerate -m "$(m)"
 
 # upgrade migrations to a revision - latest if one is not specified
-# usage: `migrate [rev=<r>]`
+# usage: `make migrate [rev=<r>]`
 rev ?= head
 migrate: venv
 	@$(ACTIVATE_VENV) && \
 	. ./local/read_dotenv.sh .env && \
 	$(PYTHON) -m alembic upgrade ${rev}
+
+# downgrade to a given alembic revision
+# usage: `make downgrade rev=<r>`
+downgrade: venv
+	@$(if $(rev),,$(error please specify 'rev=<r>' the migration to downgrade to))
+	@$(ACTIVATE_VENV) && \
+	. ./local/read_dotenv.sh .env && \
+	$(PYTHON) -m alembic downgrade ${rev}
 
 # cut a release and raise a pull request for it
 release:
@@ -147,7 +155,8 @@ help:
 	@echo "  drallam             Start a Dockerised instance of the draLLaM service on :11434"
 	@echo "  db                  Start a Dockerised instance of PostgreSQL on :5432"
 	@echo "  migration m=\"<m>\"   Create an Alembic migration with message 'm'"
-	@echo "  migrate [rev=<r>]   Upgrade migrations to a revision - latest if none given\n"
+	@echo "  migrate [rev=<r>]   Upgrade migrations to a revision - latest if none given"
+	@echo "  downgrade rev=<r>   Downgrade to a given alembic revision\n"
 	@echo "  run                 Run the application using uvicorn. Load config from .env."
 	@echo "  test                Run test suite\n"
 	@echo "  release v=X.Y.Z     Cut a release and raise a pull request for it\n"
