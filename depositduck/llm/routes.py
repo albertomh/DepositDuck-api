@@ -6,14 +6,15 @@ import re
 from typing import Any, Iterable, Type, cast
 from uuid import UUID
 
+import httpx
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import insert, select
 from sqlalchemy.exc import MultipleResultsFound, NoResultFound
 from sqlalchemy.ext.asyncio import AsyncSession
 from typing_extensions import Annotated
 
-from depositduck.dependables import get_db_session, get_settings
-from depositduck.llm.embeddings import embed_documents
+from depositduck.dependables import get_db_session, get_drallam_client, get_settings
+from depositduck.llm.embeddings import embed_document
 from depositduck.models.common import EntityById, TwoOhOneCreatedCount
 from depositduck.models.llm import NOMIC, EmbeddingBase, SnippetBase
 from depositduck.models.sql.llm import EmbeddingNomic, Snippet, SourceText
@@ -98,6 +99,7 @@ async def snippets_from_sourcetext(
 async def embeddings_from_snippets(
     source_text_by_id: EntityById,
     settings: Annotated[Settings, Depends(get_settings)],
+    drallam_client: Annotated[httpx.AsyncClient, Depends(get_drallam_client)],
     db_session: Annotated[AsyncSession, Depends(get_db_session)],
 ):
     try:
@@ -121,7 +123,9 @@ async def embeddings_from_snippets(
         )
     snippets_contents = [s.content for s in cast(Iterable[Snippet], snippets)]
 
-    embeddings = embed_documents(snippets_contents)
+    embeddings = [
+        await embed_document(settings, drallam_client, doc) for doc in snippets_contents
+    ]
 
     await db_session.execute(
         insert(EmbeddingNomic),

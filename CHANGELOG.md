@@ -19,6 +19,7 @@ This Changelog is automatically stamped by `cut_release.sh` as part of creating 
   - Embeddings generated with the Nomic:v1.5 BERT model.
 - PoC text extraction pipeline to ingest PDF material for RAG purposes.
 - Endpoint to process a SourceText and split into Snippets, storing these in the database.
+- Endpoint to generate embeddings for snippets by calling the draLLaM service.
 
 ## [0.1.0] - 2024-03-21
 

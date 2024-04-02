@@ -13,6 +13,7 @@ a Settings object can be decorated with @lru_cache.
 (c) 2024 Alberto Morón Hernández
 """
 
+from pydantic import PositiveInt
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -25,6 +26,11 @@ class Settings(BaseSettings):
     db_password: str
     db_name: str
     db_host: str
-    db_port: int = 5432
+    db_port: PositiveInt = 5432
+
+    drallam_protocol: str = "http"
+    drallam_host: str = "0.0.0.0"  # nosec B104
+    drallam_port: PositiveInt = 11434
+    drallam_embeddings_model: str = "nomic-embed-text:v1.5"
 
     model_config = SettingsConfigDict(env_nested_delimiter="__", frozen=True)
