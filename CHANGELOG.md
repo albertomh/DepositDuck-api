@@ -9,6 +9,8 @@ This Changelog is automatically stamped by `cut_release.sh` as part of creating 
 
 ## [Unreleased]
 
+## [0.2.0] - 2024-04-03
+
 ### Added
 
 - Install the `pgvector` extension in the local Postgres container.
