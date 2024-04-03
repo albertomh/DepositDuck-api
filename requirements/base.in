@@ -4,8 +4,6 @@ alembic ~= 1.13.1
 asyncpg ~= 0.29.0
 # web framework
 fastapi ~= 0.110.0
-# embeddings framework
-gensim ~= 4.3.2
 # async http client
 httpx ~= 0.27.0
 # required by sqlalchemy but not included in 2.0.28

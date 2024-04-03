@@ -16,7 +16,6 @@ certifi==2024.2.2
 click==8.1.7
     # via uvicorn
 fastapi==0.110.1
-gensim==4.3.2
 greenlet==3.0.3
 h11==0.14.0
     # via
@@ -41,10 +40,7 @@ markupsafe==2.1.5
     #   jinja2
     #   mako
 numpy==1.26.4
-    # via
-    #   gensim
-    #   pgvector
-    #   scipy
+    # via pgvector
 pgvector==0.2.5
 pydantic==2.6.4
     # via
@@ -60,10 +56,6 @@ python-dotenv==1.0.1
     #   uvicorn
 pyyaml==6.0.1
     # via uvicorn
-scipy==1.13.0
-    # via gensim
-smart-open==7.0.4
-    # via gensim
 sniffio==1.3.1
     # via
     #   anyio
@@ -90,5 +82,3 @@ watchfiles==0.21.0
     # via uvicorn
 websockets==12.0
     # via uvicorn
-wrapt==1.16.0
-    # via smart-open
