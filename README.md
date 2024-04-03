@@ -227,6 +227,14 @@ python ./local/data_pipeline/pdf_to_raw_sourcetext.py source.pdf
 PGPASSWORD=password ./local/data_pipeline/raw_sourcetext_to_database.sh
 ```
 
+### Embeddings service
+
+[draLLaM](https://github.com/albertomh/draLLaM) is DepositDuck's dedicated LLM service.
+As of draLLaM@0.1.0 the service focuses on generating text embeddings.  
+Invoke `make drallam` to run it locally - containerised and available on `:11434` - ready
+to respond to queries from the main DepositDuck service. There are draLLaM-specific settings
+in `.env` that can be used to specify host and port.
+
 ## Deploy
 
 ### Cut a release
