@@ -49,3 +49,9 @@ class EmbeddingBase(BaseModel):
     snippet_id: UUID
     llm_name: str
     vector: list[float]
+
+
+class UserQuery(BaseModel):
+    content: str
+    # max related snippets to return from vector similarity search
+    relatedSnippets: int = 5

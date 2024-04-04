@@ -7,10 +7,11 @@ from typing import Any, Iterable, Type, cast
 from uuid import UUID
 
 import httpx
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy import insert, select
 from sqlalchemy.exc import IntegrityError, MultipleResultsFound, NoResultFound
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import selectinload
 from typing_extensions import Annotated
 
 from depositduck.dependables import get_db_session, get_drallam_client, get_settings
@@ -146,3 +147,29 @@ async def embeddings_from_snippets(
     await db_session.commit()
 
     return TwoOhOneCreatedCount(created_count=len(embeddings))
+
+
+@llm_router.get(
+    "/snippets/relevantToQuery",
+    response_model=list[str],
+)
+async def find_snippets_relevant_to_query(
+    settings: Annotated[Settings, Depends(get_settings)],
+    drallam_client: Annotated[httpx.AsyncClient, Depends(get_drallam_client)],
+    db_session: Annotated[AsyncSession, Depends(get_db_session)],
+    query: str = Query(..., title="query", description=""),
+    max_snippets: int = Query(5, title="max", description=""),
+) -> list[str]:
+    default_max_snippets = 10
+    if max_snippets > default_max_snippets:
+        max_snippets = default_max_snippets
+
+    query_embedding = await embed_document(settings, drallam_client, query)
+
+    neighbours = await db_session.scalars(
+        select(EmbeddingNomic)
+        .order_by(EmbeddingNomic.vector.l2_distance(query_embedding))  # type: ignore[attr-defined]
+        .limit(max_snippets)
+        .options(selectinload(EmbeddingNomic.snippet))  # type: ignore[arg-type]
+    )
+    return [n.snippet.content for n in neighbours]
