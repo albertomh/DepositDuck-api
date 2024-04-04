@@ -24,25 +24,6 @@ from depositduck.settings import Settings
 llm_router = APIRouter()
 
 
-# TODO: unused, using scripts in `local/data_pipeline/` instead.
-# @llm_router.post("/SourceText")
-# async def create_source_text(
-#     source_text: SourceTextCreate,
-#     db_session: Annotated[AsyncSession, Depends(get_db_session)],
-# ):
-#     data = source_text.model_dump()
-#     new_text = SourceText(**data)
-#
-#     try:
-#         db_session.add(new_text)
-#         await db_session.commit()
-#         await db_session.refresh(new_text)
-#         return new_text
-#
-#     except (IntegrityError, InvalidRequestError):
-#         await db_session.rollback()
-
-
 async def find_by_id(db_session: AsyncSession, T: Type[Any], id: UUID) -> SourceText:
     try:
         result = await db_session.execute(select(T).filter_by(id=id))
@@ -65,6 +46,7 @@ async def find_by_id(db_session: AsyncSession, T: Type[Any], id: UUID) -> Source
 
 @llm_router.post(
     "/snippets/fromSourceText",
+    summary="Generate Snippets from a SourceText",
     status_code=status.HTTP_201_CREATED,
     response_model=TwoOhOneCreatedCount,
 )
@@ -72,6 +54,15 @@ async def snippets_from_sourcetext(
     source_text_by_id: EntityById,
     db_session: Annotated[AsyncSession, Depends(get_db_session)],
 ):
+    """
+    Given a SourceText in the database, split it and save as Snippet records.
+
+    _Arguments:_
+    - **id (UUID)**: the id of a SourceText record in the database
+
+    _Returns:_
+    - a count of how many Snippet records were saved to the database
+    """
     try:
         source_text: SourceText = await find_by_id(
             db_session, SourceText, source_text_by_id.id
@@ -101,6 +92,7 @@ async def snippets_from_sourcetext(
 
 @llm_router.post(
     "/embeddings/fromSourceText",
+    summary="Generate embeddings for all Snippets associated with a SourceText",
     status_code=status.HTTP_201_CREATED,
     response_model=TwoOhOneCreatedCount,
 )
@@ -110,6 +102,17 @@ async def embeddings_from_snippets(
     drallam_client: Annotated[httpx.AsyncClient, Depends(get_drallam_client)],
     db_session: Annotated[AsyncSession, Depends(get_db_session)],
 ):
+    """
+    Given a SourceText that has been split into Snippets, generate embeddings for each
+    Snippet.
+
+    _Arguments:_
+    - **id (UUID)**: the id of a SourceText record in the database
+
+    _Returns:_
+    - **created_count (int)**: a count of how many Snippet records were saved to the
+    database
+    """
     try:
         source_text: SourceText = await find_by_id(
             db_session, SourceText, source_text_by_id.id
@@ -151,6 +154,7 @@ async def embeddings_from_snippets(
 
 @llm_router.get(
     "/snippets/relevantToQuery",
+    summary="Return Snippets relevant to a user query",
     response_model=list[str],
 )
 async def find_snippets_relevant_to_query(
@@ -160,6 +164,18 @@ async def find_snippets_relevant_to_query(
     query: str = Query(..., title="query", description=""),
     max_snippets: int = Query(5, title="max", description=""),
 ) -> list[str]:
+    """
+    Given a user query, return relevant records from the corpus of Snippets.
+    Performs a vector similarity search.
+
+    _Arguments:_
+    - **query (str)**: user query to find relevant Snippets for
+    - **max_snippets (Optional[int])**: maximum relevant Snippets to return - maximum 10
+
+    _Returns:_
+    - **list[str]**: Snippets in order of decreasing relevance, up to a count of
+      max_snippets
+    """
     default_max_snippets = 10
     if max_snippets > default_max_snippets:
         max_snippets = default_max_snippets
