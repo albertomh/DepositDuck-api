@@ -41,3 +41,5 @@ class EmbeddingNomic(TableBase, table=True):
     vector: list[float] = Field(
         sa_column=Column(Vector(NOMIC.dimensions), nullable=False)
     )
+    # TODO: add an approximate index?
+    # https://github.com/pgvector/pgvector-python/tree/master?tab=readme-ov-file#sqlalchemy

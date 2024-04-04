@@ -9,6 +9,10 @@ This Changelog is automatically stamped by `cut_release.sh` as part of creating 
 
 ## [Unreleased]
 
+### Added
+
+- Endpoint to retrieve the n most relevant snippets for a user query.
+
 ## [0.2.0] - 2024-04-03
 
 ### Added
