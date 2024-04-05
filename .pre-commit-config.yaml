@@ -24,6 +24,7 @@ repos:
         additional_dependencies:
         -   "pydantic==v2.6.4"
         -   "sqlmodel==0.0.16"
+        -   "fastapi-users-db-sqlmodel==0.3.0"
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: v0.3.3
