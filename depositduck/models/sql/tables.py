@@ -6,4 +6,5 @@ only table models in the alembic `env` module.
 """
 
 # ruff: noqa: F401
+from depositduck.models.sql.auth import User
 from depositduck.models.sql.llm import EmbeddingNomic, Snippet, SourceText

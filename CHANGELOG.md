@@ -11,6 +11,8 @@ This Changelog is automatically stamped by `cut_release.sh` as part of creating 
 
 ### Added
 
+- fastapi-users as the authentication library.
+- An auth__user table to hold user data.
 - Endpoint to retrieve the n most relevant snippets for a user query.
 
 ## [0.2.0] - 2024-04-03
