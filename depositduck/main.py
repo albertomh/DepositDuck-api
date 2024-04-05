@@ -33,7 +33,7 @@ def get_webapp() -> FastAPI:
         default_response_class=HTMLResponse,
     )
     static_dir_by_package = [("depositduck.web", "static")]
-    webapp.mount("/static", StaticFiles(packages=static_dir_by_package), name="static")
+    webapp.mount("/static", StaticFiles(packages=static_dir_by_package), name="static")  # type: ignore[arg-type]
     return webapp
 
 

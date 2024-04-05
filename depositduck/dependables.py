@@ -12,7 +12,6 @@ from typing import Annotated, AsyncGenerator, TypeVar
 
 import httpx
 from fastapi import Depends
-from fastapi.templating import Jinja2Templates
 from jinja2 import select_autoescape
 from jinja2_fragments.fastapi import Jinja2Blocks
 from sqlalchemy.ext.asyncio import (
@@ -53,7 +52,7 @@ def get_settings() -> Settings:
 
 
 @cache
-def get_templates() -> Jinja2Templates:
+def get_templates() -> Jinja2Blocks:
     templates_dir_path = BASE_DIR / "web" / "templates"
 
     return Jinja2Blocks(
