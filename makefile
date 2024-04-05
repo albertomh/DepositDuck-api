@@ -20,7 +20,7 @@ REQS_DIR=requirements
 # default target
 all: help
 
-# create a virtual environment in '.venv/' if one does not exist
+# create a virtual environment at '.venv/' if one does not exist
 venv:
 	@test -d $(VENV_DIR) || $(UV) venv
 
@@ -123,20 +123,20 @@ migration: venv
 	$(PYTHON) -m alembic revision --autogenerate -m "$(m)"
 
 # upgrade migrations to a revision - latest if one is not specified
-# usage: `make migrate [rev=<r>]`
-rev ?= head
+# usage: `make migrate [up=<r>]`
+up ?= head
 migrate: venv
 	@$(ACTIVATE_VENV) && \
 	. ./local/read_dotenv.sh .env && \
-	$(PYTHON) -m alembic upgrade ${rev}
+	$(PYTHON) -m alembic upgrade ${up}
 
-# downgrade to a given alembic revision
-# usage: `make downgrade rev=<r>`
+# downgrade to a given alembic revision - previous one if not specified
+# usage: `make downgrade down=<r>`
+down ?= "-1"
 downgrade: venv
-	@$(if $(rev),,$(error please specify 'rev=<r>' the migration to downgrade to))
 	@$(ACTIVATE_VENV) && \
 	. ./local/read_dotenv.sh .env && \
-	$(PYTHON) -m alembic downgrade ${rev}
+	$(PYTHON) -m alembic downgrade ${down}
 
 # cut a release and raise a pull request for it
 release:
@@ -145,22 +145,22 @@ release:
 
 help:
 	@echo "usage: make [target]"
-	@echo "  help                Show this help message\n"
-	@echo "  install-deps        Sync project dependencies to virtualenv"
-	@echo "  install-deps-dev    Sync dev dependencies to virtualenv"
-	@echo "  install-deps-test   Sync test dependencies to virtualenv\n"
-	@echo "  pin-deps            Generate base requirements file with pinned dependencies"
-	@echo "  pin-deps-dev        Generate dev requirements file with pinned dependencies"
-	@echo "  pin-deps-test       Generate test requirements file with pinned dependencies\n"
-	@echo "  drallam             Start a Dockerised instance of the draLLaM service on :11434"
-	@echo "  db                  Start a Dockerised instance of PostgreSQL on :5432"
-	@echo "  migration m=\"<m>\"   Create an Alembic migration with message 'm'"
-	@echo "  migrate [rev=<r>]   Upgrade migrations to a revision - latest if none given"
-	@echo "  downgrade rev=<r>   Downgrade to a given alembic revision\n"
-	@echo "  run                 Run the application using uvicorn. Load config from .env."
-	@echo "  test                Run test suite\n"
-	@echo "  release v=X.Y.Z     Cut a release and raise a pull request for it\n"
-	@echo "  update-deps         Bump dependency versions in line with constraints in base.in"
-	@echo "  update-deps-dev     Bump dependency versions in line with constraints in dev.in"
-	@echo "  update-deps-test    Bump dependency versions in line with constraints in test.in\n"
-	@echo "  venv                Create a virtual environment in '.venv/' if one does not exist\n"
+	@echo "  help                  Show this help message\n"
+	@echo "  install-deps          Sync project dependencies to virtualenv"
+	@echo "  install-deps-dev      Sync dev dependencies to virtualenv"
+	@echo "  install-deps-test     Sync test dependencies to virtualenv\n"
+	@echo "  pin-deps              Generate base requirements file with pinned dependencies"
+	@echo "  pin-deps-dev          Generate dev requirements file with pinned dependencies"
+	@echo "  pin-deps-test         Generate test requirements file with pinned dependencies\n"
+	@echo "  drallam               Start a Dockerised instance of the draLLaM service on :11434"
+	@echo "  db                    Start a Dockerised instance of PostgreSQL on :5432"
+	@echo "  migration m=\"<m>\"     Create an Alembic migration with message 'm'"
+	@echo "  migrate [up=<r>]      Upgrade migrations to a revision - latest if none given"
+	@echo "  downgrade [down=<r>]  Downgrade to a given alembic revision - previous if none given\n"
+	@echo "  run                   Run the application using uvicorn. Load config from .env."
+	@echo "  test                  Run test suite\n"
+	@echo "  release v=X.Y.Z       Cut a release and raise a pull request for it\n"
+	@echo "  update-deps           Bump dependency versions in line with constraints in base.in"
+	@echo "  update-deps-dev       Bump dependency versions in line with constraints in dev.in"
+	@echo "  update-deps-test      Bump dependency versions in line with constraints in test.in\n"
+	@echo "  venv                  Create a virtual environment at '.venv/' if one does not exist\n"
