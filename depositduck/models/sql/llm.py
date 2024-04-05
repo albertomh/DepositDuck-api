@@ -7,7 +7,7 @@ Database tables to keep track of which LLMs are in use and store embeddings.
 from uuid import UUID
 
 from pgvector.sqlalchemy import Vector
-from sqlalchemy import Column
+from sqlalchemy import Column, UniqueConstraint
 from sqlmodel import Field, Relationship
 
 from depositduck.models.common import TableBase
@@ -31,6 +31,10 @@ class Snippet(SnippetBase, TableBase, table=True):
     source_text_id: UUID = Field(default=None, foreign_key="llm__source_text.id")
     source_text: SourceText = Relationship(back_populates="snippets")
     nomic_embedding: "EmbeddingNomic" = Relationship(back_populates="snippet")
+
+    __table_args__ = (
+        UniqueConstraint("source_text_id", "content", name="uq_source_text_content"),
+    )
 
 
 class EmbeddingNomic(TableBase, table=True):
