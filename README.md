@@ -7,7 +7,8 @@ _Get what's yours_ <!-- markdownlint-disable-line MD036 -->
 [![python: 3.12](https://img.shields.io/badge/3.12-4584b6?logo=python&logoColor=ffde57)](https://docs.python.org/3.12/whatsnew/3.12.html)
 [![uv](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/uv/main/assets/badge/v0.json&labelColor=261230&color=de60e9)](https://github.com/astral-sh/uv)
 [![fastapi](https://img.shields.io/badge/FastAPI-009688?logo=fastapi&logoColor=white)](https://github.com/tiangolo/fastapi)
-[![htmx](https://img.shields.io/badge/htmx-3366CC?logo=htmx&logoColor=white)](https://github.com/bigskysoftware/htmx)
+[![postgres](https://img.shields.io/badge/Postgres-4169E1?logo=postgresql&logoColor=white)](https://github.com/tiangolo/fastapi)
+[![htmx](https://img.shields.io/badge/htmx-white?logo=htmx&logoColor=3366CC)](https://github.com/bigskysoftware/htmx)
 [![bootstrap](https://img.shields.io/badge/5-7952B3?logo=bootstrap&logoColor=white)](https://github.com/twbs/bootstrap)
 [![pytest](https://img.shields.io/badge/pytest-0A9EDC?logo=pytest&logoColor=white)](https://github.com/pytest-dev/pytest)
 [![pre-commit](https://img.shields.io/badge/pre--commit-FAB040?logo=pre-commit&logoColor=1f2d23)](https://github.com/pre-commit/pre-commit)
@@ -144,6 +145,10 @@ make migration m="add Person"
 # apply the latest migration
 # (optionally specify a revision with `rev=<id>`)
 make migrate
+
+# revert to the previous migration
+# (optionally specify a revision with `rev=<id>`)
+make downgrade
 ```
 
 ## Test
