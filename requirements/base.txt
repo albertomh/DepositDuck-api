@@ -34,10 +34,16 @@ email-validator==2.1.1
 fastapi==0.110.1
     # via fastapi-users
 fastapi-users==13.0.0
-    # via fastapi-users-db-sqlmodel
+    # via
+    #   fastapi-users-db-sqlalchemy
+    #   fastapi-users-db-sqlmodel
+fastapi-users-db-sqlalchemy==6.0.1
+    # via fastapi-users
 fastapi-users-db-sqlmodel==0.3.0
 greenlet==3.0.3
-    # via fastapi-users-db-sqlmodel
+    # via
+    #   fastapi-users-db-sqlmodel
+    #   sqlalchemy
 h11==0.14.0
     # via
     #   httpcore
@@ -95,6 +101,7 @@ sniffio==1.3.1
 sqlalchemy==2.0.29
     # via
     #   alembic
+    #   fastapi-users-db-sqlalchemy
     #   sqlmodel
 sqlmodel==0.0.16
     # via fastapi-users-db-sqlmodel
