@@ -13,7 +13,6 @@ def test_app_mounts():
     """
     mounts = {
         "webapp static": {"path": "/static", "observed": False},
-        "apiapp": {"path": "/api", "observed": False},
         "llmapp": {"path": "/llm", "observed": False},
     }
 

@@ -18,6 +18,7 @@ This Changelog is automatically stamped by `cut_release.sh` as part of creating 
 - A UserManager class to centralize authentication logic.
 - An auth router for tasks related to authentication.
 - Endpoint to retrieve the n most relevant snippets for a user query.
+- Remove apiapp - YAGNI.
 
 ## [0.2.0] - 2024-04-03
 

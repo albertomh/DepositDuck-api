@@ -19,18 +19,18 @@ async def get_aclient(app: FastAPI, url: str):
 
 
 @pytest_asyncio.fixture
-async def api_client():
-    from depositduck.main import apiapp
-
-    api_client = await get_aclient(apiapp, "http://apitest")
-    async with api_client as client:
-        yield client
-
-
-@pytest_asyncio.fixture
 async def web_client():
     from depositduck.main import webapp
 
     web_client = await get_aclient(webapp, "http://webtest")
     async with web_client as client:
+        yield client
+
+
+@pytest_asyncio.fixture
+async def llm_client():
+    from depositduck.main import llmapp
+
+    llm_client = await get_aclient(llmapp, "http://llmtest")
+    async with llm_client as client:
         yield client

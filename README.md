@@ -48,7 +48,7 @@ After doing the above the following are now available:
 
 - [0.0.0.0:8000](http://0.0.0.0:8000) - web frontend
 - [0.0.0.0:8000/docs](http://0.0.0.0:8000/docs) - interactive docs for the `webapp`
-- [0.0.0.0:8000/api/docs](http://0.0.0.0:8000/api/docs) - interactive docs for the `apiapp`
+- [0.0.0.0:8000/llm/docs](http://0.0.0.0:8000/llm/docs) - interactive docs for the `llmapp`
 
 ### Development workflow
 
@@ -93,8 +93,18 @@ Dependabot is configured to run weekly and update Python packages & GitHub Actio
 
 ## Project structure
 
-The project is split into two packages, `web` & `api`. Each corresponds to a separate FastAPI
-app defined in the `main` module. `apiapp` is mounted on `webapp` under the `/api` path.
+The project is split into the following packages:
+
+- `auth`: authentication backend (database strategy + cookie transport) and UserManager.
+- `llm`: language agent functionality eg. ingest data, generate embeddings, etc.
+- `models`: Pydantic schemas, SQLModel table definitions and Alembic migrations.
+- `web`: core FastAPI app on which everything else hangs off. Serves the htmx frontend.
+
+And the following top-level modules:
+
+- `dependables`: callables to be used with FastAPI's Dependency Injection system.
+- `main`: application entrypoint, defines FastAPI apps and attaches routers to these.
+- `settings`: application configuration driven by environment variables.
 
 ### Dependables
 
