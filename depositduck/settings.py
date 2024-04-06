@@ -19,6 +19,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 class Settings(BaseSettings):
     app_name: str = "DepositDuck"
+    app_secret: str
     # controls FastAPI's debug mode and whether or not to show `/docs`.
     debug: bool = False
 
