@@ -3,34 +3,42 @@
 #}
 {% extends "common/_base.html.jinja2" %}
 
-{% block content %}
-    <h1>Sign up</h1>
+{% block main_content %}
+    <div class="row">
+        <div class="col-10 offset-1 col-md-4 offset-md-4">
+            <h1>Sign up</h1>
 
-    <form id="signupForm" hx-post="/register">
-        <div class="mb-3">
-            <label for="username" class="form-label">Email:</label>
-            <input
-                type="text"
-                id="username"
-                name="username"
-                class="form-control"
-                required
-            />
+            <form id="signupForm" hx-post="/register">
+                <div class="mb-3">
+                    <label for="username" class="form-label fw-bold"
+                        >Email:</label
+                    >
+                    <input
+                        type="text"
+                        id="username"
+                        name="username"
+                        class="form-control"
+                        required
+                    />
+                </div>
+                <div class="mb-3">
+                    <label for="password" class="form-label fw-bold"
+                        >Password:</label
+                    >
+                    <input
+                        type="password"
+                        id="password"
+                        name="password"
+                        class="form-control"
+                        aria-describedby="passwordHelpInline"
+                        required
+                    />
+                    <div id="passwordHelp" class="form-text">
+                        Password must be at least 8 characters long.
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary">Sign up</button>
+            </form>
         </div>
-        <div class="mb-3">
-            <label for="password" class="form-label">Password:</label>
-            <input
-                type="password"
-                id="password"
-                name="password"
-                class="form-control"
-                aria-describedby="passwordHelpInline"
-                required
-            />
-            <div id="passwordHelp" class="form-text">
-                Password must be at least 8 characters long.
-            </div>
-        </div>
-        <button type="submit" class="btn btn-primary">Sign up</button>
-    </form>
+    </div>
 {% endblock %}
