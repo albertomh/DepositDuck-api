@@ -6,10 +6,11 @@ https://fastapi-users.github.io/fastapi-users/13.0/configuration/user-manager/
 """
 
 import uuid
+from enum import Enum
 from typing import Annotated, Optional
 
 from fastapi import Depends, Request, Response
-from fastapi_users import BaseUserManager, UUIDIDMixin
+from fastapi_users import BaseUserManager, InvalidPasswordException, UUIDIDMixin
 from fastapi_users.authentication.strategy.db import AccessTokenDatabase, DatabaseStrategy
 from fastapi_users.db import SQLAlchemyUserDatabase
 from fastapi_users_db_sqlmodel.access_token import SQLModelAccessTokenDatabaseAsync
@@ -23,6 +24,10 @@ LOG = get_logger()
 ACCESS_TOKEN_LIFETIME_IN_SECONDS = 3600
 
 
+class InvalidPasswordReason(str, Enum):
+    PASSWORD_TOO_SHORT = "PASSWORD_TOO_SHORT"  # nosec B105
+
+
 class UserManager(UUIDIDMixin, BaseUserManager[User, uuid.UUID]):
     # reset & verification token lifetimes default to 3600 seconds
     reset_password_token_secret = settings.app_secret
@@ -34,7 +39,10 @@ class UserManager(UUIDIDMixin, BaseUserManager[User, uuid.UUID]):
         user: User,  # type: ignore
     ) -> None:
         # TODO: stub - validate length & check isn't common password
-        pass
+        if len(password) < 8:
+            raise InvalidPasswordException(
+                reason=InvalidPasswordReason.PASSWORD_TOO_SHORT
+            )
 
     async def on_after_register(
         self,
