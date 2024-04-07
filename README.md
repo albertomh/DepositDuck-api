@@ -1,6 +1,6 @@
 # DepositDuck
 
-_Get what's yours_ <!-- markdownlint-disable-line MD036 -->  
+_Get what's yours_ <!-- markdownlint-disable-line MD036 -->
 
 ## Develop
 
@@ -225,7 +225,7 @@ docker stop depositduck_web
 
 ## Data pipeline
 
-⚠️ This workflow is in flux and subject to change.  
+⚠️ This workflow is in flux and subject to change.
 
 To load a PDF as a source of data for Retrieval Augmented Generation:
 
@@ -265,5 +265,6 @@ in `.env` that can be used to specify host and port.
    in the project's [container registry](https://github.com/albertomh/DepositDuck/pkgs/container/depositduck%2Fmain).
 
 ---
+
 &copy; 2024 Alberto MH  
 This work is licensed under [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/)
