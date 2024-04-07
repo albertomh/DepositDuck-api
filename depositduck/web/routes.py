@@ -18,7 +18,7 @@ from depositduck.settings import Settings
 web_router = APIRouter()
 
 
-@web_router.get("/")
+@web_router.get("/", tags=["frontend"])
 async def root(
     settings: Annotated[Settings, Depends(get_settings)],
     templates: Annotated[Jinja2Blocks, Depends(get_templates)],
@@ -31,7 +31,7 @@ async def root(
     return templates.TemplateResponse("home.html.jinja2", context)
 
 
-@web_router.get("/motd")
+@web_router.get("/motd/", tags=["kitchensink"])
 async def get_motd(
     templates: Annotated[Jinja2Blocks, Depends(get_templates)],
     user: Annotated[User, Depends(current_active_user)],
@@ -47,7 +47,7 @@ async def get_motd(
     )
 
 
-@web_router.get("/fragment")
+@web_router.get("/fragment/", tags=["kitchensink"])
 async def get_fragment(
     templates: Annotated[Jinja2Blocks, Depends(get_templates)],
     request: Request,

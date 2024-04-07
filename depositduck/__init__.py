@@ -10,3 +10,9 @@ BASE_DIR = Path(__file__).resolve().parent
 VERSION_MAJOR = 0
 VERSION_MINOR = 1
 VERSION_PATCH = 0
+
+ROUTE_TAGS_METADATA = [
+    {"name": "frontend", "description": "HTMX frontend"},
+    {"name": "auth", "description": "Authentication operations"},
+    {"name": "kitchensink", "description": "Development WIP - TODO: delete for 1.0.0"},
+]
