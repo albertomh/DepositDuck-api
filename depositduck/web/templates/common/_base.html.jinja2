@@ -29,10 +29,10 @@
             {% include "/common/_header.html.jinja2" %}
         {% endblock %}
 
-        <div id="content">
-            {% block content %}
-            {% endblock content %}
-        </div>
+        <main id="content" class="container">
+            {% block main_content %}
+            {% endblock main_content %}
+        </main>
 
         {% block footer %}
             {% include "/common/_footer.html.jinja2" %}
