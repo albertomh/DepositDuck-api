@@ -22,10 +22,11 @@ from depositduck.auth.users import auth_backend
 from depositduck.dependables import get_logger, get_templates
 from depositduck.models.auth import UserCreate
 
-auth_router = APIRouter()
+auth_frontend_router = APIRouter(tags=["auth", "frontend"])
+auth_operations_router = APIRouter(prefix="/auth", tags=["auth"])
 
 
-@auth_router.get("/signup")
+@auth_frontend_router.get("/signup/")
 async def signup(
     templates: Annotated[Jinja2Blocks, Depends(get_templates)],
     request: Request,
@@ -36,7 +37,7 @@ async def signup(
     return templates.TemplateResponse("auth/signup.html.jinja2", context)
 
 
-@auth_router.post("/register", status_code=status.HTTP_201_CREATED)
+@auth_operations_router.post("/register/", status_code=status.HTTP_201_CREATED)
 async def register(
     username: Annotated[str, Form()],
     password: Annotated[str, Form()],
@@ -69,7 +70,7 @@ async def register(
     return Response(status_code=status.HTTP_201_CREATED)
 
 
-@auth_router.get("/login")
+@auth_frontend_router.get("/login/")
 async def login(
     templates: Annotated[Jinja2Blocks, Depends(get_templates)],
     request: Request,
@@ -80,7 +81,7 @@ async def login(
     return templates.TemplateResponse("auth/login.html.jinja2", context)
 
 
-@auth_router.post("/authenticate")
+@auth_operations_router.post("/authenticate/")
 async def authenticate(
     credentials: Annotated[OAuth2PasswordRequestForm, Depends()],
     user_manager: Annotated[UserManager, Depends(get_user_manager)],
