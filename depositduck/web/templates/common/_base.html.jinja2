@@ -2,7 +2,7 @@
  #  (c) 2024 Alberto Morón Hernández
 #}
 <!doctype html>
-<html lang="en">
+<html lang="en" class="h-100">
     <head>
         <meta charset="utf-8" />
         <meta
@@ -25,7 +25,7 @@
         <script src="{{ url_for('static', path='/js/htmx-1_9_10/htmx-1_9_10.min.js') }}"></script>
     </head>
 
-    <body>
+    <body class="d-flex flex-column h-100">
         {% block header %}
             {% include "/common/_header.html.jinja2" %}
         {% endblock %}
