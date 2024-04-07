@@ -1,3 +1,32 @@
 {#
  #  (c) 2024 Alberto Morón Hernández
  #}
+<nav class="navbar navbar-expand-md navbar-light bg-light">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="#">
+            <img
+                src="{{ url_for('static', path='/svg/depositduck.svg') }}"
+                alt="The DepositDuck wordmark, with the Sterling duck mascot"
+                height="42" />
+        </a>
+        <button
+            class="navbar-toggler"
+            type="button"
+            data-bs-toggle="collapse"
+            data-bs-target="#navbarsExample04"
+            aria-controls="navbarsExample04"
+            aria-expanded="false"
+            aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarsExample04">
+            <ul class="navbar-nav me-auto mb-2 mb-md-0">
+                <li class="nav-item">
+                    <!-- TODO: dynamically set aria-current="page" -->
+                    <a class="nav-link active" href="/">Home</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
