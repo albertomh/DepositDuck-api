@@ -18,7 +18,7 @@ class UserRead(UserBase, schemas.BaseUser[uuid.UUID]):
 
 class UserCreate(UserBase, schemas.BaseUserCreate):
     # compulsory `email` & `password` fields
-    pass
+    confirm_password: str
 
 
 class UserUpdate(UserBase, schemas.BaseUserUpdate):

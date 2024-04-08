@@ -2,6 +2,8 @@
 (c) 2024 Alberto Morón Hernández
 """
 
+from collections import defaultdict
+
 from fastapi import APIRouter, Depends, Form, HTTPException, Request, status
 from fastapi.responses import Response
 from fastapi.security import OAuth2PasswordRequestForm
@@ -13,17 +15,21 @@ from pydantic import ValidationError
 from typing_extensions import Annotated
 
 from depositduck.auth.dependables import (
+    InvalidPasswordReason,
     UserManager,
     get_database_strategy,
     get_user_manager,
 )
 from depositduck.auth.users import auth_backend
-from depositduck.dependables import get_templates
+from depositduck.dependables import get_logger, get_templates
 from depositduck.models.auth import UserCreate
 from depositduck.models.sql.auth import User
+from depositduck.web.templates import BootstrapClasses
 
 auth_frontend_router = APIRouter(tags=["auth", "frontend"])
 auth_operations_router = APIRouter(prefix="/auth", tags=["auth"])
+
+LOG = get_logger()
 
 
 async def log_user_in_and_redirect(
@@ -47,14 +53,16 @@ async def signup(
 ):
     context = {
         "request": request,
+        "classes_by_id": [],
     }
     return templates.TemplateResponse("auth/signup.html.jinja2", context)
 
 
 @auth_operations_router.post("/register/")
 async def register(
-    username: Annotated[str, Form()],
+    email: Annotated[str, Form()],
     password: Annotated[str, Form()],
+    confirm_password: Annotated[str, Form()],
     auth_db_strategy: Annotated[DatabaseStrategy, Depends(get_database_strategy)],
     request: Request,
     templates: Annotated[Jinja2Blocks, Depends(get_templates)],
@@ -62,8 +70,12 @@ async def register(
 ):
     # TODO: redirect user away if already logged in.
     errors: list[str] = []
+    classes_by_id: dict[str, str] = defaultdict(str)
+
     try:
-        user_create = UserCreate(email=username, password=password)
+        user_create = UserCreate(
+            email=email, password=password, confirm_password=confirm_password
+        )
         created_user = await user_manager.create(user_create, safe=True, request=request)
         redirect_response = await log_user_in_and_redirect(
             auth_db_strategy, created_user, "/"
@@ -71,13 +83,30 @@ async def register(
         return redirect_response
     except UserAlreadyExists:
         errors.append(ErrorCode.REGISTER_USER_ALREADY_EXISTS.value)
+        classes_by_id["email"] += BootstrapClasses.IS_INVALID
         # TODO: redirect user to /login/.
     except InvalidPasswordException as e:
         errors.extend([ErrorCode.REGISTER_INVALID_PASSWORD.value, e.reason.value])
+        if e.reason.value == InvalidPasswordReason.CONFIRM_PASSWORD_DOES_NOT_MATCH:
+            classes_by_id["confirm-password"] += BootstrapClasses.IS_INVALID
+        else:
+            classes_by_id["password"] += BootstrapClasses.IS_INVALID
     except ValidationError:
         errors.append("REGISTER_INVALID_EMAIL")
+        classes_by_id["email"] += BootstrapClasses.IS_INVALID
 
-    context = dict(request=request, username=username, errors=errors)
+    for _, classes in classes_by_id.items():
+        if BootstrapClasses.IS_INVALID not in classes:
+            classes += BootstrapClasses.IS_VALID
+
+    LOG.debug(errors)
+    context = dict(
+        request=request,
+        email=email,
+        password=password,
+        classes_by_id=classes_by_id,
+        errors=errors,
+    )
     return templates.TemplateResponse(
         "auth/signup.html.jinja2", context=context, block_name="signup_form"
     )
