@@ -32,15 +32,20 @@ auth_operations_router = APIRouter(prefix="/auth", tags=["auth"])
 LOG = get_logger()
 
 
-async def log_user_in_and_redirect(
-    auth_db_strategy: DatabaseStrategy, user: User, redirect_to: str
-) -> Response:
-    """
-    Log a given user in returning a HTTP 302 response with a fresh auth cookie attached
-    to it. Redirect to the specified path.
-    """
+async def redirect_to(redirect_to: str) -> Response:
     headers = {"HX-Redirect": redirect_to}
     response = Response(status_code=status.HTTP_302_FOUND, headers=headers)
+    return response
+
+
+async def log_user_in(
+    auth_db_strategy: DatabaseStrategy, user: User, response: Response
+) -> Response:
+    """
+    Log a given user in by generating an auth token. Store the token in a cookie
+    and attach the cookie to a Response, which can be returned to the client.
+    Intended to be used alongside `redirect_to()`.
+    """
     token = await auth_db_strategy.write_token(user)
     response = auth_backend.transport._set_login_cookie(response, token)  # type: ignore[attr-defined]
     return response
@@ -77,8 +82,9 @@ async def register(
             email=email, password=password, confirm_password=confirm_password
         )
         created_user = await user_manager.create(user_create, safe=True, request=request)
-        redirect_response = await log_user_in_and_redirect(
-            auth_db_strategy, created_user, "/"
+        redirect_response = await redirect_to("/")
+        redirect_response = await log_user_in(
+            auth_db_strategy, created_user, redirect_response
         )
         return redirect_response
     except UserAlreadyExists:
@@ -99,7 +105,6 @@ async def register(
         if BootstrapClasses.IS_INVALID not in classes:
             classes += BootstrapClasses.IS_VALID
 
-    LOG.debug(errors)
     context = dict(
         request=request,
         email=email,
@@ -143,5 +148,6 @@ async def authenticate(
     #         detail=ErrorCode.LOGIN_USER_NOT_VERIFIED,
     #     )
 
-    redirect_response = await log_user_in_and_redirect(auth_db_strategy, user, "/")
+    redirect_response = await redirect_to("/")
+    redirect_response = await log_user_in(auth_db_strategy, user, redirect_response)
     return redirect_response
