@@ -11,14 +11,15 @@
             {% block signup_form %}
                 <form id="signupForm" hx-post="/auth/register/">
                     <div class="mb-3">
-                        <label for="username" class="form-label fw-bold">
+                        <label for="email" class="form-label fw-bold">
                             Email:
                         </label>
                         <input
                             type="text"
-                            id="username"
-                            name="username"
-                            class="form-control {% if 'REGISTER_INVALID_EMAIL' in errors %}is-invalid{% endif %}"
+                            id="email"
+                            name="email"
+                            value="{{ email }}"
+                            class="form-control {{ classes_by_id['email'] }}"
                             required />
                         {% if "REGISTER_INVALID_EMAIL" in errors %}
                             <div class="invalid-feedback">
@@ -34,8 +35,9 @@
                             type="password"
                             id="password"
                             name="password"
-                            class="form-control {% if 'REGISTER_INVALID_PASSWORD' in errors %}is-invalid{% endif %}"
-                            aria-describedby="passwordHelpInline"
+                            value="{{ password }}"
+                            class="form-control {{ classes_by_id['password'] }}"
+                            aria-describedby="passwordHelp"
                             required />
                         <div id="passwordHelp" class="form-text">
                             Password must be at least 8 characters long.
@@ -51,9 +53,24 @@
                             </div>
                         {% endif %}
                     </div>
-
-                    <!-- TODO: second input for user to confirm password. -->
-
+                    <div class="mb-3">
+                        <label
+                            for="confirm_password"
+                            class="form-label fw-bold">
+                            Confirm password:
+                        </label>
+                        <input
+                            type="password"
+                            id="confirm-password"
+                            name="confirm_password"
+                            class="form-control {{ classes_by_id['confirm-password'] }}"
+                            required />
+                        {% if "CONFIRM_PASSWORD_DOES_NOT_MATCH" in errors %}
+                            <div class="invalid-feedback">
+                                Please provide the same password twice.
+                            </div>
+                        {% endif %}
+                    </div>
                     <button type="submit" class="btn btn-primary float-end">
                         Sign up
                     </button>

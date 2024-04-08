@@ -7,7 +7,7 @@ https://fastapi-users.github.io/fastapi-users/13.0/configuration/user-manager/
 
 import uuid
 from enum import Enum
-from typing import Annotated, Optional
+from typing import Annotated, Any, Optional
 
 from fastapi import Depends, Request, Response
 from fastapi_users import BaseUserManager, InvalidPasswordException, UUIDIDMixin
@@ -17,6 +17,7 @@ from fastapi_users_db_sqlmodel.access_token import SQLModelAccessTokenDatabaseAs
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from depositduck.dependables import get_db_session, get_logger, get_settings
+from depositduck.models.auth import UserCreate
 from depositduck.models.sql.auth import AccessToken, User
 
 settings = get_settings()
@@ -26,6 +27,7 @@ ACCESS_TOKEN_LIFETIME_IN_SECONDS = 3600
 
 class InvalidPasswordReason(str, Enum):
     PASSWORD_TOO_SHORT = "PASSWORD_TOO_SHORT"  # nosec B105
+    CONFIRM_PASSWORD_DOES_NOT_MATCH = "CONFIRM_PASSWORD_DOES_NOT_MATCH"  # nosec B105
 
 
 class UserManager(UUIDIDMixin, BaseUserManager[User, uuid.UUID]):
@@ -33,16 +35,30 @@ class UserManager(UUIDIDMixin, BaseUserManager[User, uuid.UUID]):
     reset_password_token_secret = settings.app_secret
     verification_token_secret = settings.app_secret
 
-    async def validate_password(
+    async def validate_password(  # type: ignore
         self,
         password: str,
-        user: User,  # type: ignore
+        user: Optional[User] = None,
     ) -> None:
         # TODO: stub - validate length & check isn't common password
         if len(password) < 8:
             raise InvalidPasswordException(
                 reason=InvalidPasswordReason.PASSWORD_TOO_SHORT
             )
+        # TODO: if user is None, treat as check for new password.
+        # TODO: if user is not None, check the password is that of the user:
+        # if self.password_helper.hash(password) == user.hashed_password: ...
+
+    async def create(self, user_create: UserCreate, **kwargs: Any) -> User:  # type: ignore
+        if (
+            user_create.password is not None
+            and user_create.password != user_create.confirm_password
+        ):
+            raise InvalidPasswordException(
+                reason=InvalidPasswordReason.CONFIRM_PASSWORD_DOES_NOT_MATCH
+            )
+
+        return await super().create(user_create, **kwargs)
 
     async def on_after_register(
         self,

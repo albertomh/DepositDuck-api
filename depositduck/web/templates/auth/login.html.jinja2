@@ -6,7 +6,7 @@
 {% block main_content %}
     <h1>Log in</h1>
 
-    <form id="loginForm" hx-post="/authenticate">
+    <form id="loginForm" hx-post="/auth/authenticate/">
         <label for="username">Email:</label>
         <input type="text" id="username" name="username" required />
         <br />
