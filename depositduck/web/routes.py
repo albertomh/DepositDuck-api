@@ -18,7 +18,11 @@ from depositduck.settings import Settings
 web_router = APIRouter()
 
 
-@web_router.get("/", tags=["frontend"])
+@web_router.get(
+    "/",
+    summary="[htmx]",
+    tags=["frontend"],
+)
 async def root(
     settings: Annotated[Settings, Depends(get_settings)],
     templates: Annotated[Jinja2Blocks, Depends(get_templates)],
