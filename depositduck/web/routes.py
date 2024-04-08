@@ -35,6 +35,20 @@ async def root(
     return templates.TemplateResponse("home.html.jinja2", context)
 
 
+# TODO: decide whether to build frontend as independent fragments eg. below would be used
+# as `<div hx-get="/navbar/" hx-swap="outerHTML" hx-trigger="load"></div>`
+# instead of `{% include "/common/_header.html.jinja2" %}` in _base.html.jinja2
+#
+# @web_router.get("/navbar/", tags=["frontend"])
+# async def get_navbar(
+#     templates: Annotated[Jinja2Blocks, Depends(get_templates)],
+#     user: Annotated[User, Depends(current_active_user)],
+#     request: Request,
+# ):
+#     context = dict(request=request, user=user)
+#     return templates.TemplateResponse("common/_navbar.html.jinja2", context=context)
+
+
 @web_router.get("/motd/", tags=["kitchensink"])
 async def get_motd(
     templates: Annotated[Jinja2Blocks, Depends(get_templates)],
