@@ -1,0 +1,68 @@
+{#
+ #  (c) 2024 Alberto Morón Hernández
+ #}
+<nav class="navbar navbar-expand-md navbar-light bg-light mb-2">
+    <div class="container-md">
+        <a class="navbar-brand pt-0" href="/">
+            <img
+                src="{{ url_for('static', path='/svg/depositduck-logo.svg') }}"
+                alt="The DepositDuck wordmark, with the Sterling duck mascot"
+                height="42" />
+        </a>
+        <button
+            class="navbar-toggler"
+            type="button"
+            data-bs-toggle="collapse"
+            data-bs-target="#navbar"
+            aria-controls="navbar"
+            aria-expanded="false"
+            aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbar">
+            <ul
+                class="navbar-nav d-flex justify-content-end w-100 mb-2 mb-md-0">
+                <!-- TODO: dynamically set .active & aria-current="page" -->
+                {% if user %}
+                    <li class="nav-item dropdown">
+                        <a
+                            class="nav-link dropdown-toggle"
+                            href="#"
+                            role="button"
+                            data-bs-toggle="dropdown"
+                            aria-expanded="false">
+                            <i class="bi bi-person-circle"></i>
+                            Your account
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li>
+                                <a
+                                    class="nav-link py-0"
+                                    hx-post="/auth/logout/">
+                                    <i class="bi bi-door-open"></i>
+                                    Log out
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                {% else %}
+                    <div class="d-flex gap-5 gap-md-3">
+                        <a
+                            class="btn btn-outline-primary flex-grow-1"
+                            href="/login/"
+                            role="button">
+                            Log in
+                        </a>
+                        <a
+                            class="btn btn-primary flex-grow-1"
+                            href="/signup/"
+                            role="button">
+                            Sign up
+                        </a>
+                    </div>
+                {% endif %}
+            </ul>
+        </div>
+    </div>
+</nav>
