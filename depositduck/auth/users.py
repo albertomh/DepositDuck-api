@@ -19,19 +19,19 @@ from fastapi_users.authentication import (
     CookieTransport,
 )
 
+from depositduck.auth import AUTH_COOKIE_MAX_AGE, AUTH_COOKIE_NAME
 from depositduck.auth.dependables import get_database_strategy, get_user_manager
 from depositduck.dependables import get_settings
 from depositduck.models.sql.auth import User
 
 settings = get_settings()
-COOKIE_MAX_AGE = 3600
 
 cookie_secure = not settings.debug
 cookie_samesite: Literal["lax", "strict"] = "lax" if settings.debug else "strict"
 cookie_httponly = not settings.debug
 cookie_transport = CookieTransport(
-    cookie_name="dd_auth",
-    cookie_max_age=COOKIE_MAX_AGE,
+    cookie_name=AUTH_COOKIE_NAME,
+    cookie_max_age=AUTH_COOKIE_MAX_AGE,
     # TODO: set cookie_domain for hosted environments when available via Settings
     # cookie_domain=,
     cookie_secure=cookie_secure,
@@ -47,6 +47,6 @@ auth_backend = AuthenticationBackend(
 
 fastapi_users = FastAPIUsers[User, uuid.UUID](get_user_manager, [auth_backend])
 
-# `optional` to return None instead of directly raising a HttpException
-# `active` to require that the User attempting to log in is `active` in the database
+# `optional` to return None instead of directly raising a HttpException.
+# `active` to require that the User attempting to log in is `active` in the database.
 current_active_user = fastapi_users.current_user(optional=True, active=True)

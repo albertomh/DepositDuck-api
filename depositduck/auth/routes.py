@@ -14,13 +14,14 @@ from jinja2_fragments.fastapi import Jinja2Blocks
 from pydantic import ValidationError
 from typing_extensions import Annotated
 
+from depositduck.auth import AUTH_COOKIE_NAME
 from depositduck.auth.dependables import (
     InvalidPasswordReason,
     UserManager,
     get_database_strategy,
     get_user_manager,
 )
-from depositduck.auth.users import auth_backend
+from depositduck.auth.users import auth_backend, current_active_user
 from depositduck.dependables import get_logger, get_templates
 from depositduck.models.auth import UserCreate
 from depositduck.models.sql.auth import User
@@ -51,7 +52,10 @@ async def log_user_in(
     return response
 
 
-@auth_frontend_router.get("/signup/")
+@auth_frontend_router.get(
+    "/signup/",
+    summary="[htmx]",
+)
 async def signup(
     templates: Annotated[Jinja2Blocks, Depends(get_templates)],
     request: Request,
@@ -117,7 +121,10 @@ async def register(
     )
 
 
-@auth_frontend_router.get("/login/")
+@auth_frontend_router.get(
+    "/login/",
+    summary="[htmx]",
+)
 async def login(
     templates: Annotated[Jinja2Blocks, Depends(get_templates)],
     request: Request,
@@ -151,3 +158,20 @@ async def authenticate(
     redirect_response = await redirect_to("/")
     redirect_response = await log_user_in(auth_db_strategy, user, redirect_response)
     return redirect_response
+
+
+@auth_operations_router.post(
+    "/logout/",
+)
+async def logout(
+    user: Annotated[User, Depends(current_active_user)],
+    auth_db_strategy: Annotated[DatabaseStrategy, Depends(get_database_strategy)],
+    request: Request,
+):
+    auth_cookie_token = request.cookies.get(AUTH_COOKIE_NAME)
+    if auth_cookie_token:
+        await auth_db_strategy.destroy_token(auth_cookie_token, user)
+
+    response = await redirect_to("/")
+    response = auth_backend.transport._set_logout_cookie(response)  # type: ignore[attr-defined]
+    return response
