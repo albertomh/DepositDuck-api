@@ -1,0 +1,51 @@
+/*
+ * (c) 2024 Alberto Morón Hernández
+ */
+
+// https://getbootstrap.com/docs/5.3/customize/sass/
+
+@import "./depositduck-colors.scss";
+
+// 1. Include functions first (so you can manipulate colors, SVGs, calc, etc)
+@import "./bootstrap-5_3_3/functions";
+
+// 2. Include any default variable overrides here
+$primary: $turner;
+$secondary: $britannia;
+$success: $green;
+$info: $churchill;
+$warning: $austen;
+$danger: $red;
+$light: $light;
+$dark: #000000;
+
+// 3. Include remainder of required Bootstrap stylesheets (including any separate color mode stylesheets)
+@import "./bootstrap-5_3_3/variables";
+@import "./bootstrap-5_3_3/variables-dark";
+
+// 4. Include any default map overrides here
+
+// 5. Include remainder of required parts
+@import "./bootstrap-5_3_3/maps";
+@import "./bootstrap-5_3_3/mixins";
+@import "./bootstrap-5_3_3/root";
+
+// 6. Optionally include any other parts as needed
+@import "./bootstrap-5_3_3/utilities";
+@import "./bootstrap-5_3_3/reboot";
+@import "./bootstrap-5_3_3/type";
+@import "./bootstrap-5_3_3/images";
+@import "./bootstrap-5_3_3/containers";
+@import "./bootstrap-5_3_3/grid";
+@import "./bootstrap-5_3_3/helpers";
+@import "./bootstrap-5_3_3/buttons";
+
+// 7. Optionally include utilities API last to generate classes based on the Sass map in `_utilities.scss`
+@import "./bootstrap-5_3_3/utilities/api";
+
+/** https://fonts.google.com/Protest+Strike */
+.font-protest-strike {
+    font-family: "Protest Strike", sans-serif;
+    font-weight: 400;
+    font-style: normal;
+}
