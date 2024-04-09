@@ -4,18 +4,43 @@
 {% extends "common/_base.html.jinja2" %}
 
 {% block main %}
-    <h1>Log in</h1>
+    <div class="row">
+        <div class="col-10 offset-1 col-md-4 offset-md-4">
+            <h1>
+                <i class="bi bi-door-open text-primary"></i>
+                Log in
+            </h1>
 
-    <form id="loginForm" hx-post="/auth/authenticate/">
-        <label for="username">Email:</label>
-        <input type="text" id="username" name="username" required />
-        <br />
-        <br />
-        <label for="password">Password:</label>
-        <input type="password" id="password" name="password" required />
-        <br />
-        <br />
+            {% block login_form %}
+                <form id="loginForm" hx-post="/auth/authenticate/">
+                    <div class="mb-3">
+                        <label for="username" class="form-label fw-bold">
+                            Email:
+                        </label>
+                        <input
+                            type="text"
+                            id="username"
+                            name="username"
+                            class="form-control {{ classes_by_id['username'] }}"
+                            required />
+                    </div>
+                    <div class="mb-3">
+                        <label for="password" class="form-label fw-bold">
+                            Password:
+                        </label>
+                        <input
+                            type="password"
+                            id="password"
+                            name="password"
+                            class="form-control {{ classes_by_id['password'] }}"
+                            required />
+                    </div>
 
-        <button type="submit">Log in</button>
-    </form>
+                    <button type="submit" class="btn btn-primary float-end">
+                        Log in
+                    </button>
+                </form>
+            {% endblock %}
+        </div>
+    </div>
 {% endblock %}
