@@ -2,15 +2,30 @@
 (c) 2024 Alberto Morón Hernández
 """
 
-from fastapi import APIRouter, Depends, Request
+from fastapi import APIRouter, Depends, Request, Response, status
 from jinja2_fragments.fastapi import Jinja2Blocks
 from typing_extensions import Annotated
 
 from depositduck.auth.users import current_active_user
 from depositduck.dependables import get_templates
+from depositduck.email import HtmlEmail, render_html_email, send_email
 from depositduck.models.sql.auth import User
 
 kitchensink_router = APIRouter(prefix="/kitchensink", tags=["kitchensink"])
+
+
+@kitchensink_router.post("/send_email/")
+async def send_test_email(
+    recipient: str,
+):
+    context = HtmlEmail(
+        title="Simple Transactional Email Test",
+        preheader="Kitchensink test email from local development.",
+    )
+    html: str = await render_html_email("welcome.html.jinja2", context)
+    subject = "Kitchensink test"
+    await send_email(recipient, subject, html)
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
 @kitchensink_router.get("/motd/", description="TODO: remove")
