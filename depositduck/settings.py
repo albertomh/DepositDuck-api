@@ -29,6 +29,11 @@ class Settings(BaseSettings):
     db_host: str
     db_port: PositiveInt = 5432
 
+    smtp_server: str
+    smtp_port: PositiveInt = 465  # for SSL
+    smtp_sender_address: str
+    smtp_password: str
+
     drallam_protocol: str = "http"
     drallam_host: str = "0.0.0.0"  # nosec B104
     drallam_port: PositiveInt = 11434
