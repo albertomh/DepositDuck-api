@@ -4,7 +4,7 @@
 
 from collections import defaultdict
 
-from fastapi import APIRouter, Depends, Form, HTTPException, Request, status
+from fastapi import APIRouter, Depends, Form, Request, status
 from fastapi.responses import Response
 from fastapi.security import OAuth2PasswordRequestForm
 from fastapi_users.authentication.strategy.db import DatabaseStrategy
@@ -73,9 +73,9 @@ async def register(
     password: Annotated[str, Form()],
     confirm_password: Annotated[str, Form()],
     auth_db_strategy: Annotated[DatabaseStrategy, Depends(get_database_strategy)],
-    request: Request,
     templates: Annotated[Jinja2Blocks, Depends(get_templates)],
     user_manager: Annotated[UserManager, Depends(get_user_manager)],
+    request: Request,
 ):
     # TODO: redirect user away if already logged in.
     errors: list[str] = []
@@ -93,21 +93,20 @@ async def register(
         return redirect_response
     except UserAlreadyExists:
         errors.append(ErrorCode.REGISTER_USER_ALREADY_EXISTS.value)
-        classes_by_id["email"] += BootstrapClasses.IS_INVALID
+        classes_by_id["email"] += f" {BootstrapClasses.IS_INVALID.value}"
         # TODO: redirect user to /login/.
     except InvalidPasswordException as e:
         errors.extend([ErrorCode.REGISTER_INVALID_PASSWORD.value, e.reason.value])
+        classes_by_id["password"] += f" {BootstrapClasses.IS_INVALID.value}"
         if e.reason.value == InvalidPasswordReason.CONFIRM_PASSWORD_DOES_NOT_MATCH:
-            classes_by_id["confirm-password"] += BootstrapClasses.IS_INVALID
-        else:
-            classes_by_id["password"] += BootstrapClasses.IS_INVALID
+            classes_by_id["confirm-password"] += f" {BootstrapClasses.IS_INVALID.value}"
     except ValidationError:
         errors.append("REGISTER_INVALID_EMAIL")
-        classes_by_id["email"] += BootstrapClasses.IS_INVALID
+        classes_by_id["email"] += f" {BootstrapClasses.IS_INVALID.value}"
 
-    for _, classes in classes_by_id.items():
+    for element_id, classes in classes_by_id.items():
         if BootstrapClasses.IS_INVALID not in classes:
-            classes += BootstrapClasses.IS_VALID
+            classes_by_id[element_id] += f" {BootstrapClasses.IS_VALID.value}"
 
     context = dict(
         request=request,
@@ -131,6 +130,7 @@ async def login(
 ):
     context = {
         "request": request,
+        "classes_by_id": [],
     }
     return templates.TemplateResponse("auth/login.html.jinja2", context)
 
@@ -139,25 +139,34 @@ async def login(
 async def authenticate(
     credentials: Annotated[OAuth2PasswordRequestForm, Depends()],
     auth_db_strategy: Annotated[DatabaseStrategy, Depends(get_database_strategy)],
+    templates: Annotated[Jinja2Blocks, Depends(get_templates)],
     user_manager: Annotated[UserManager, Depends(get_user_manager)],
+    request: Request,
 ):
+    errors: list[str] = []
+    classes_by_id: dict[str, str] = defaultdict(str)
+
     user = await user_manager.authenticate(credentials)
 
     if user is None or not user.is_active:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=ErrorCode.LOGIN_BAD_CREDENTIALS,
-        )
-    # TODO: look at POST /register/ above and follow error-handling HTMX fragments pattern
-    # if requires_verification and not user.is_verified:
-    #     raise HTTPException(
-    #         status_code=status.HTTP_400_BAD_REQUEST,
-    #         detail=ErrorCode.LOGIN_USER_NOT_VERIFIED,
-    #     )
+        errors.append(ErrorCode.LOGIN_BAD_CREDENTIALS.value)
+    if user and not user.is_verified:
+        errors.append(ErrorCode.LOGIN_USER_NOT_VERIFIED.value)
 
-    redirect_response = await redirect_to("/")
-    redirect_response = await log_user_in(auth_db_strategy, user, redirect_response)
-    return redirect_response
+    if user and not errors:
+        redirect_response = await redirect_to("/")
+        redirect_response = await log_user_in(auth_db_strategy, user, redirect_response)
+        return redirect_response
+
+    context = dict(
+        request=request,
+        username=credentials.username,
+        classes_by_id=classes_by_id,
+        errors=errors,
+    )
+    return templates.TemplateResponse(
+        "auth/login.html.jinja2", context=context, block_name="login_form"
+    )
 
 
 @auth_operations_router.post(
