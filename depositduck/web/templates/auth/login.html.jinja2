@@ -21,6 +21,7 @@
                             type="text"
                             id="username"
                             name="username"
+                            value="{{ username }}"
                             class="form-control {{ classes_by_id['username'] }}"
                             required />
                     </div>
@@ -34,7 +35,30 @@
                             name="password"
                             class="form-control {{ classes_by_id['password'] }}"
                             required />
+                        {% if "LOGIN_BAD_CREDENTIALS" in errors %}
+                            <div class="invalid-feedback">
+                                The email or password you provided do not match
+                                a user. Please try again.
+                            </div>
+                        {% endif %}
                     </div>
+
+                    {% if "LOGIN_USER_NOT_VERIFIED" in errors %}
+                        <div class="card border-info mb-3">
+                            <div class="card-body">
+                                <h5 class="card-title">
+                                    <i
+                                        class="bi bi-info-circle-fill text-info"></i>
+                                    Please verify your email
+                                </h5>
+                                <p class="card-text">
+                                    Please follow the link in the email we have
+                                    sent you to verify your account before
+                                    logging in.
+                                </p>
+                            </div>
+                        </div>
+                    {% endif %}
 
                     <button type="submit" class="btn btn-primary float-end">
                         Log in
