@@ -77,6 +77,11 @@ update-deps-test:
 		--upgrade \
 		-o $(REQS_DIR)/test.txt
 
+#
+smtp: venv
+	@$(ACTIVATE_VENV) && \
+	$(PYTHON) -m aiosmtpd --nosetuid --debug --listen :1025
+
 # run the draLLaM embeddings service in a container
 # https://github.com/albertomh/draLLaM
 drallam:
@@ -157,7 +162,8 @@ help:
 	@echo "  pin-deps              Generate base requirements file with pinned dependencies"
 	@echo "  pin-deps-dev          Generate dev requirements file with pinned dependencies"
 	@echo "  pin-deps-test         Generate test requirements file with pinned dependencies\n"
-	@echo "  drallam               Start a Dockerised instance of the draLLaM service on :11434"
+	@echo "  smtp                  "
+	@echo "  drallam               Start a Dockerised instance of the draLLaM service on :11434\n"
 	@echo "  db                    Start a Dockerised instance of PostgreSQL on :5432"
 	@echo "  migration m=\"<m>\"     Create an Alembic migration with message 'm'"
 	@echo "  migrate [up=<r>]      Upgrade migrations to a revision - latest if none given"
