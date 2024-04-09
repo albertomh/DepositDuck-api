@@ -10,9 +10,7 @@ from fastapi import APIRouter, Depends, Request
 from jinja2_fragments.fastapi import Jinja2Blocks
 from typing_extensions import Annotated
 
-from depositduck.auth.users import current_active_user
 from depositduck.dependables import get_settings, get_templates
-from depositduck.models.sql.auth import User
 from depositduck.settings import Settings
 
 web_router = APIRouter()
@@ -47,28 +45,3 @@ async def root(
 # ):
 #     context = dict(request=request, user=user)
 #     return templates.TemplateResponse("common/_navbar.html.jinja2", context=context)
-
-
-@web_router.get("/motd/", tags=["kitchensink"])
-async def get_motd(
-    templates: Annotated[Jinja2Blocks, Depends(get_templates)],
-    user: Annotated[User, Depends(current_active_user)],
-    request: Request,
-):
-    motd = "👋 hello"
-    if user:
-        motd += f" {user.email}!"
-
-    context = dict(request=request, motd=motd)
-    return templates.TemplateResponse(
-        "home.html.jinja2", context=context, block_name="motd"
-    )
-
-
-@web_router.get("/fragment/", tags=["kitchensink"])
-async def get_fragment(
-    templates: Annotated[Jinja2Blocks, Depends(get_templates)],
-    request: Request,
-):
-    context = {"request": request, "content": "✨ async load via HTMX"}
-    return templates.TemplateResponse("fragments/fragment.html.jinja2", context=context)
