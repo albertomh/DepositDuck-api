@@ -12,7 +12,6 @@ UV=uv
 VENV_DIR=.venv
 ACTIVATE_VENV=. $(VENV_DIR)/bin/activate
 PYTHON=python3
-APP_DIR=depositduck
 REQS_DIR=requirements
 
 .PHONY: *
@@ -138,6 +137,11 @@ downgrade: venv
 	. ./local/read_dotenv.sh .env && \
 	$(PYTHON) -m alembic downgrade ${down}
 
+# compile customised Bootstrap SASS to CSS
+sass:
+	@cd ./depositduck/web/static/ && \
+	sass ./scss/main.scss ./css/main.css
+
 # cut a release and raise a pull request for it
 release:
 	@$(if $(v),,$(error please specify 'v=X.Y.Z' tag for the release))
@@ -146,6 +150,7 @@ release:
 help:
 	@echo "usage: make [target]"
 	@echo "  help                  Show this help message\n"
+	@echo "  sass                  Compile customised Bootstrap SASS to CSS\n"
 	@echo "  install-deps          Sync project dependencies to virtualenv"
 	@echo "  install-deps-dev      Sync dev dependencies to virtualenv"
 	@echo "  install-deps-test     Sync test dependencies to virtualenv\n"

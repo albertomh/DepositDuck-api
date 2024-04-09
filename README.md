@@ -24,6 +24,10 @@ To develop DepositDuck, the following must be available locally:
 - [pre-commit](https://pre-commit.com/)
 - [Docker](https://docs.docker.com/)
 
+For frontend development:
+
+- [Dart Sass](https://formulae.brew.sh/formula/node-sass)
+
 ### Quickstart: run locally
 
 A `makefile` defines common development tasks. Run `make` or `make help` to show all
@@ -159,6 +163,13 @@ make migrate
 # revert to the previous migration
 # (optionally specify a revision with `rev=<id>`)
 make downgrade
+```
+
+### Frontend
+
+```sh
+# compile custom Bootstrap sass to css
+make sass
 ```
 
 ## Test
