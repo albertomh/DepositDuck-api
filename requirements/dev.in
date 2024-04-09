@@ -1,1 +1,3 @@
 -r base.in
+
+aiosmtpd~=1.4.5

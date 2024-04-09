@@ -23,6 +23,7 @@ To develop DepositDuck, the following must be available locally:
 - [uv](https://github.com/astral-sh/uv)
 - [pre-commit](https://pre-commit.com/)
 - [Docker](https://docs.docker.com/)
+- [Python 3.12](https://docs.python.org/3/whatsnew/3.12.html)
 
 For frontend development:
 
@@ -43,6 +44,13 @@ cp .env.in .env
 
 # start database in a container
 make db
+
+# start the LLM service in a container
+# see 'Embeddings Service' below and https://github.com/albertomh/draLLaM
+make drallam
+
+# start local email server on :1025
+make smtp
 
 # run server on port 8000
 make run
