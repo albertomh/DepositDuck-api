@@ -108,6 +108,7 @@ Dependabot is configured to run weekly and update Python packages & GitHub Actio
 The project is split into the following packages:
 
 - `auth`: authentication backend (database strategy + cookie transport) and UserManager.
+- `email`: email templates and utilities to render and send HTML emails.
 - `llm`: language agent functionality eg. ingest data, generate embeddings, etc.
 - `models`: Pydantic schemas, SQLModel table definitions and Alembic migrations.
 - `web`: core FastAPI app on which everything else hangs off. Serves the htmx frontend.
