@@ -13,9 +13,15 @@ from fastapi import FastAPI
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 
-from depositduck import ROUTE_TAGS_METADATA, VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH
+from depositduck import (
+    ROUTE_TAGS_METADATA,
+    VERSION_MAJOR,
+    VERSION_MINOR,
+    VERSION_PATCH,
+)
 from depositduck.auth.routes import auth_frontend_router, auth_operations_router
 from depositduck.dependables import get_db_engine, get_settings
+from depositduck.kitchensink.routes import kitchensink_router
 from depositduck.llm.routes import llm_router
 from depositduck.web.routes import web_router
 
@@ -55,6 +61,8 @@ webapp = get_webapp()
 webapp.include_router(web_router)
 webapp.include_router(auth_frontend_router)
 webapp.include_router(auth_operations_router)
+if settings.debug:
+    webapp.include_router(kitchensink_router)
 
 llmapp = get_llmapp()
 webapp.mount("/llm", llmapp)
