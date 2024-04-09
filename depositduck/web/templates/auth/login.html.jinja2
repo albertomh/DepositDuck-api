@@ -22,7 +22,7 @@
                             id="username"
                             name="username"
                             value="{{ username }}"
-                            class="form-control {{ classes_by_id['username'] }}"
+                            class="form-control"
                             required />
                     </div>
                     <div class="mb-3">
@@ -33,16 +33,33 @@
                             type="password"
                             id="password"
                             name="password"
-                            class="form-control {{ classes_by_id['password'] }}"
+                            class="form-control"
                             required />
-                        {% if "LOGIN_BAD_CREDENTIALS" in errors %}
-                            <div class="invalid-feedback">
-                                The email or password you provided do not match
-                                a user. Please try again.
-                            </div>
-                        {% endif %}
                     </div>
 
+                    {% if "LOGIN_BAD_CREDENTIALS" in errors %}
+                        <div class="card border-warning mb-3">
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col">
+                                        <i
+                                            class="bi bi-info-circle-fill text-warning h5"></i>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col">
+                                        <h5 class="card-title">
+                                            Unknown email or password
+                                        </h5>
+                                    </div>
+                                </div>
+                                <p class="card-text">
+                                    No user matching the provided email or
+                                    password. Please try again.
+                                </p>
+                            </div>
+                        </div>
+                    {% endif %}
                     {% if "LOGIN_USER_NOT_VERIFIED" in errors %}
                         <div class="card border-info mb-3">
                             <div class="card-body">

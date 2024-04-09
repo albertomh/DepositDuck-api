@@ -130,7 +130,6 @@ async def login(
 ):
     context = {
         "request": request,
-        "classes_by_id": [],
     }
     return templates.TemplateResponse("auth/login.html.jinja2", context)
 
@@ -144,14 +143,11 @@ async def authenticate(
     request: Request,
 ):
     errors: list[str] = []
-    classes_by_id: dict[str, str] = defaultdict(str)
 
     user = await user_manager.authenticate(credentials)
 
     if user is None or not user.is_active:
         errors.append(ErrorCode.LOGIN_BAD_CREDENTIALS.value)
-        classes_by_id["username"] += f" {BootstrapClasses.IS_INVALID.value}"
-        classes_by_id["password"] += f" {BootstrapClasses.IS_INVALID.value}"
         credentials.username = ""
     if user and not user.is_verified:
         errors.append(ErrorCode.LOGIN_USER_NOT_VERIFIED.value)
@@ -164,7 +160,6 @@ async def authenticate(
     context = dict(
         request=request,
         username=credentials.username,
-        classes_by_id=classes_by_id,
         errors=errors,
     )
     return templates.TemplateResponse(
