@@ -18,6 +18,7 @@ This Changelog is automatically stamped by `cut_release.sh` as part of creating 
 - A UserManager class to centralize authentication logic.
 - An auth router for tasks related to authentication.
 - Endpoint to retrieve the n most relevant snippets for a user query.
+- Email templates and utilities to render and send HTML emails.
 - Bootstrap Icons 1.11.3
 - SCSS compilation pipeline to customise Bootstrap's palette.
 
