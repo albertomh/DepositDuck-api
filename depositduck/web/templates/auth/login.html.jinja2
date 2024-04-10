@@ -63,16 +63,24 @@
                     {% if "LOGIN_USER_NOT_VERIFIED" in errors %}
                         <div class="card border-info mb-3">
                             <div class="card-body">
-                                <h5 class="card-title">
-                                    <i
-                                        class="bi bi-info-circle-fill text-info"></i>
-                                    Please verify your email
-                                </h5>
-                                <p class="card-text">
-                                    Please follow the link in the email we have
-                                    sent you to verify your account before
-                                    logging in.
-                                </p>
+                                <div class="row">
+                                    <div class="col">
+                                        <i
+                                            class="bi bi-info-circle-fill text-info h5"></i>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col">
+                                        <h5 class="card-title">
+                                            Please verify your email
+                                        </h5>
+                                    </div>
+                                    <p class="card-text">
+                                        Please follow the link in the email we
+                                        have sent you to verify your account
+                                        before logging in.
+                                    </p>
+                                </div>
                             </div>
                         </div>
                     {% endif %}
