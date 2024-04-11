@@ -11,6 +11,81 @@
                 Log in
             </h1>
 
+            {% if prev_url == "/auth/signup/" or "LOGIN_USER_NOT_VERIFIED" in errors %}
+                <div class="card border-info my-3">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col">
+                                <i
+                                    class="bi bi-info-circle-fill text-info h5"></i>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col">
+                                <h5 class="card-title">
+                                    Please verify your email
+                                </h5>
+                            </div>
+                            <p class="card-text">
+                                Please follow the link in the email we have sent
+                                you to verify your account before logging in.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+
+            {% if info_context == "verificationToken" %}
+                <div class="card border-info my-3">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col">
+                                <i
+                                    class="bi bi-info-circle-fill text-info h5"></i>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col">
+                                <h5 class="card-title">
+                                    Please request a new verification link
+                                </h5>
+                            </div>
+                            <p class="card-text">
+                                The verification link you followed has expired.
+                                Please
+                                <!-- TODO: implement re-request verification (with email rate-limiting / cool-off !)-->
+                                <a hx-get="">click here</a>
+                                to request we email you a new one.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+
+            {% if prev_url == "/auth/verify/" %}
+                <div class="card border-success my-3">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col">
+                                <i
+                                    class="bi bi-check-circle-fill text-success h5"></i>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col">
+                                <h5 class="card-title">
+                                    Thank you for verifying
+                                </h5>
+                            </div>
+                            <p class="card-text">
+                                Thank you for verifying your email. You may now
+                                log in.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+
             {% block login_form %}
                 <form id="loginForm" hx-post="/auth/authenticate/">
                     <div class="mb-3">
@@ -22,7 +97,7 @@
                             id="username"
                             name="username"
                             value="{{ username }}"
-                            class="form-control"
+                            class="form-control {{ classes_by_id['username'] }}"
                             required />
                     </div>
                     <div class="mb-3">
@@ -33,7 +108,7 @@
                             type="password"
                             id="password"
                             name="password"
-                            class="form-control"
+                            class="form-control {{ classes_by_id['password'] }}"
                             required />
                     </div>
 
@@ -60,32 +135,11 @@
                             </div>
                         </div>
                     {% endif %}
-                    {% if "LOGIN_USER_NOT_VERIFIED" in errors %}
-                        <div class="card border-info mb-3">
-                            <div class="card-body">
-                                <div class="row">
-                                    <div class="col">
-                                        <i
-                                            class="bi bi-info-circle-fill text-info h5"></i>
-                                    </div>
-                                </div>
-                                <div class="row">
-                                    <div class="col">
-                                        <h5 class="card-title">
-                                            Please verify your email
-                                        </h5>
-                                    </div>
-                                    <p class="card-text">
-                                        Please follow the link in the email we
-                                        have sent you to verify your account
-                                        before logging in.
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-                    {% endif %}
 
-                    <button type="submit" class="btn btn-primary float-end">
+                    <button
+                        type="submit"
+                        id="submit"
+                        class="btn btn-primary float-end {{ classes_by_id['submit'] }}">
                         Log in
                     </button>
                 </form>
