@@ -2,6 +2,7 @@
 alembic ~= 1.13.1
 # postgres adapter
 asyncpg ~= 0.29.0
+cryptography ~= 42.0.5
 # web framework
 fastapi ~= 0.110.0
 # authentication framework
