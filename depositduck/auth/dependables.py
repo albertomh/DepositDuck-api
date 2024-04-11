@@ -10,9 +10,12 @@ from enum import Enum
 from typing import Annotated, Any, Optional
 
 from fastapi import Depends, Request, Response
-from fastapi_users import BaseUserManager, InvalidPasswordException, UUIDIDMixin
+from fastapi_users import BaseUserManager, UUIDIDMixin
 from fastapi_users.authentication.strategy.db import AccessTokenDatabase, DatabaseStrategy
 from fastapi_users.db import SQLAlchemyUserDatabase
+from fastapi_users.exceptions import (
+    InvalidPasswordException,
+)
 from fastapi_users_db_sqlmodel.access_token import SQLModelAccessTokenDatabaseAsync
 from sqlalchemy.ext.asyncio import (
     AsyncSession,
@@ -24,6 +27,7 @@ from depositduck.email import render_html_email, send_email
 from depositduck.models.auth import UserCreate
 from depositduck.models.email import HtmlEmail
 from depositduck.models.sql.auth import AccessToken, User
+from depositduck.utils import encrypt
 
 settings = get_settings()
 LOG = get_logger()
@@ -90,7 +94,10 @@ class UserManager(UUIDIDMixin, BaseUserManager[User, uuid.UUID]):
     ):
         LOG.debug(f"verification requested for {user} - token: {token}")
         subject = "Your DepositDuck account verification"
-        verification_url = f"{settings.app_origin}/auth/verify/?token={token}"
+        encrypted_email = encrypt(settings.app_secret, user.email)
+        verification_url = (
+            f"{settings.app_origin}/auth/verify/?email={encrypted_email}&token={token}"
+        )
         context = HtmlEmail(
             title=subject,
             preheader="Please verify your DepositDuck account - and get what's yours!",

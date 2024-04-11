@@ -4,7 +4,7 @@
 
 from collections import defaultdict
 
-from fastapi import APIRouter, Depends, Form, Request, status
+from fastapi import APIRouter, Depends, Form, Query, Request, status
 from fastapi.responses import RedirectResponse, Response
 from fastapi.security import OAuth2PasswordRequestForm
 from fastapi_users.authentication.strategy.db import DatabaseStrategy
@@ -29,9 +29,11 @@ from depositduck.auth.dependables import (
     get_user_manager,
 )
 from depositduck.auth.users import auth_backend, current_active_user
-from depositduck.dependables import get_logger, get_templates
+from depositduck.dependables import get_logger, get_settings, get_templates
 from depositduck.models.auth import UserCreate
 from depositduck.models.sql.auth import User
+from depositduck.settings import Settings
+from depositduck.utils import decrypt
 from depositduck.web.templates import BootstrapClasses
 
 auth_frontend_router = APIRouter(tags=["auth", "frontend"])
@@ -130,17 +132,19 @@ async def register(
 
 @auth_operations_router.get("/verify/")
 async def verify(
-    token: str,
     user_manager: Annotated[UserManager, Depends(get_user_manager)],
+    token: str,
+    encrypted_email: str | None = Query(default=None, alias="email"),
 ):
     redirect_url = "/login/?prev=/auth/verify/"
     try:
         await user_manager.verify(token)
-    except InvalidVerifyToken:
-        LOG.error("verify error - invalid token")
-        redirect_url = "/login/?info=verificationToken"
-    except UserAlreadyVerified:
-        LOG.warn("verify error - already verified")
+    except (InvalidVerifyToken, UserAlreadyVerified) as e:
+        if isinstance(e, InvalidVerifyToken):
+            LOG.error("verify error - invalid token")
+            redirect_url = f"/login/?email={encrypted_email}"
+        else:
+            LOG.warn("verify error - already verified")
 
     return RedirectResponse(redirect_url, status_code=status.HTTP_302_FOUND)
 
@@ -150,25 +154,37 @@ async def verify(
     summary="[htmx]",
 )
 async def login(
+    settings: Annotated[Settings, Depends(get_settings)],
+    user_manager: Annotated[UserManager, Depends(get_user_manager)],
     templates: Annotated[Jinja2Blocks, Depends(get_templates)],
     request: Request,
     prev: str | None = None,
     next: str | None = None,
-    info: str | None = None,
+    encrypted_email: str | None = Query(default=None, alias="email"),
 ):
-    classes_by_id: dict[str, str] = defaultdict(str)
-
-    if info and "verificationToken" in info:
-        classes_by_id["username"] = "bg-light"
-        classes_by_id["password"] = "bg-light"  # nosec B105
-        classes_by_id["submit"] = "disabled"
+    # handle user following verification link for expired / invalid token and
+    # `/auth/verify/` redirecting them here with a `verificationToken` query parameter.
+    # Show info message and prompt them to request new verification token.
+    prompt_to_reverify = False
+    user_email = ""
+    if encrypted_email:
+        email = decrypt(settings.app_secret, encrypted_email)
+        try:
+            user = await user_manager.get_by_email(email)
+        except UserNotExists:
+            # TODO:
+            pass
+        if not user.is_verified:
+            LOG.warn(f"invalid verify token for {user} - prompting to re-verify")
+            prompt_to_reverify = True
+            user_email = email
 
     context = dict(
         request=request,
         prev_url=prev,
         next_url=next,
-        info_context=info,
-        classes_by_id=classes_by_id,
+        prompt_to_reverify=prompt_to_reverify,
+        user_email=user_email,
     )
     return templates.TemplateResponse("auth/login.html.jinja2", context)
 
