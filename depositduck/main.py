@@ -20,14 +20,13 @@ from depositduck import (
     VERSION_PATCH,
 )
 from depositduck.auth.routes import auth_frontend_router, auth_operations_router
-from depositduck.dependables import get_db_engine, get_settings
+from depositduck.dependables import get_settings
 from depositduck.kitchensink.routes import kitchensink_router
 from depositduck.llm.routes import llm_router
 from depositduck.web.routes import web_router
 
 VERSION = f"{VERSION_MAJOR}.{VERSION_MINOR}.{VERSION_PATCH}"
 settings = get_settings()
-db_engine = get_db_engine(settings)
 
 
 def get_webapp() -> FastAPI:

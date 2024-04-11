@@ -14,7 +14,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 from typing_extensions import Annotated
 
-from depositduck.dependables import get_db_session, get_drallam_client, get_settings
+from depositduck.dependables import db_session, get_drallam_client, get_settings
 from depositduck.llm.embeddings import embed_document
 from depositduck.models.common import EntityById, TwoOhOneCreatedCount
 from depositduck.models.llm import NOMIC, EmbeddingBase, SnippetBase
@@ -52,7 +52,6 @@ async def find_by_id(db_session: AsyncSession, T: Type[Any], id: UUID) -> Source
 )
 async def snippets_from_sourcetext(
     source_text_by_id: EntityById,
-    db_session: Annotated[AsyncSession, Depends(get_db_session)],
 ):
     """
     Given a SourceText in the database, split it and save as Snippet records.
@@ -64,9 +63,10 @@ async def snippets_from_sourcetext(
     - a count of how many Snippet records were saved to the database
     """
     try:
-        source_text: SourceText = await find_by_id(
-            db_session, SourceText, source_text_by_id.id
-        )
+        async with db_session.begin() as session:
+            source_text: SourceText = await find_by_id(
+                session, SourceText, source_text_by_id.id
+            )
     except HTTPException:
         raise
 
@@ -74,16 +74,16 @@ async def snippets_from_sourcetext(
     paragraphs = [p for p in re.split(r"\n{2,}", source_text.content) if p]
 
     try:
-        await db_session.execute(
-            insert(Snippet),
-            [
-                SnippetBase(
-                    content=paragraph.strip(), source_text_id=source_text.id
-                ).model_dump()
-                for paragraph in paragraphs
-            ],
-        )
-        await db_session.commit()
+        async with db_session.begin() as session:
+            await session.execute(
+                insert(Snippet),
+                [
+                    SnippetBase(
+                        content=paragraph.strip(), source_text_id=source_text.id
+                    ).model_dump()
+                    for paragraph in paragraphs
+                ],
+            )
     except IntegrityError as e:
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e._message))
 
@@ -100,7 +100,6 @@ async def embeddings_from_snippets(
     source_text_by_id: EntityById,
     settings: Annotated[Settings, Depends(get_settings)],
     drallam_client: Annotated[httpx.AsyncClient, Depends(get_drallam_client)],
-    db_session: Annotated[AsyncSession, Depends(get_db_session)],
 ):
     """
     Given a SourceText that has been split into Snippets, generate embeddings for each
@@ -114,15 +113,17 @@ async def embeddings_from_snippets(
     database
     """
     try:
-        source_text: SourceText = await find_by_id(
-            db_session, SourceText, source_text_by_id.id
-        )
+        async with db_session.begin() as session:
+            source_text: SourceText = await find_by_id(
+                session, SourceText, source_text_by_id.id
+            )
     except HTTPException:
         raise
 
-    snippets_query = await db_session.execute(
-        select(Snippet).filter_by(source_text_id=source_text.id)
-    )
+    async with db_session.begin() as session:
+        snippets_query = await session.execute(
+            select(Snippet).filter_by(source_text_id=source_text.id)
+        )
     snippets = [s[0] for s in cast(Iterable[tuple[Snippet]], snippets_query.all())]
     if not snippets:
         raise HTTPException(
@@ -138,16 +139,16 @@ async def embeddings_from_snippets(
         await embed_document(settings, drallam_client, doc) for doc in snippets_contents
     ]
 
-    await db_session.execute(
-        insert(EmbeddingNomic),
-        [
-            EmbeddingBase(
-                snippet_id=snippet.id, llm_name=NOMIC.name, vector=embedding
-            ).model_dump()
-            for snippet, embedding in zip(snippets, embeddings)
-        ],
-    )
-    await db_session.commit()
+    async with db_session.begin() as session:
+        await session.execute(
+            insert(EmbeddingNomic),
+            [
+                EmbeddingBase(
+                    snippet_id=snippet.id, llm_name=NOMIC.name, vector=embedding
+                ).model_dump()
+                for snippet, embedding in zip(snippets, embeddings)
+            ],
+        )
 
     return TwoOhOneCreatedCount(created_count=len(embeddings))
 
@@ -160,7 +161,6 @@ async def embeddings_from_snippets(
 async def find_snippets_relevant_to_query(
     settings: Annotated[Settings, Depends(get_settings)],
     drallam_client: Annotated[httpx.AsyncClient, Depends(get_drallam_client)],
-    db_session: Annotated[AsyncSession, Depends(get_db_session)],
     query: str = Query(..., title="query", description=""),
     max_snippets: int = Query(5, title="max", description=""),
 ) -> list[str]:
@@ -182,10 +182,11 @@ async def find_snippets_relevant_to_query(
 
     query_embedding = await embed_document(settings, drallam_client, query)
 
-    neighbours = await db_session.scalars(
-        select(EmbeddingNomic)
-        .order_by(EmbeddingNomic.vector.l2_distance(query_embedding))  # type: ignore[attr-defined]
-        .limit(max_snippets)
-        .options(selectinload(EmbeddingNomic.snippet))  # type: ignore[arg-type]
-    )
+    async with db_session.begin() as session:
+        neighbours = await session.scalars(
+            select(EmbeddingNomic)
+            .order_by(EmbeddingNomic.vector.l2_distance(query_embedding))  # type: ignore[attr-defined]
+            .limit(max_snippets)
+            .options(selectinload(EmbeddingNomic.snippet))  # type: ignore[arg-type]
+        )
     return [n.snippet.content for n in neighbours]

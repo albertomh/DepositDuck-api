@@ -131,6 +131,8 @@ The `models` package defines physical and virtual models for entities used in th
 It contains:
 
 - the `common` module - mixins to help build base models and tables elsewhere.
+- the `auth` module - user authentication.
+- the `email` module - templates and utilities to render and send HTML emails.
 - the `llm` module - models used when interacting with LLMs and storing their output
   (embeddings, etc.)
 - the `sql` package - table models inheriting the models defined elsewhere. Uses SQLModel.
