@@ -15,7 +15,6 @@ from fastapi import Depends
 from jinja2 import select_autoescape
 from jinja2_fragments.fastapi import Jinja2Blocks
 from sqlalchemy.ext.asyncio import (
-    AsyncEngine,
     AsyncSession,
     async_sessionmaker,
     create_async_engine,
@@ -72,25 +71,6 @@ def get_db_connection_string(settings=None) -> str:
     return f"postgresql+asyncpg://{user}:{password}@{host}:{port}/{name}"
 
 
-@cache
-def get_db_engine(
-    settings: Annotated[Settings, Depends(get_settings)],
-) -> AsyncEngine:
-    return create_async_engine(get_db_connection_string(), echo=settings.debug)
-
-
-async def get_db_session(
-    engine: Annotated[AsyncEngine, Depends(get_db_engine)],
-) -> AYieldFixture[AsyncSession]:
-    # `expire_on_commit=False` allows accessing object attributes
-    # even after a call to `AsyncSession.commit()`.
-    async_session = async_sessionmaker(
-        engine, class_=AsyncSession, expire_on_commit=False
-    )
-    async with async_session() as session:
-        yield session
-
-
 # @cache
 async def get_drallam_client(
     settings: Annotated[Settings, Depends(get_settings)],
@@ -101,3 +81,10 @@ async def get_drallam_client(
     # create a new client for each request and close it once it is done
     async with httpx.AsyncClient(base_url=drallam_url) as client:
         yield client
+
+
+db_engine = create_async_engine(get_db_connection_string(), echo=get_settings().debug)
+
+# `expire_on_commit=False` allows accessing object attributes
+# even after a call to `AsyncSession.commit()`.
+db_session = async_sessionmaker(db_engine, class_=AsyncSession, expire_on_commit=False)

@@ -14,9 +14,12 @@ from fastapi_users import BaseUserManager, InvalidPasswordException, UUIDIDMixin
 from fastapi_users.authentication.strategy.db import AccessTokenDatabase, DatabaseStrategy
 from fastapi_users.db import SQLAlchemyUserDatabase
 from fastapi_users_db_sqlmodel.access_token import SQLModelAccessTokenDatabaseAsync
-from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.ext.asyncio import (
+    AsyncSession,
+    async_sessionmaker,
+)
 
-from depositduck.dependables import get_db_session, get_logger, get_settings
+from depositduck.dependables import AYieldFixture, db_engine, get_logger, get_settings
 from depositduck.models.auth import UserCreate
 from depositduck.models.sql.auth import AccessToken, User
 
@@ -99,11 +102,26 @@ class UserManager(UUIDIDMixin, BaseUserManager[User, uuid.UUID]):
         user: User,
         request: Optional[Request] = None,
     ):
-        # TODO: stub - log
-        LOG.debug(f"User {user.id} has reset their password.")
+        LOG.info(f"{user} has reset their password.")
 
 
-async def get_user_db(db_session: Annotated[AsyncSession, Depends(get_db_session)]):
+async def _get_db_session() -> AYieldFixture[AsyncSession]:
+    """
+    A SQLAlchemy sessionmaker to be used only with fastapi-users related dependables.
+    This is necessary because fastapi-users' internal methods call session.commit(),
+    which is incompatible with using a session context manager (session.begin()).
+    See https://github.com/sqlalchemy/sqlalchemy/discussions/9114
+    """
+    # `expire_on_commit=False` allows accessing object attributes
+    # even after a call to `AsyncSession.commit()`.
+    async_session = async_sessionmaker(
+        db_engine, class_=AsyncSession, expire_on_commit=False
+    )
+    async with async_session() as session:
+        yield session
+
+
+async def get_user_db(db_session: Annotated[AsyncSession, Depends(_get_db_session)]):
     yield SQLAlchemyUserDatabase(db_session, User)
 
 
@@ -114,7 +132,7 @@ async def get_user_manager(
 
 
 async def get_access_token_db(
-    db_session: Annotated[AsyncSession, Depends(get_db_session)],
+    db_session: Annotated[AsyncSession, Depends(_get_db_session)],
 ):
     yield SQLModelAccessTokenDatabaseAsync(db_session, AccessToken)
 
