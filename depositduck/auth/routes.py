@@ -18,7 +18,7 @@ from fastapi_users.exceptions import (
 )
 from fastapi_users.router.common import ErrorCode
 from jinja2_fragments.fastapi import Jinja2Blocks
-from pydantic import ValidationError
+from pydantic import EmailStr, ValidationError
 from typing_extensions import Annotated
 
 from depositduck.auth import AUTH_COOKIE_NAME
@@ -78,7 +78,7 @@ async def signup(
 
 @auth_operations_router.post("/register/")
 async def register(
-    email: Annotated[str, Form()],
+    email: Annotated[EmailStr, Form()],
     password: Annotated[str, Form()],
     confirm_password: Annotated[str, Form()],
     templates: Annotated[Jinja2Blocks, Depends(get_templates)],
@@ -130,21 +130,55 @@ async def register(
     )
 
 
+@auth_operations_router.get(
+    "/request-verification/",
+)
+async def request_verification(
+    settings: Annotated[Settings, Depends(get_settings)],
+    user_manager: Annotated[UserManager, Depends(get_user_manager)],
+    encrypted_email: str | None = Query(default=None, alias="email"),
+):
+    redirect_url = "/login/"
+
+    if encrypted_email:
+        redirect_url += "?prev=/auth/signup/"
+
+        email = decrypt(settings.app_secret, encrypted_email)
+        LOG.debug(f"re-verify request for [email={email}]")
+        try:
+            user = await user_manager.get_by_email(email)
+        except UserNotExists:
+            # TODO:
+            pass
+
+        try:
+            user = await user_manager.get_by_email(email)
+            # TODO: implement email rate-limiting / cool-off !
+            await user_manager.request_verify(user)
+        except (UserNotExists, UserInactive, UserAlreadyVerified) as e:
+            LOG.warn(f"exception when initiating verification for {user}: {e}")
+
+    return RedirectResponse(redirect_url, status_code=status.HTTP_302_FOUND)
+
+
 @auth_operations_router.get("/verify/")
 async def verify(
+    settings: Annotated[Settings, Depends(get_settings)],
     user_manager: Annotated[UserManager, Depends(get_user_manager)],
     token: str,
-    encrypted_email: str | None = Query(default=None, alias="email"),
+    encrypted_email: str = Query(alias="email"),
 ):
     redirect_url = "/login/?prev=/auth/verify/"
     try:
         await user_manager.verify(token)
+        redirect_url += f"&email={encrypted_email}"
     except (InvalidVerifyToken, UserAlreadyVerified) as e:
+        redirect_url += f"&email={encrypted_email}"
+        email = decrypt(settings.app_secret, encrypted_email)
         if isinstance(e, InvalidVerifyToken):
-            LOG.error("verify error - invalid token")
-            redirect_url = f"/login/?email={encrypted_email}"
+            LOG.error(f"verify error - invalid token for [email={email}]")
         else:
-            LOG.warn("verify error - already verified")
+            LOG.warn(f"verify error - already verified [email={email}]")
 
     return RedirectResponse(redirect_url, status_code=status.HTTP_302_FOUND)
 
@@ -162,10 +196,8 @@ async def login(
     next: str | None = None,
     encrypted_email: str | None = Query(default=None, alias="email"),
 ):
-    # handle user following verification link for expired / invalid token and
-    # `/auth/verify/` redirecting them here with a `verificationToken` query parameter.
-    # Show info message and prompt them to request new verification token.
     prompt_to_reverify = False
+    # value to auto-fill in the 'email' input
     user_email = ""
     if encrypted_email:
         email = decrypt(settings.app_secret, encrypted_email)
@@ -177,13 +209,16 @@ async def login(
         if not user.is_verified:
             LOG.warn(f"invalid verify token for {user} - prompting to re-verify")
             prompt_to_reverify = True
-            user_email = email
+        else:
+            if prev == "/auth/verify/":
+                user_email = user.email
 
     context = dict(
         request=request,
         prev_url=prev,
         next_url=next,
         prompt_to_reverify=prompt_to_reverify,
+        encrypted_email=encrypted_email,
         user_email=user_email,
     )
     return templates.TemplateResponse("auth/login.html.jinja2", context)

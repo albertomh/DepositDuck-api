@@ -12,12 +12,12 @@
             </h1>
 
             {% if prev_url == "/auth/signup/" or "LOGIN_USER_NOT_VERIFIED" in errors %}
-                <div class="card border-info my-3">
+                <div class="card border-warning my-3">
                     <div class="card-body">
                         <div class="row">
                             <div class="col">
                                 <i
-                                    class="bi bi-info-circle-fill text-info h5"></i>
+                                    class="bi bi-envelope-exclamation-fill text-warning h5"></i>
                             </div>
                         </div>
                         <div class="row">
@@ -50,19 +50,20 @@
                                     Please request a new verification link
                                 </h5>
                             </div>
-                            <p class="card-text">
-                                The verification link you followed has expired.
-                                Please
-                                <!-- TODO: implement re-request verification (with email rate-limiting / cool-off !)-->
-                                <a hx-get="">click here</a>
-                                to request we email you a new one.
+                            <p class="card-text mb-1">
+                                That verification link has expired. Click to
+                                request a new one:
                             </p>
+                            <a
+                                href="/auth/request-verification/?email={{ encrypted_email }}">
+                                Email me a new link
+                            </a>
                         </div>
                     </div>
                 </div>
             {% endif %}
 
-            {% if prev_url == "/auth/verify/" %}
+            {% if not prompt_to_reverify and prev_url == "/auth/verify/" %}
                 <div class="card border-success my-3">
                     <div class="card-body">
                         <div class="row">
@@ -96,7 +97,7 @@
                             type="text"
                             id="username"
                             name="username"
-                            value="{{ username }}"
+                            value="{{ user_email }}"
                             class="form-control"
                             required
                             {% if prompt_to_reverify %}disabled{% endif %} />

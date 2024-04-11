@@ -25,7 +25,7 @@ async def send_test_email(
         title=subject,
         preheader="Kitchensink test email from local development.",
     )
-    html: str = await render_html_email("welcome.html.jinja2", context)
+    html: str = await render_html_email("please_verify.html.jinja2", context)
     await send_email(recipient, subject, html)
     return Response(status_code=status.HTTP_204_NO_CONTENT)
 
