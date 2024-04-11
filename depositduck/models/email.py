@@ -5,7 +5,7 @@
 from datetime import datetime
 from uuid import UUID
 
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 
 class EmailBase(BaseModel):
@@ -15,3 +15,11 @@ class EmailBase(BaseModel):
     subject: str
     body: str
     sent_at: datetime | None = None
+
+
+class HtmlEmail(BaseModel):
+    title: str
+    preheader: str
+
+    # emails will take different variables beyond the standard ones defined above
+    model_config = ConfigDict(extra="allow")
