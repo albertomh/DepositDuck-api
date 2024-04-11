@@ -20,7 +20,9 @@ from sqlalchemy.ext.asyncio import (
 )
 
 from depositduck.dependables import AYieldFixture, db_engine, get_logger, get_settings
+from depositduck.email import render_html_email, send_email
 from depositduck.models.auth import UserCreate
+from depositduck.models.email import HtmlEmail
 from depositduck.models.sql.auth import AccessToken, User
 
 settings = get_settings()
@@ -68,6 +70,7 @@ class UserManager(UUIDIDMixin, BaseUserManager[User, uuid.UUID]):
         user: User,
         request: Optional[Request] = None,
     ):
+        # TODO: stub - save event for analytics
         LOG.debug(f"User {user.id} registered")
 
     async def on_after_login(
@@ -77,7 +80,7 @@ class UserManager(UUIDIDMixin, BaseUserManager[User, uuid.UUID]):
         response: Optional[Response] = None,
     ):
         # TODO: stub - save event for analytics
-        LOG.debug(f"User {user.id} logged in")
+        LOG.debug(f"{user} logged in")
 
     async def on_after_request_verify(
         self,
@@ -85,8 +88,16 @@ class UserManager(UUIDIDMixin, BaseUserManager[User, uuid.UUID]):
         token: str,
         request: Optional[Request] = None,
     ):
-        # TODO: stub - enqueue verification email
-        LOG.debug(f"Verification requested for user {user.id} - token: {token}")
+        LOG.debug(f"verification requested for {user} - token: {token}")
+        subject = "Your DepositDuck account verification"
+        verification_url = f"{settings.app_origin}/auth/verify/?token={token}"
+        context = HtmlEmail(
+            title=subject,
+            preheader="Please verify your DepositDuck account - and get what's yours!",
+            verification_url=verification_url,
+        )
+        html: str = await render_html_email("welcome.html.jinja2", context)
+        await send_email(user.email, subject, html)
 
     async def on_after_forgot_password(
         self,
@@ -95,7 +106,7 @@ class UserManager(UUIDIDMixin, BaseUserManager[User, uuid.UUID]):
         request: Optional[Request] = None,
     ):
         # TODO: stub - rate limit & enqueue reset email
-        LOG.debug(f"User {user.id} requested a password reset - token: {token}")
+        LOG.debug(f"user {user.id} requested a password reset - token: {token}")
 
     async def on_after_reset_password(
         self,
