@@ -103,7 +103,7 @@ class UserManager(UUIDIDMixin, BaseUserManager[User, uuid.UUID]):
             preheader="Please verify your DepositDuck account - and get what's yours!",
             verification_url=verification_url,
         )
-        html: str = await render_html_email("welcome.html.jinja2", context)
+        html: str = await render_html_email("please_verify.html.jinja2", context)
         await send_email(user.email, subject, html)
 
     async def on_after_forgot_password(

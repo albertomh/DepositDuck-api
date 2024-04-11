@@ -10,7 +10,10 @@
         <div id="motd">
             <p>{% if motd %}{{ motd }}{% else %}---{% endif %}</p>
             {% if motd is not defined %}
-                <button hx-get="/motd" hx-trigger="click" hx-target="#motd">
+                <button
+                    hx-get="/kitchensink/motd/"
+                    hx-trigger="click"
+                    hx-target="#motd">
                     🔄 Refresh
                 </button>
             {% endif %}
@@ -19,5 +22,5 @@
 
     <p>name: {{ app_name }}</p>
 
-    <div hx-get="/fragment" hx-trigger="load">Loading...</div>
+    <div hx-get="/kitchensink/fragment/" hx-trigger="load">Loading...</div>
 {% endblock %}
