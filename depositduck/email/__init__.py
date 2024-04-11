@@ -3,6 +3,7 @@
 """
 
 import ssl
+from datetime import datetime
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from smtplib import (
@@ -16,18 +17,19 @@ from smtplib import (
 )
 
 from jinja2 import Environment, FileSystemLoader, select_autoescape
-from pydantic import BaseModel
+from pydantic import EmailStr
 
 from depositduck import BASE_DIR
-from depositduck.dependables import get_logger, get_settings
+from depositduck.dependables import (
+    db_session,
+    get_logger,
+    get_settings,
+)
+from depositduck.models.email import HtmlEmail
+from depositduck.models.sql.email import Email
 
 LOG = get_logger()
 settings = get_settings()
-
-
-class HtmlEmail(BaseModel):
-    title: str
-    preheader: str
 
 
 async def render_html_email(template_name: str, context: HtmlEmail) -> str:
@@ -44,13 +46,28 @@ async def render_html_email(template_name: str, context: HtmlEmail) -> str:
     return rendered_html
 
 
+async def record_email(
+    sender: EmailStr, recipient: EmailStr, subject: str, html_body: str
+):
+    async with db_session.begin() as session:
+        email = Email(
+            sender_address=sender,
+            recipient_address=recipient,
+            subject=subject,
+            body=html_body,
+            sent_at=datetime.now(),
+        )
+        session.add(email)
+        await session.commit()
+
+
 async def send_email(
-    recipient: str, subject: str, html_body: str, plain_body: str | None = None
+    recipient: EmailStr, subject: str, html_body: str, plain_body: str | None = None
 ) -> None:
-    sender_email = settings.smtp_sender_address
+    sender = settings.smtp_sender_address
     smtp_password = settings.smtp_password
     message = MIMEMultipart()
-    message["From"] = sender_email
+    message["From"] = sender
     message["To"] = recipient
     message["Subject"] = subject
     html_part = MIMEText(html_body, "html")
@@ -72,8 +89,9 @@ async def send_email(
         try:
             if not settings.debug:
                 server.starttls()
-                server.login(sender_email, smtp_password)
-            server.sendmail(sender_email, recipient, message.as_string())
+                server.login(sender, smtp_password)
+            server.sendmail(sender, recipient, message.as_string())
+            await record_email(sender, recipient, subject, html_body)
         except (
             SMTPHeloError,
             SMTPRecipientsRefused,
@@ -81,6 +99,7 @@ async def send_email(
             SMTPDataError,
             SMTPNotSupportedError,
         ) as e:
+            # TODO: alert of failure and retry
             LOG.error(f"TODO: {e}")
         finally:
             server.quit()

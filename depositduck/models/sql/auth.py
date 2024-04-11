@@ -22,6 +22,9 @@ class User(DeletedAtMixin, CreatedAtMixin, SQLModelBaseUserDB, UserBase, table=T
     emails: list["Email"] = Relationship(back_populates="user")  # type: ignore [name-defined] # noqa: F821
     access_tokens: list["AccessToken"] = Relationship(back_populates="user")
 
+    def __repr__(self):
+        return f"User [id={self.id}]"
+
 
 class AccessToken(SQLModelBaseAccessToken, table=True):
     __tablename__ = "auth__access_token"
@@ -29,3 +32,14 @@ class AccessToken(SQLModelBaseAccessToken, table=True):
     user_id: UUID4 = Field(foreign_key="auth__user.id", nullable=False)
 
     user: User = Relationship(back_populates="access_tokens")
+
+    def __repr__(self):
+        return f"AccessToken for User [id={self.user_id}]"
+
+
+# needed to avoid circular import between sql.auth & sql.email and allow us to
+# define the many-to-many relationship `User.emails`
+# see https://github.com/tiangolo/sqlmodel/issues/121#issuecomment-935656778
+# from depositduck.models.sql.email import Email  # noqa: E402
+
+User.model_rebuild()
