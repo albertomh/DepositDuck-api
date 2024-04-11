@@ -19,6 +19,9 @@ $danger: $red;
 $light: $light;
 $dark: #000000;
 
+$bootstrap-blue: #0d6efd;
+$link-color: $bootstrap-blue;
+
 // 3. Include remainder of required Bootstrap stylesheets (including any separate color mode stylesheets)
 @import "./bootstrap-5_3_3/variables";
 @import "./bootstrap-5_3_3/variables-dark";
