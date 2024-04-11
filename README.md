@@ -62,6 +62,19 @@ After doing the above the following are now available:
 - [0.0.0.0:8000/docs](http://0.0.0.0:8000/docs) - interactive docs for the `webapp`
 - [0.0.0.0:8000/llm/docs](http://0.0.0.0:8000/llm/docs) - interactive docs for the `llmapp`
 
+### Environment variables / application Settings
+
+#### APP_SECRET
+
+`APP_SECRET` must be a valid Fernet key. This is because it is used for symmetric
+encryption (amongst other things). A custom validator in Settings checks this is the case
+when environment variables are first loaded. A valid key may be generated with:
+
+```sh
+. ./.venv/bin/activate
+python -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())"
+```
+
 ### Development workflow
 
 This repo follows trunk-based development. This means:

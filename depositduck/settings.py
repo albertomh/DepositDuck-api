@@ -13,8 +13,10 @@ a Settings object can be decorated with @lru_cache.
 (c) 2024 Alberto Morón Hernández
 """
 
-from pydantic import PositiveInt
+from pydantic import PositiveInt, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+from depositduck.utils import is_valid_fernet_key
 
 
 class Settings(BaseSettings):
@@ -39,5 +41,16 @@ class Settings(BaseSettings):
     drallam_host: str = "0.0.0.0"  # nosec B104
     drallam_port: PositiveInt = 11434
     drallam_embeddings_model: str = "nomic-embed-text:v1.5"
+
+    @field_validator("app_secret")
+    @classmethod
+    def app_secret_is_valid_fernet_key(cls, value: str) -> str:
+        try:
+            is_valid = is_valid_fernet_key(value)
+        except (ValueError, TypeError):
+            raise
+        if not is_valid:
+            raise ValueError("setting APP_SECRET is not valid Fernet key")
+        return value
 
     model_config = SettingsConfigDict(env_nested_delimiter="__", frozen=True)
