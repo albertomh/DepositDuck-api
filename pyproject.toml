@@ -31,6 +31,9 @@ indent-width = 4
 select = ["E", "I", "F", "W"]
 ignore = []
 
+[tool.mypy]
+plugins = "pydantic.mypy"
+
 [tool.pyright]
 reportInvalidTypeForm = false
 

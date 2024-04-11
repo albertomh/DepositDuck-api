@@ -5,6 +5,8 @@
 #
 # (c) 2024 Alberto Morón Hernández
 
+# TODO: look at replacing with https://github.com/casey/just ?
+
 # run all targets & commands in the same shell instance
 .ONESHELL:
 
