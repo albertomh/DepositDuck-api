@@ -17,7 +17,6 @@ from fastapi_users.exceptions import (
     UserNotExists,
 )
 from fastapi_users.router.common import ErrorCode
-from jinja2_fragments.fastapi import Jinja2Blocks
 from pydantic import EmailStr, ValidationError
 from typing_extensions import Annotated
 
@@ -29,7 +28,12 @@ from depositduck.auth.dependables import (
     get_user_manager,
 )
 from depositduck.auth.users import auth_backend, current_active_user
-from depositduck.dependables import get_logger, get_settings, get_templates
+from depositduck.dependables import (
+    AuthenticatedJinjaBlocks,
+    get_logger,
+    get_settings,
+    get_templates,
+)
 from depositduck.models.auth import UserCreate
 from depositduck.models.sql.auth import User
 from depositduck.settings import Settings
@@ -66,13 +70,15 @@ async def log_user_in(
     summary="[htmx]",
 )
 async def signup(
-    templates: Annotated[Jinja2Blocks, Depends(get_templates)],
+    templates: Annotated[AuthenticatedJinjaBlocks, Depends(get_templates)],
+    user: Annotated[User, Depends(current_active_user)],
     request: Request,
 ):
-    context = {
-        "request": request,
-        "classes_by_id": {},
-    }
+    context = AuthenticatedJinjaBlocks.TemplateContext(
+        request=request,
+        user=user,
+        classes_by_id={},
+    )
     return templates.TemplateResponse("auth/signup.html.jinja2", context)
 
 
@@ -81,8 +87,9 @@ async def register(
     email: Annotated[EmailStr, Form()],
     password: Annotated[str, Form()],
     confirm_password: Annotated[str, Form()],
-    templates: Annotated[Jinja2Blocks, Depends(get_templates)],
+    templates: Annotated[AuthenticatedJinjaBlocks, Depends(get_templates)],
     user_manager: Annotated[UserManager, Depends(get_user_manager)],
+    user: Annotated[User, Depends(current_active_user)],
     request: Request,
 ):
     # TODO: redirect user away if already logged in.
@@ -118,8 +125,9 @@ async def register(
         if BootstrapClasses.IS_INVALID not in classes:
             classes_by_id[element_id] += f" {BootstrapClasses.IS_VALID.value}"
 
-    context = dict(
+    context = AuthenticatedJinjaBlocks.TemplateContext(
         request=request,
+        user=user,
         email=email,
         password=password,
         classes_by_id=classes_by_id,
@@ -190,7 +198,8 @@ async def verify(
 async def login(
     settings: Annotated[Settings, Depends(get_settings)],
     user_manager: Annotated[UserManager, Depends(get_user_manager)],
-    templates: Annotated[Jinja2Blocks, Depends(get_templates)],
+    user: Annotated[User, Depends(current_active_user)],
+    templates: Annotated[AuthenticatedJinjaBlocks, Depends(get_templates)],
     request: Request,
     prev: str | None = None,
     next: str | None = None,
@@ -213,8 +222,9 @@ async def login(
             if prev == "/auth/verify/":
                 user_email = user.email
 
-    context = dict(
+    context = AuthenticatedJinjaBlocks.TemplateContext(
         request=request,
+        user=user,
         prev_url=prev,
         next_url=next,
         prompt_to_reverify=prompt_to_reverify,
@@ -228,7 +238,7 @@ async def login(
 async def authenticate(
     credentials: Annotated[OAuth2PasswordRequestForm, Depends()],
     auth_db_strategy: Annotated[DatabaseStrategy, Depends(get_database_strategy)],
-    templates: Annotated[Jinja2Blocks, Depends(get_templates)],
+    templates: Annotated[AuthenticatedJinjaBlocks, Depends(get_templates)],
     user_manager: Annotated[UserManager, Depends(get_user_manager)],
     request: Request,
 ):
@@ -247,8 +257,9 @@ async def authenticate(
         redirect_response = await log_user_in(auth_db_strategy, user, redirect_response)
         return redirect_response
 
-    context = dict(
+    context = AuthenticatedJinjaBlocks.TemplateContext(
         request=request,
+        user=user,
         username=credentials.username,
         errors=errors,
     )
