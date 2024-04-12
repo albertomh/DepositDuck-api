@@ -11,18 +11,21 @@ from functools import cache
 from typing import Annotated, AsyncGenerator, TypeVar
 
 import httpx
-from fastapi import Depends
+from fastapi import Depends, HTTPException, Request, status
 from jinja2 import select_autoescape
 from jinja2_fragments.fastapi import Jinja2Blocks
+from pydantic import BaseModel, ConfigDict
 from sqlalchemy.ext.asyncio import (
     AsyncSession,
     async_sessionmaker,
     create_async_engine,
 )
+from starlette.responses import Response
 from structlog import configure, make_filtering_bound_logger
 from structlog import get_logger as get_structlogger
 
 from depositduck import BASE_DIR
+from depositduck.models.sql.auth import User
 from depositduck.settings import Settings
 
 T = TypeVar("T")
@@ -50,11 +53,38 @@ def get_settings() -> Settings:
     return Settings()
 
 
+class AuthenticatedJinjaBlocks(Jinja2Blocks):
+    """
+    Derived class to ensure the TemplateResponse context has a request and a user passed
+    to it. Even if the user is None to denote an unauthenticated request.
+    """
+
+    class TemplateContext(BaseModel):
+        request: Request
+        user: User | None
+
+        model_config = ConfigDict(extra="allow", arbitrary_types_allowed=True)
+
+    def TemplateResponse(
+        self, name: str, context: TemplateContext, *args, **kwargs
+    ) -> Response:
+        if not isinstance(context, self.TemplateContext):
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail=(
+                    "jinja block TemplateResponse received context not conforming to "
+                    "TemplateContext"
+                ),
+            )
+
+        return super().TemplateResponse(name, context.model_dump(), *args, **kwargs)
+
+
 @cache
-def get_templates() -> Jinja2Blocks:
+def get_templates() -> AuthenticatedJinjaBlocks:
     templates_dir_path = BASE_DIR / "web" / "templates"
 
-    return Jinja2Blocks(
+    return AuthenticatedJinjaBlocks(
         directory=str(templates_dir_path),
         autoescape=select_autoescape(("html", "jinja2")),
     )

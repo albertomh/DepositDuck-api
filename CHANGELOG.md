@@ -11,17 +11,20 @@ This Changelog is automatically stamped by `cut_release.sh` as part of creating 
 
 ### Added
 
+- Email-based sign-up and log-in flows.
 - fastapi-users as the authentication library.
 - An auth__user table to hold user data.
 - An auth__access_token table to enable an authentication backend using the database
   strategy and cookie-based transport.
 - A UserManager class to centralize authentication logic.
 - An auth router for tasks related to authentication.
-- Endpoint to retrieve the n most relevant snippets for a user query.
+- `AuthenticatedJinjaBlocks` class to ensure the TemplateResponse context has a request
+  and user passed to it. Even if the user is None to denote an unauthenticated request.
 - Email templates and utilities to render and send HTML emails.
 - An email__email table to track sent emails.
 - Bootstrap Icons 1.11.3
 - SCSS compilation pipeline to customise Bootstrap's palette.
+- Endpoint to retrieve the n most relevant snippets for a user query.
 
 ###  Removed
 

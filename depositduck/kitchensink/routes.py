@@ -3,12 +3,11 @@
 """
 
 from fastapi import APIRouter, Depends, Request, Response, status
-from jinja2_fragments.fastapi import Jinja2Blocks
 from pydantic import EmailStr
 from typing_extensions import Annotated
 
 from depositduck.auth.users import current_active_user
-from depositduck.dependables import get_templates
+from depositduck.dependables import AuthenticatedJinjaBlocks, get_templates
 from depositduck.email import render_html_email, send_email
 from depositduck.models.email import HtmlEmail
 from depositduck.models.sql.auth import User
@@ -32,7 +31,7 @@ async def send_test_email(
 
 @kitchensink_router.get("/motd/", description="TODO: remove")
 async def get_motd(
-    templates: Annotated[Jinja2Blocks, Depends(get_templates)],
+    templates: Annotated[AuthenticatedJinjaBlocks, Depends(get_templates)],
     user: Annotated[User, Depends(current_active_user)],
     request: Request,
 ):
@@ -40,7 +39,11 @@ async def get_motd(
     if user:
         motd += f" {user.email}!"
 
-    context = dict(request=request, motd=motd)
+    context = AuthenticatedJinjaBlocks.TemplateContext(
+        request=request,
+        user=user,
+        motd=motd,
+    )
     return templates.TemplateResponse(
         "home.html.jinja2", context=context, block_name="motd"
     )
@@ -48,8 +51,13 @@ async def get_motd(
 
 @kitchensink_router.get("/fragment/", description="TODO: remove")
 async def get_fragment(
-    templates: Annotated[Jinja2Blocks, Depends(get_templates)],
+    templates: Annotated[AuthenticatedJinjaBlocks, Depends(get_templates)],
+    user: Annotated[User, Depends(current_active_user)],
     request: Request,
 ):
-    context = {"request": request, "content": "✨ async load via HTMX"}
+    context = AuthenticatedJinjaBlocks.TemplateContext(
+        request=request,
+        user=user,
+        content="✨ async load via HTMX",
+    )
     return templates.TemplateResponse("fragments/fragment.html.jinja2", context=context)
