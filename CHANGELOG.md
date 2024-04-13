@@ -9,6 +9,8 @@ This Changelog is automatically stamped by `cut_release.sh` as part of creating 
 
 ## [Unreleased]
 
+## [0.3.0] - 2024-04-13
+
 ### Added
 
 - Email-based sign-up and log-in flows.
