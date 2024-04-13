@@ -1,3 +1,5 @@
+**/.DS_Store
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -109,4 +111,4 @@ local/database/pgdata/
 local/database/mnt_data/
 
 # interim solution until served from bucket. can remove later.
-depositduck/web/static/speculum/
+depositduck/web/static/speculum*/

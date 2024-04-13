@@ -23,6 +23,8 @@ This Changelog is automatically stamped by `cut_release.sh` as part of creating 
 - Email templates and utilities to render and send HTML emails.
 - An email__email table to track sent emails.
 - Endpoint to retrieve the n most relevant snippets for a user query.
+- Use [speculum](https://github.com/albertomh/speculum) (re-skinned Bootstrap 5) to style
+  the frontend.
 
 ###  Removed
 
