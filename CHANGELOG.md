@@ -22,8 +22,6 @@ This Changelog is automatically stamped by `cut_release.sh` as part of creating 
   and user passed to it. Even if the user is None to denote an unauthenticated request.
 - Email templates and utilities to render and send HTML emails.
 - An email__email table to track sent emails.
-- Bootstrap Icons 1.11.3
-- SCSS compilation pipeline to customise Bootstrap's palette.
 - Endpoint to retrieve the n most relevant snippets for a user query.
 
 ###  Removed

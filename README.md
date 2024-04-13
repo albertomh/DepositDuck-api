@@ -9,7 +9,6 @@ _Get what's yours_ <!-- markdownlint-disable-line MD036 -->
 [![fastapi](https://img.shields.io/badge/FastAPI-009688?logo=fastapi&logoColor=white)](https://github.com/tiangolo/fastapi)
 [![postgres](https://img.shields.io/badge/Postgres-4169E1?logo=postgresql&logoColor=white)](https://github.com/tiangolo/fastapi)
 [![htmx](https://img.shields.io/badge/htmx-white?logo=htmx&logoColor=3366CC)](https://github.com/bigskysoftware/htmx)
-[![bootstrap](https://img.shields.io/badge/5-7952B3?logo=bootstrap&logoColor=white)](https://github.com/twbs/bootstrap)
 [![pytest](https://img.shields.io/badge/pytest-0A9EDC?logo=pytest&logoColor=white)](https://github.com/pytest-dev/pytest)
 [![pre-commit](https://img.shields.io/badge/pre--commit-FAB040?logo=pre-commit&logoColor=1f2d23)](https://github.com/pre-commit/pre-commit)
 [![ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json&labelColor=261230&color=d8ff64)](https://github.com/astral-sh/ruff)
@@ -17,17 +16,13 @@ _Get what's yours_ <!-- markdownlint-disable-line MD036 -->
 
 ### Prerequisites
 
-To develop DepositDuck, the following must be available locally:
+To develop DepositDuck the following must be available locally:
 
 - [make](https://www.gnu.org/software/make/)
 - [uv](https://github.com/astral-sh/uv)
 - [pre-commit](https://pre-commit.com/)
 - [Docker](https://docs.docker.com/)
 - [Python 3.12](https://docs.python.org/3/whatsnew/3.12.html)
-
-For frontend development:
-
-- [Dart Sass](https://formulae.brew.sh/formula/node-sass)
 
 ### Quickstart: run locally
 
