@@ -191,10 +191,8 @@ make downgrade
 
 ### Frontend
 
-```sh
-# compile custom Bootstrap sass to css
-make sass
-```
+The frontend is styled using Bootstrap 5. Specifically, a project-specific version
+customised to use the DepositDuck palette which lives at [albertomh/speculum](https://github.com/albertomh/speculum).
 
 ## Test
 

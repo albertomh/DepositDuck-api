@@ -17,6 +17,3 @@ LICENSE
 tests/
 
 local/
-
-depositduck/depositduck/web/static/scss/
-depositduck/depositduck/web/static/css/main.css.map
