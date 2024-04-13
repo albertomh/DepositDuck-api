@@ -189,6 +189,10 @@ make downgrade
 The frontend is styled using Bootstrap 5. Specifically, a project-specific version
 customised to use the DepositDuck palette which lives at [albertomh/speculum](https://github.com/albertomh/speculum).
 
+NB. until static assets are hosted in a bucket where CORS can be configured, for local
+development place the contents of speculum's [dist](https://github.com/albertomh/speculum/tree/main/dist)
+directory in `depositduck/web/static/speculum@X.Y.Z/`.
+
 ## Test
 
 ### Prerequisites
