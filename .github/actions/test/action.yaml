@@ -19,7 +19,8 @@ runs:
     # only available in steps following the one that sets them.
     - run: ./local/read_dotenv.sh .env.test
       shell: bash
+      # dotenv intentionally left blank when calling 'just'
     - run: |
-        just install-deps-test
-        just test
+        just dotenv= install-deps-test
+        just dotenv= test
       shell: bash
