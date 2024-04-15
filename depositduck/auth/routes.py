@@ -114,12 +114,13 @@ async def register(
         errors.append("REGISTER_INVALID_EMAIL")
         classes_by_id["email"] += f" {BootstrapClasses.IS_INVALID.value}"
 
-    try:
-        await user_manager.request_verify(user)
-        redirect_response = await htmx_redirect_to("/login/?prev=/auth/signup/")
-        return redirect_response
-    except (UserNotExists, UserInactive, UserAlreadyVerified) as e:
-        LOG.warn(f"exception when initiating verification for {user}: {e}")
+    if user is not None:
+        try:
+            await user_manager.request_verify(user)
+            redirect_response = await htmx_redirect_to("/login/?prev=/auth/signup/")
+            return redirect_response
+        except (UserNotExists, UserInactive, UserAlreadyVerified) as e:
+            LOG.warn(f"exception when initiating verification for {user}: {e}")
 
     for element_id, classes in classes_by_id.items():
         if BootstrapClasses.IS_INVALID not in classes:
