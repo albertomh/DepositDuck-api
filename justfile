@@ -138,7 +138,7 @@ test: venv
   # `test` action separate from the one that invokes `just test`. This is because
   # environment variables are only available in steps following the one that sets them.
   # similarly, a separate step installs test dependencies separate from this recipe.
-  if [ ! -z ${CI:-}]; then
+  if [ ! -z ${CI:-} ]; then
     . {{VENV_DIR}}/bin/activate && \
     python -m pytest tests/unit/ -s -vvv -W always
   else
