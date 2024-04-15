@@ -10,6 +10,7 @@ _Get what's yours_ <!-- markdownlint-disable-line MD036 -->
 [![postgres](https://img.shields.io/badge/Postgres-4169E1?logo=postgresql&logoColor=white)](https://github.com/tiangolo/fastapi)
 [![htmx](https://img.shields.io/badge/htmx-white?logo=htmx&logoColor=3366CC)](https://github.com/bigskysoftware/htmx)
 [![pytest](https://img.shields.io/badge/pytest-0A9EDC?logo=pytest&logoColor=white)](https://github.com/pytest-dev/pytest)
+[![playwright](https://img.shields.io/badge/playwright-2ead34?logo=playwright&logoColor=e2584c)](https://playwright.dev/docs/intro)
 [![pre-commit](https://img.shields.io/badge/pre--commit-FAB040?logo=pre-commit&logoColor=1f2d23)](https://github.com/pre-commit/pre-commit)
 [![ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json&labelColor=261230&color=d8ff64)](https://github.com/astral-sh/ruff)
 [![CI](https://github.com/albertomh/DepositDuck/actions/workflows/ci.yaml/badge.svg)](https://github.com/albertomh/DepositDuck/actions/workflows/ci.yaml)
