@@ -173,7 +173,7 @@ e2e: venv _wipe_db && _stop_smtp _stop_server
   . {{VENV_DIR}}/bin/activate && \
   if [ -z ${CI:-} ]; then . ./local/read_dotenv.sh {{dotenv}}; fi && \
   uv pip sync {{REQS_DIR}}/test.txt && \
-  playwright install && \
+  python -m playwright install --with-deps && \
   python -m pytest tests/e2e/ -s -vvv -W always
 
 # stop all running services

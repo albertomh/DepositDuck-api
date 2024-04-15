@@ -1,0 +1,23 @@
+# Initialise the Postgres service container as one would locally.
+#
+# Usage:
+#   ```
+#   steps:
+#     - uses: ./.github/actions/init-postgres
+#   ```
+#
+# (c) 2024 Alberto Morón Hernández
+
+name: 'init-postgres'
+description: 'Initialise the Postgres service container'
+
+runs:
+  using: 'composite'
+  steps:
+    - run: |
+        sudo apt-get update
+        sudo apt-get install --yes --no-install-recommends postgresql-client
+      shell: bash
+    - run: |
+        PGPASSWORD=password psql -h localhost -U postgres -d postgres -a -f ./local/database/init_scripts/init.sql
+      shell: bash
