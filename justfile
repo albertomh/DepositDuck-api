@@ -135,7 +135,7 @@ test: venv
   #!/usr/bin/env bash
   set -euo pipefail
   # setting env vars using `.env.test` in GitHub Actions is handled in a step of the
-  # `test` action separate from the one that invokes `make test`. This is because
+  # `test` action separate from the one that invokes `just test`. This is because
   # environment variables are only available in steps following the one that sets them.
   # similarly, a separate step installs test dependencies separate from this recipe.
   if [ ! -z ${CI:-}]; then

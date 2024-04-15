@@ -20,6 +20,6 @@ runs:
     - run: ./local/read_dotenv.sh .env.test
       shell: bash
     - run: |
-        make install-deps-test
-        make test
+        just install-deps-test
+        just test
       shell: bash
