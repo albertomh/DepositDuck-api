@@ -95,20 +95,26 @@ _wipe_db: _start_db
 
 # create an Alembic migration
 migration msg: venv
+  #!/usr/bin/env bash
+  set -euo pipefail
   . {{VENV_DIR}}/bin/activate && \
-  . ./local/read_dotenv.sh {{dotenv}} && \
+  if [ -z ${CI:-} ]; then . ./local/read_dotenv.sh {{dotenv}}; fi && \
   python -m alembic revision --autogenerate -m {{msg}}
 
 # upgrade migrations to a revision - latest if one is not specified
 migrate up="head": venv
+  #!/usr/bin/env bash
+  set -euo pipefail
   . {{VENV_DIR}}/bin/activate && \
-  . ./local/read_dotenv.sh {{dotenv}} && \
+  if [ -z ${CI:-} ]; then . ./local/read_dotenv.sh {{dotenv}}; fi && \
   python -m alembic upgrade {{up}}
 
 # downgrade to a given alembic revision - previous one if not specified
 downgrade down="-1": venv
+  #!/usr/bin/env bash
+  set -euo pipefail
   . {{VENV_DIR}}/bin/activate && \
-  . ./local/read_dotenv.sh {{dotenv}} && \
+  if [ -z ${CI:-} ]; then . ./local/read_dotenv.sh {{dotenv}}; fi && \
   python -m alembic downgrade {{down}}
 
 # stop anything already running on :1025
@@ -117,8 +123,10 @@ _stop_smtp:
 
 # local mailserver to catch outgoing mail
 smtp: venv _stop_smtp
-  @. {{VENV_DIR}}/bin/activate && \
-  . ./local/read_dotenv.sh {{dotenv}} && \
+  #!/usr/bin/env bash
+  set -euo pipefail
+  . {{VENV_DIR}}/bin/activate && \
+  if [ -z ${CI:-} ]; then . ./local/read_dotenv.sh {{dotenv}}; fi && \
   python -m aiosmtpd --nosetuid --debug --listen :1025
 
 # run the embeddings service in a container https://github.com/albertomh/draLLaM
@@ -135,8 +143,10 @@ _stop_server:
 
 # run the application locally
 run: _stop_server migrate
-  @. {{VENV_DIR}}/bin/activate && \
-  . ./local/read_dotenv.sh {{dotenv}} && \
+  #!/usr/bin/env bash
+  set -euo pipefail
+  . {{VENV_DIR}}/bin/activate && \
+  if [ -z ${CI:-} ]; then . ./local/read_dotenv.sh {{dotenv}}; fi && \
   uvicorn depositduck.main:webapp --reload
 
 # run unit & integration tests
@@ -148,23 +158,20 @@ test: venv
   # `test` action separate from the one that invokes `just test`. This is because
   # environment variables are only available in steps following the one that sets them.
   # similarly, a separate step installs test dependencies separate from this recipe.
-  if [ ! -z ${CI:-} ]; then
-    . {{VENV_DIR}}/bin/activate && \
-    python -m pytest tests/unit/ -s -vvv -W always
-  else
-    . {{VENV_DIR}}/bin/activate && \
-    . ./local/read_dotenv.sh {{dotenv}} && \
-    uv pip sync {{REQS_DIR}}/test.txt && \
-    python -m pytest tests/unit/ -s -vvv -W always
-  fi
+  . {{VENV_DIR}}/bin/activate && \
+  if [ -z ${CI:-} ]; then . ./local/read_dotenv.sh {{dotenv}}; fi && \
+  uv pip sync {{REQS_DIR}}/test.txt && \
+  python -m pytest tests/unit/ -s -vvv -W always
 
 # run e2e Playwright tests
 # !must run as `just dotenv=.env.test e2e`
 e2e: venv _wipe_db && _stop_smtp _stop_server
-  @just dotenv={{dotenv}} smtp &
-  @just dotenv={{dotenv}} run &
+  #!/usr/bin/env bash
+  set -euo pipefail
+  just dotenv={{dotenv}} smtp &
+  just dotenv={{dotenv}} run &
   . {{VENV_DIR}}/bin/activate && \
-  . ./local/read_dotenv.sh {{dotenv}} && \
+  if [ -z ${CI:-} ]; then . ./local/read_dotenv.sh {{dotenv}}; fi && \
   uv pip sync {{REQS_DIR}}/test.txt && \
   playwright install && \
   python -m pytest tests/e2e/ -s -vvv -W always
