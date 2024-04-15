@@ -20,12 +20,15 @@ if [ ! -f "$dotenv_file" ]; then
     exit 1
 fi
 
-if [ -z $CI ]; then
+if [ -z ${CI+x} ]; then
+    # if not in a CI context, source the dotenv file normally
     set -o allexport
+    echo "read_dotenv.sh: sourcing $dotenv_file"
     source $dotenv_file
     set +o allexport
 
 else
+    # if in CI, handle line-by-line to export specially to the GitHub Actions context
     env_var_strings=()
 
     # read the dotenv file line by line
