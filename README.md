@@ -49,6 +49,10 @@ just smtp
 
 # run server on port 8000
 just run
+
+# stop all local services
+# including: database container, draLLaM container, SMTP server, app server
+just stop
 ```
 
 After doing the above the following are now available:
