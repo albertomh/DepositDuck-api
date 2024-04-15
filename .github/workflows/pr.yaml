@@ -42,14 +42,19 @@ jobs:
     services:
       postgres:
         image: postgres:15-bookworm
+        env:
+          POSTGRES_PASSWORD: password
+        # Set health checks to wait until postgres has started
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
         ports:
           - 5432:5432
-        env:
-          POSTGRES_USER: depositduck
-          POSTGRES_PASSWORD: password
-          POSTGRES_DB: depositduck
     steps:
       - uses: actions/checkout@v4
+      - uses: ./.github/actions/init-postgres
       - uses: ./.github/actions/e2e
 
   open-release-pr:
