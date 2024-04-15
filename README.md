@@ -19,7 +19,7 @@ _Get what's yours_ <!-- markdownlint-disable-line MD036 -->
 
 To develop DepositDuck the following must be available locally:
 
-- [make](https://www.gnu.org/software/make/)
+- [just](https://github.com/casey/just)
 - [uv](https://github.com/astral-sh/uv)
 - [pre-commit](https://pre-commit.com/)
 - [Docker](https://docs.docker.com/)
@@ -27,29 +27,28 @@ To develop DepositDuck the following must be available locally:
 
 ### Quickstart: run locally
 
-A `makefile` defines common development tasks. Run `make` or `make help` to show all
-available targets.
+A `justfile` defines common development tasks. Run `just` to show all available recipes.
 
 ```sh
 # install base + dev dependencies in a virtualenv
-make install-deps-dev
+just install-deps-dev
 
 # create a .env file and populate as needed
 # (see `Settings` class in `config.py`)
 cp .env.in .env
 
 # start database in a container
-make db
+just db
 
 # start the LLM service in a container
 # see 'Embeddings Service' below and https://github.com/albertomh/draLLaM
-make drallam
+just drallam
 
 # start local email server on :1025
-make smtp
+just smtp
 
 # run server on port 8000
-make run
+just run
 ```
 
 After doing the above the following are now available:
@@ -96,11 +95,11 @@ directory. `.txt` files in that directory list pinned versions.
 
 ```sh
 # pin dependencies
-make [ pin-deps | pin-deps-dev | pin-deps-test ]
+just [ pin-deps | pin-deps-dev | pin-deps-test ]
 
 # update dependency versions in line with
 # constraints in requirements/*.in files
-make [ update-deps | update-deps-dev | update-deps-test ]
+just [ update-deps | update-deps-dev | update-deps-test ]
 ```
 
 When patching dependencies remember to also run:
@@ -160,11 +159,18 @@ in [perrygeo.com/dont-install-postgresql-using-containers-for-local-development]
 
 ```sh
 # start the containerised postgres database
-make db
+just db
 
-# delete the local database
+# delete the volume backing the local database
+# last resort - generally prefer the method in `just _wipe_e2e_db`
+# followed by `just migrate`
 rm -rf local/database/pgdata/pgdata15
 ```
+
+The initialisation script for the database is located at `local/database/init-scripts/init.sql`.
+It creates a `depositduck` user and two databases:
+- `depositduck`: for local development
+- `depositduck_test`: for use during integration & e2e tests
 
 ### Migrations
 
@@ -173,16 +179,16 @@ enable it to use a SQLAlchemy async engine.
 The migrations directory is `depositduck/models/migrations/`.
 
 ```sh
-# make a migration with the message 'add_person'
-make migration m="add Person"
+# create a migration with the message 'add_person'
+just migration m="add Person"
 
 # apply the latest migration
-# (optionally specify a revision with `rev=<id>`)
-make migrate
+# (optionally specify a revision `just migrate <id>`)
+just migrate
 
 # revert to the previous migration
-# (optionally specify a revision with `rev=<id>`)
-make downgrade
+# (optionally specify a revision `just downgrade <id>`)
+just downgrade
 ```
 
 ### Frontend
@@ -196,6 +202,9 @@ directory in `depositduck/web/static/speculum@X.Y.Z/`.
 
 ## Test
 
+Tests live in `tests/`. This contains two sub-directories: `unit/` for unit tests and
+`e2e/` for end-to-end tests.
+
 ### Prerequisites
 
 The tools listed under 'Develop > Prerequisites' must be available in order to run tests.
@@ -203,13 +212,28 @@ The tools listed under 'Develop > Prerequisites' must be available in order to r
 ### Run tests locally
 
 The application picks up the `.env.test` file as config if the env var `IS_TEST=true` is
-set. This is done for you when using `make test`.
+set. This is done for you when using `just test`.
 
 ```sh
-make install-deps-test
-
 # run unit tests
-make test
+just dotenv=.env.test test
+
+# run end-to-end tests
+# will first wipe test database and restart smtp service & server in the background
+just dotenv=.env.test e2e
+```
+
+### Generate e2e tests
+
+The Playwright Inspector can be used to record tests by interacting with the webapp
+running locally.
+
+```sh
+# activate virtual environment
+. ./.venv/bin/activate
+
+# launch Playwright Inspector
+playwright codegen 0.0.0.0:8000/
 ```
 
 ## Continuous Integration
@@ -279,7 +303,7 @@ PGPASSWORD=password ./local/data_pipeline/raw_sourcetext_to_database.sh
 
 [draLLaM](https://github.com/albertomh/draLLaM) is DepositDuck's dedicated LLM service.
 As of draLLaM@0.1.0 the service focuses on generating text embeddings.  
-Invoke `make drallam` to run it locally - containerised and available on `:11434` - ready
+Invoke `just drallam` to run it locally - containerised and available on `:11434` - ready
 to respond to queries from the main DepositDuck service. There are draLLaM-specific settings
 in `.env` that can be used to specify host and port.
 
@@ -288,7 +312,7 @@ in `.env` that can be used to specify host and port.
 ### Cut a release
 
 1. Pick the semver number (`X.Y.Z`) for the release.
-1. Run `make release v=X.Y.Z`  
+1. Run `just release v=X.Y.Z`  
    This stamps the changelog and triggers a GitHub pipeline.
 1. Wait for the pipeline to succeed. It will have raised a PR for this release.
 1. Review and merge (merge-and-rebase) the PR.
