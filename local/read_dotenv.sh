@@ -9,7 +9,7 @@
 # (c) 2024 Alberto Morón Hernández
 
 if [ $# -eq 0 ]; then
-    echo "Usage: . $0 <dotenv_file>"
+    echo "Usage: . ./read_dotenv.sh <dotenv_file>"
     exit 1
 fi
 
