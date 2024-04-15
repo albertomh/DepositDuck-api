@@ -34,6 +34,7 @@ class Settings(BaseSettings):
 
     smtp_server: str
     smtp_port: PositiveInt = 465  # for SSL
+    smtp_use_ssl: bool = True
     smtp_sender_address: str
     smtp_password: str
 
