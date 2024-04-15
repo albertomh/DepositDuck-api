@@ -19,5 +19,5 @@ runs:
     - uses: actions/setup-python@v5
     - run: |
         curl -LsSf https://astral.sh/uv/install.sh | sh
-        make venv
+        just venv
       shell: bash

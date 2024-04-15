@@ -37,7 +37,7 @@ jobs:
 
   open-release-pr:
     # run only for pushes to a 'release-X-Y-Z' branch
-    # the process to create these branches is automated via `make release v=X.Y.Z`
+    # the process to create these branches is automated via `just release v=X.Y.Z`
     if: ${{ github.event_name == 'push' && startsWith(github.ref_name, 'release-') }}
     needs:
       - test
