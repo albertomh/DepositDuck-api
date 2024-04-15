@@ -77,17 +77,17 @@ async def send_email(
         message.attach(text_part)
     message.attach(html_part)
 
-    if settings.debug:
+    if settings.smtp_use_ssl:
+        ssl_context = ssl.SSLContext(ssl.PROTOCOL_TLS)
+        smtp_cm = SMTP_SSL(settings.smtp_server, settings.smtp_port, context=ssl_context)
+    else:
         smtp_cm = SMTP(
             settings.smtp_server,
             settings.smtp_port,
         )
-    else:
-        ssl_context = ssl.SSLContext(ssl.PROTOCOL_TLS)
-        smtp_cm = SMTP_SSL(settings.smtp_server, settings.smtp_port, context=ssl_context)
     with smtp_cm as server:
         try:
-            if not settings.debug:
+            if settings.smtp_use_ssl:
                 server.starttls()
                 server.login(sender, smtp_password)
             server.sendmail(sender, recipient, message.as_string())
