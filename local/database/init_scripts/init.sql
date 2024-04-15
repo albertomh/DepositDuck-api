@@ -18,4 +18,3 @@ ALTER DATABASE depositduck OWNER TO depositduck;
 CREATE DATABASE depositduck_test;
 GRANT ALL PRIVILEGES ON DATABASE depositduck_test TO depositduck;
 ALTER DATABASE depositduck_test OWNER TO depositduck;
-

@@ -5,7 +5,7 @@
 from enum import StrEnum
 from typing import AsyncGenerator
 
-import pytest
+import pytest_asyncio
 from playwright.async_api import BrowserType, Page, async_playwright
 
 
@@ -19,7 +19,7 @@ class Browser(StrEnum):
     WEBKIT = "webkit"
 
 
-@pytest.fixture
+@pytest_asyncio.fixture
 async def browser_page() -> AsyncGenerator[Page, None]:
     async with async_playwright() as playwright:
         browser_choice = Browser.CHROMIUM  # TODO: make parameter
