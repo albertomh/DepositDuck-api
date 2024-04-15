@@ -173,6 +173,7 @@ rm -rf local/database/pgdata/pgdata15
 
 The initialisation script for the database is located at `local/database/init-scripts/init.sql`.
 It creates a `depositduck` user and two databases:
+
 - `depositduck`: for local development
 - `depositduck_test`: for use during integration & e2e tests
 
