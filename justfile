@@ -64,8 +64,13 @@ update-deps-test:
 
 # start a Dockerised instance of PostgreSQL on :5432
 _start_db:
-  . ./local/read_dotenv.sh {{dotenv}} && \
-  ./local/database/run_postgres.sh
+  #!/usr/bin/env bash
+  set -euo pipefail
+  # do not run in pipelines
+  if [ -z ${CI:-} ]; then
+    . ./local/read_dotenv.sh {{dotenv}} && \
+    ./local/database/run_postgres.sh
+  fi
 
 # follow the database logs
 db_logs:
@@ -76,12 +81,17 @@ db: _start_db
   @just db_logs
 
 _wipe_db: _start_db
-  . ./local/read_dotenv.sh {{dotenv}} && \
-  CONN_STR="postgresql://$DB_USER:$DB_PASSWORD@$DB_HOST:$DB_PORT/$DB_NAME" && \
-  SQL_CMD="select format('DROP TABLE IF EXISTS %I CASCADE;', tablename) from pg_tables where schemaname='public'\gexec" && \
-  PSQL_CMD="echo \\\"$SQL_CMD\\\" | psql -t $CONN_STR" && \
-  CMD="docker exec depositduck_db bash -c \"$PSQL_CMD\"" && \
-  eval "$CMD"
+  #!/usr/bin/env bash
+  set -euo pipefail
+  # do not run in pipelines
+  if [ -z ${CI:-} ]; then
+    . ./local/read_dotenv.sh {{dotenv}} && \
+    CONN_STR="postgresql://$DB_USER:$DB_PASSWORD@$DB_HOST:$DB_PORT/$DB_NAME" && \
+    SQL_CMD="select format('DROP TABLE IF EXISTS %I CASCADE;', tablename) from pg_tables where schemaname='public'\gexec" && \
+    PSQL_CMD="echo \\\"$SQL_CMD\\\" | psql -t $CONN_STR" && \
+    CMD="docker exec depositduck_db bash -c \"$PSQL_CMD\"" && \
+    eval "$CMD"
+  fi
 
 # create an Alembic migration
 migration msg: venv
