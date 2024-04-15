@@ -77,6 +77,7 @@ async def send_email(
         message.attach(text_part)
     message.attach(html_part)
 
+    smtp_cm: SMTP
     if settings.smtp_use_ssl:
         ssl_context = ssl.SSLContext(ssl.PROTOCOL_TLS)
         smtp_cm = SMTP_SSL(settings.smtp_server, settings.smtp_port, context=ssl_context)
