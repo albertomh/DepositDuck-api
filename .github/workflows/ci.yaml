@@ -36,6 +36,23 @@ jobs:
       - uses: actions/checkout@v4
       - uses: ./.github/actions/test
 
+  e2e:
+    needs:
+      - pre_commit
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:15-bookworm
+        ports:
+          - 5432:5432
+        env:
+          POSTGRES_USER: depositduck
+          POSTGRES_PASSWORD: password
+          POSTGRES_DB: depositduck
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/e2e
+
   # tag, create release and containerise when a 'release-' branch is merged
   release:
     if: ${{ startsWith(github.head_ref, 'release-') }}
