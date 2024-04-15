@@ -13,9 +13,7 @@ from fastapi import Depends, Request, Response
 from fastapi_users import BaseUserManager, UUIDIDMixin
 from fastapi_users.authentication.strategy.db import AccessTokenDatabase, DatabaseStrategy
 from fastapi_users.db import SQLAlchemyUserDatabase
-from fastapi_users.exceptions import (
-    InvalidPasswordException,
-)
+from fastapi_users.exceptions import InvalidPasswordException
 from fastapi_users_db_sqlmodel.access_token import SQLModelAccessTokenDatabaseAsync
 from sqlalchemy.ext.asyncio import (
     AsyncSession,
