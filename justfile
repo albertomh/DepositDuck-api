@@ -159,6 +159,13 @@ e2e: venv _wipe_db && _stop_smtp _stop_server
   playwright install && \
   python -m pytest tests/e2e/ -s -vvv -W always
 
+# stop all running services
+stop:
+  docker stop depositduck_db || true
+  docker stop drallam || true
+  just dotenv={{dotenv}} _stop_smtp
+  just dotenv={{dotenv}} _stop_server
+
 # cut a release and raise a pull request for it
 release semver:
   ./local/cut_release.sh {{semver}}
