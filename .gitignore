@@ -109,6 +109,3 @@ ENV/
 # database volumes when running locally
 local/database/pgdata/
 local/database/mnt_data/
-
-# interim solution until served from bucket. can remove later.
-depositduck/web/static/speculum*/
