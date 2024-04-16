@@ -5,7 +5,8 @@ Notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-This Changelog is automatically stamped by `cut_release.sh` as part of creating a new release.
+This Changelog is automatically stamped when the `just release <semver>` recipe is invoked
+to create a new release.
 
 ## [Unreleased]
 
@@ -23,12 +24,18 @@ This Changelog is automatically stamped by `cut_release.sh` as part of creating 
 - Email templates and utilities to render and send HTML emails.
 - An email__email table to track sent emails.
 - Endpoint to retrieve the n most relevant snippets for a user query.
-- Use [speculum](https://github.com/albertomh/speculum) (re-skinned Bootstrap 5) to style
-  the frontend.
+- [speculum@1.3.0](https://github.com/albertomh/speculum) (re-skinned Bootstrap 5) to style
+   the frontend.
+- Playwright for UI end-to-end testing, locally and in merge (CI) pipelines.
+
+### Changed
+
+- Serve static assets (`speculum`) from a Cloudflare R2 bucket.
 
 ###  Removed
 
 - The apiapp FastAPI app - YAGNI.
+- Static assets are hosted externally and no longer served from the webapp container.
 
 ## [0.2.0] - 2024-04-03
 
