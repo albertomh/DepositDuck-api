@@ -66,10 +66,12 @@ update-deps-test:
 _start_db:
   #!/usr/bin/env bash
   set -euo pipefail
-  # do not run in pipelines
+  # do not run in pipelines, only locally. handled by service container in CI.
   if [ -z ${CI:-} ]; then
-    . ./local/read_dotenv.sh {{dotenv}} && \
+    . ./local/read_dotenv.sh {{dotenv}}
     ./local/database/run_postgres.sh
+    # TODO: remove/improve
+    sleep 1
   fi
 
 # follow the database logs
@@ -83,13 +85,13 @@ db: _start_db
 _wipe_db: _start_db
   #!/usr/bin/env bash
   set -euo pipefail
-  # do not run in pipelines
+  # do not run in pipelines, only locally. handled by service container in CI.
   if [ -z ${CI:-} ]; then
-    . ./local/read_dotenv.sh {{dotenv}} && \
-    CONN_STR="postgresql://$DB_USER:$DB_PASSWORD@$DB_HOST:$DB_PORT/$DB_NAME" && \
-    SQL_CMD="select format('DROP TABLE IF EXISTS %I CASCADE;', tablename) from pg_tables where schemaname='public'\gexec" && \
-    PSQL_CMD="echo \\\"$SQL_CMD\\\" | psql -t $CONN_STR" && \
-    CMD="docker exec depositduck_db bash -c \"$PSQL_CMD\"" && \
+    . ./local/read_dotenv.sh {{dotenv}}
+    CONN_STR="postgresql://$DB_USER:$DB_PASSWORD@$DB_HOST:$DB_PORT/$DB_NAME"
+    SQL_CMD="select format('DROP TABLE IF EXISTS %I CASCADE;', tablename) from pg_tables where schemaname='public'\gexec"
+    PSQL_CMD="echo \\\"$SQL_CMD\\\" | psql -t $CONN_STR"
+    CMD="docker exec depositduck_db bash -c \"$PSQL_CMD\""
     eval "$CMD"
   fi
 
@@ -97,24 +99,24 @@ _wipe_db: _start_db
 migration msg: venv
   #!/usr/bin/env bash
   set -euo pipefail
-  . {{VENV_DIR}}/bin/activate && \
-  if [ -z ${CI:-} ]; then . ./local/read_dotenv.sh {{dotenv}}; fi && \
+  . {{VENV_DIR}}/bin/activate
+  if [ -z ${CI:-} ]; then . ./local/read_dotenv.sh {{dotenv}}; fi
   python -m alembic revision --autogenerate -m {{msg}}
 
 # upgrade migrations to a revision - latest if one is not specified
 migrate up="head": venv
   #!/usr/bin/env bash
   set -euo pipefail
-  . {{VENV_DIR}}/bin/activate && \
-  if [ -z ${CI:-} ]; then . ./local/read_dotenv.sh {{dotenv}}; fi && \
+  . {{VENV_DIR}}/bin/activate
+  if [ -z ${CI:-} ]; then . ./local/read_dotenv.sh {{dotenv}}; fi
   python -m alembic upgrade {{up}}
 
 # downgrade to a given alembic revision - previous one if not specified
 downgrade down="-1": venv
   #!/usr/bin/env bash
   set -euo pipefail
-  . {{VENV_DIR}}/bin/activate && \
-  if [ -z ${CI:-} ]; then . ./local/read_dotenv.sh {{dotenv}}; fi && \
+  . {{VENV_DIR}}/bin/activate
+  if [ -z ${CI:-} ]; then . ./local/read_dotenv.sh {{dotenv}}; fi
   python -m alembic downgrade {{down}}
 
 # stop anything already running on :1025
@@ -125,8 +127,8 @@ _stop_smtp:
 smtp: venv _stop_smtp
   #!/usr/bin/env bash
   set -euo pipefail
-  . {{VENV_DIR}}/bin/activate && \
-  if [ -z ${CI:-} ]; then . ./local/read_dotenv.sh {{dotenv}}; fi && \
+  . {{VENV_DIR}}/bin/activate
+  if [ -z ${CI:-} ]; then . ./local/read_dotenv.sh {{dotenv}}; fi
   python -m aiosmtpd --nosetuid --debug --listen :1025
 
 # run the embeddings service in a container https://github.com/albertomh/draLLaM
@@ -145,8 +147,8 @@ _stop_server:
 run: _stop_server migrate
   #!/usr/bin/env bash
   set -euo pipefail
-  . {{VENV_DIR}}/bin/activate && \
-  if [ -z ${CI:-} ]; then . ./local/read_dotenv.sh {{dotenv}}; fi && \
+  . {{VENV_DIR}}/bin/activate
+  if [ -z ${CI:-} ]; then . ./local/read_dotenv.sh {{dotenv}}; fi
   uvicorn depositduck.main:webapp --reload
 
 # run unit & integration tests
@@ -158,9 +160,9 @@ test: venv
   # `test` action separate from the one that invokes `just test`. This is because
   # environment variables are only available in steps following the one that sets them.
   # similarly, a separate step installs test dependencies separate from this recipe.
-  . {{VENV_DIR}}/bin/activate && \
-  if [ -z ${CI:-} ]; then . ./local/read_dotenv.sh {{dotenv}}; fi && \
-  uv pip sync {{REQS_DIR}}/test.txt && \
+  . {{VENV_DIR}}/bin/activate
+  if [ -z ${CI:-} ]; then . ./local/read_dotenv.sh {{dotenv}}; fi
+  uv pip sync {{REQS_DIR}}/test.txt
   python -m pytest tests/unit/ -s -vvv -W always
 
 # run e2e Playwright tests
@@ -170,10 +172,12 @@ e2e: venv _wipe_db && _stop_smtp _stop_server
   set -euo pipefail
   just dotenv={{dotenv}} smtp &
   just dotenv={{dotenv}} run &
-  . {{VENV_DIR}}/bin/activate && \
-  if [ -z ${CI:-} ]; then . ./local/read_dotenv.sh {{dotenv}}; fi && \
-  uv pip sync {{REQS_DIR}}/test.txt && \
-  python -m playwright install --with-deps && \
+  . {{VENV_DIR}}/bin/activate
+  if [ -z ${CI:-} ]; then . ./local/read_dotenv.sh {{dotenv}}; fi
+  uv pip sync {{REQS_DIR}}/test.txt
+  python -m playwright install --with-deps
+  # TODO: remove/improve
+  sleep 1
   python -m pytest tests/e2e/ -s -vvv -W always
 
 # stop all running services
