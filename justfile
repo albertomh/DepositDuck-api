@@ -147,10 +147,13 @@ drallam:
 _stop_server:
   @lsof -t -i :8000 | xargs -I {} kill -9 {}
 
-# run the application locally
-run: _stop_server migrate
+# run the application locally, with the database in the background
+run: stop && stop
   #!/usr/bin/env bash
   set -euo pipefail
+  just db &
+  just migrate &
+  just smtp &
   . {{VENV_DIR}}/bin/activate
   if [ -z ${CI:-} ]; then . ./local/read_dotenv.sh {{dotenv}}; fi
   uvicorn depositduck.main:webapp --reload
