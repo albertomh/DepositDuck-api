@@ -37,27 +37,22 @@ just install-deps-dev
 # (see `Settings` class in `config.py`)
 cp .env.in .env
 
-# start database in a container
-just db
-
-# start the LLM service in a container
+# start the containerised LLM service on :11434
 # see 'Embeddings Service' below and https://github.com/albertomh/draLLaM
 just drallam
 
-# start local email server on :1025
-just smtp
-
-# run server on port 8000
+# start database, local email server on :1025,
+# run migrations and start server on :8000
 just run
 
-# stop all local services
-# including: database container, draLLaM container, SMTP server, app server
+# stop all local services, including: database container,
+# draLLaM container, SMTP server, app server.
 just stop
 ```
 
 After doing the above the following are now available:
 
-- [0.0.0.0:8000](http://0.0.0.0:8000) - web frontend
+- [0.0.0.0:8000/](http://0.0.0.0:8000/) - web frontend
 - [0.0.0.0:8000/docs](http://0.0.0.0:8000/docs) - interactive docs for the `webapp`
 - [0.0.0.0:8000/llm/docs](http://0.0.0.0:8000/llm/docs) - interactive docs for the `llmapp`
 
@@ -67,9 +62,10 @@ After doing the above the following are now available:
 
 `APP_SECRET` must be a valid Fernet key. This is because it is used for symmetric
 encryption (amongst other things). A custom validator in Settings checks this is the case
-when environment variables are first loaded. A valid key may be generated with:
+when environment variables are first loaded.
 
 ```sh
+# generate a valid Fernet key for use as `APP_SECRET`
 . ./.venv/bin/activate
 python -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())"
 ```
@@ -99,21 +95,16 @@ directory. `.txt` files in that directory list pinned versions.
 
 ```sh
 # pin dependencies
-just [ pin-deps | pin-deps-dev | pin-deps-test ]
+just [ pin-deps | pin-deps-base | pin-deps-dev | pin-deps-test ]
 
-# update dependency versions in line with
-# constraints in requirements/*.in files
-just [ update-deps | update-deps-dev | update-deps-test ]
+# update dependency versions in line with constraints in requirements/*.in files
+just [ update-deps | update-deps-base | update-deps-dev | update-deps-test ]
 ```
 
-When patching dependencies remember to also run:
-
-```sh
-pre-commit autoupdate
-```
+`just update-deps` will also run `just update-pre-commit`.
 
 Dependabot is configured to run weekly and update Python packages & GitHub Actions. See
-`.github/dependabot.yaml`.
+[`.github/dependabot.yaml`](.github/dependabot.yaml).
 
 ## Project structure
 
@@ -129,27 +120,30 @@ And the following top-level modules:
 
 - `dependables`: callables to be used with FastAPI's Dependency Injection system.
 - `main`: application entrypoint, defines FastAPI apps and attaches routers to these.
-- `settings`: application configuration driven by environment variables.
+- `settings`: application configuration driven by environment variables from a dotenv file.
+- `utils`: functions with limited scope that are useful throughout the application.
 
 ### Dependables
 
 Callables for use with FastAPI's dependency injection system are made available in the
 `dependables` module. These include utilities to access the `structlog` logger, a configured
-settings object and a Jinja fragments context.
+settings object, the database connection string and a Jinja fragments context.
+
+Packages may contain domain-specific dependables, such as the `auth.dependables` module.
 
 ### Models
 
 The `models` package defines physical and virtual models for entities used in the application.
 It contains:
 
-- the `common` module - mixins to help build base models and tables elsewhere.
 - the `auth` module - user authentication.
+- the `common` module - mixins to help build base models and tables elsewhere.
 - the `email` module - templates and utilities to render and send HTML emails.
 - the `llm` module - models used when interacting with LLMs and storing their output
   (embeddings, etc.)
-- the `sql` package - table models inheriting the models defined elsewhere. Uses SQLModel.
-- the `migrations` package (Alembic migrations, see below)
 - the `dto` package: Data Transfer Objects building on base models.
+- the `migrations` package (Alembic migrations, see below)
+- the `sql` package - table models inheriting the models defined elsewhere. Uses SQLModel.
 
 Table models are exported in `sql.tables` for convenience.
 
@@ -157,17 +151,18 @@ Table models are exported in `sql.tables` for convenience.
 
 The web service is backed by a PostgreSQL instance. Use v15 since this is the latest version
 supported by GCP Cloud SQL ([docs](https://cloud.google.com/sql/docs/postgres/db-versions)).
+Use the [pgvector](https://hub.docker.com/r/ankane/pgvector/tags) base image to avoid having
+to manually install the package in the image every time.
 
 Locally the database is made available via a container. Inspired by the approach described
 in [perrygeo.com/dont-install-postgresql-using-containers-for-local-development](https://www.perrygeo.com/dont-install-postgresql-using-containers-for-local-development).
 
 ```sh
-# start the containerised postgres database
-just db
+# follow logs for the containerised PostgreSQL database
+just db_logs
 
 # delete the volume backing the local database
-# last resort - generally prefer the method in `just _wipe_e2e_db`
-# followed by `just migrate`
+# last resort - prefer the method in `just _wipe_e2e_db` followed by `just migrate`
 rm -rf local/database/pgdata/pgdata15
 ```
 
@@ -185,14 +180,12 @@ The migrations directory is `depositduck/models/migrations/`.
 
 ```sh
 # create a migration with the message 'add_person'
-just migration m="add Person"
+just migration "add Person"
 
-# apply the latest migration
-# (optionally specify a revision `just migrate <id>`)
+# apply the latest migration (optionally specify a revision `just migrate <id>`)
 just migrate
 
-# revert to the previous migration
-# (optionally specify a revision `just downgrade <id>`)
+# revert to the previous migration (optionally specify a revision `just downgrade <id>`)
 just downgrade
 ```
 
@@ -201,14 +194,15 @@ just downgrade
 The frontend is styled using Bootstrap 5. Specifically, a project-specific version
 customised to use the DepositDuck palette which lives at [albertomh/speculum](https://github.com/albertomh/speculum).
 
-NB. until static assets are hosted in a bucket where CORS can be configured, for local
-development place the contents of speculum's [dist](https://github.com/albertomh/speculum/tree/main/dist)
-directory in `depositduck/web/static/speculum@X.Y.Z/`.
+Static assets (Bootstrap, Bootstrap Icons, htmx) are hosted in a public Cloudflare R2 bucket
+with CORS enabled to allow GET from `localhost:8000`.
 
 ## Test
 
-Tests live in `tests/`. This contains two sub-directories: `unit/` for unit tests and
-`e2e/` for end-to-end tests.
+Tests live in `tests/`. This contains two sub-directories:
+
+- `unit/` pytest unit tests.
+- `e2e/` end-to-end Playwright tests.
 
 ### Prerequisites
 
@@ -216,10 +210,9 @@ The tools listed under 'Develop > Prerequisites' must be available in order to r
 
 ### Run tests locally
 
-The application picks up the `.env.test` file as config if the env var `IS_TEST=true` is
-set. This is done for you when using `just test`.
-
 ```sh
+# !important: remember to specify `dotenv=.env.test` every time when running test recipes.
+
 # run unit tests
 just dotenv=.env.test test
 
@@ -234,10 +227,11 @@ The Playwright Inspector can be used to record tests by interacting with the web
 running locally.
 
 ```sh
-# activate virtual environment
-. ./.venv/bin/activate
+# run the application in the background
+just run &
 
-# launch Playwright Inspector
+# activate virtual environment and launch Playwright Inspector
+. ./.venv/bin/activate
 playwright codegen 0.0.0.0:8000/
 ```
 
@@ -250,10 +244,12 @@ There are two workflows:
 - When a commit on a feature branch is pushed up to GitHub - `pr.yaml`
 - When a Pull Request is merged into the 'main' branch - `ci.yaml`
 
-They both run pre-commit hooks and tests against the codebase. `ci.yaml` additionally
-Dockerises the app and pushes the image to the GitHub Container Registry.  
-The build artefact is a multi-arch Docker image to ensure compatibility with both
-Apple Silicon (ARM64) and GCP Cloud Run (x86_64).
+They both run pre-commit hooks and unit tests against the codebase.
+
+`ci.yaml` additionally
+runs end-to-end Playwright tests, Dockerises the app and pushes the image to the GitHub
+Container Registry. The build artefact is a multi-arch Docker image to ensure compatibility
+with both Apple Silicon (ARM64) and GCP Cloud Run (x86_64).
 
 To run a Docker image locally:
 
@@ -299,8 +295,12 @@ cp source.pdf ./local/data_pipeline/
 # to `sourcetext.tmp` in the data_pipeline directory
 python ./local/data_pipeline/pdf_to_raw_sourcetext.py source.pdf
 
+# run the database in the background and ensure all migrations have run
+just db &
+just migrate
+
 # insert extracted data as a SourceText record in the database
-# - assumes previous step wrote to `sourcetext.tmp`
+# - assumes a previous step wrote to `sourcetext.tmp`
 PGPASSWORD=password ./local/data_pipeline/raw_sourcetext_to_database.sh
 ```
 
@@ -317,7 +317,7 @@ in `.env` that can be used to specify host and port.
 ### Cut a release
 
 1. Pick the semver number (`X.Y.Z`) for the release.
-1. Run `just release v=X.Y.Z`  
+1. Run `just release X.Y.Z`  
    This stamps the changelog and triggers a GitHub pipeline.
 1. Wait for the pipeline to succeed. It will have raised a PR for this release.
 1. Review and merge (merge-and-rebase) the PR.
