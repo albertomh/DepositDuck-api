@@ -23,6 +23,7 @@ to create a new release.
   and user passed to it. Even if the user is None to denote an unauthenticated request.
 - Email templates and utilities to render and send HTML emails.
 - An email__email table to track sent emails.
+- `/api/healthz/` application & service status endpoint.
 - Endpoint to retrieve the n most relevant snippets for a user query.
 - [speculum@1.3.0](https://github.com/albertomh/speculum) (re-skinned Bootstrap 5) to style
    the frontend.
@@ -35,8 +36,7 @@ to create a new release.
 
 ###  Removed
 
-- The apiapp FastAPI app - YAGNI.
-- Static assets are hosted externally and no longer served from the webapp container.
+- Static assets are no longer tracked in this repo.
 
 ## [0.2.0] - 2024-04-03
 
