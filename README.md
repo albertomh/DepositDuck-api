@@ -54,6 +54,7 @@ After doing the above the following are now available:
 
 - [0.0.0.0:8000/](http://0.0.0.0:8000/) - web frontend
 - [0.0.0.0:8000/docs](http://0.0.0.0:8000/docs) - interactive docs for the `webapp`
+- [0.0.0.0:8000/api/docs](http://0.0.0.0:8000/api/docs) - interactive docs for the `apiapp`
 - [0.0.0.0:8000/llm/docs](http://0.0.0.0:8000/llm/docs) - interactive docs for the `llmapp`
 
 ### Environment variables / application Settings
@@ -110,6 +111,7 @@ Dependabot is configured to run weekly and update Python packages & GitHub Actio
 
 The project is split into the following packages:
 
+- `api`: operations endpoints that return JSON.
 - `auth`: authentication backend (database strategy + cookie transport) and UserManager.
 - `email`: email templates and utilities to render and send HTML emails.
 - `llm`: language agent functionality eg. ingest data, generate embeddings, etc.
