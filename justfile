@@ -52,6 +52,7 @@ update-deps:
   @just update-deps-base
   @just update-deps-dev
   @just update-deps-test
+  @just update-pre-commit
 
 update-deps-base:
   @uv pip compile {{REQS_DIR}}/base.in --upgrade -o {{REQS_DIR}}/base.txt
@@ -61,6 +62,9 @@ update-deps-dev:
 
 update-deps-test:
   @uv pip compile {{REQS_DIR}}/test.in --upgrade -o {{REQS_DIR}}/test.txt
+
+update-pre-commit:
+  @pre-commit autoupdate
 
 # start a Dockerised instance of PostgreSQL on :5432
 _start_db:
