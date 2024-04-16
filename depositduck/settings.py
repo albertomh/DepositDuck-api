@@ -43,6 +43,9 @@ class Settings(BaseSettings):
     drallam_port: PositiveInt = 11434
     drallam_embeddings_model: str = "nomic-embed-text:v1.5"
 
+    static_origin: str
+    speculum_release: str
+
     @field_validator("app_secret")
     @classmethod
     def app_secret_is_valid_fernet_key(cls, value: str) -> str:
@@ -53,5 +56,10 @@ class Settings(BaseSettings):
         if not is_valid:
             raise ValueError("setting APP_SECRET is not valid Fernet key")
         return value
+
+    @field_validator("app_origin", "static_origin")
+    @classmethod
+    def remove_origins_trailing_slash(cls, value: str) -> str:
+        return value.rstrip("/")
 
     model_config = SettingsConfigDict(env_nested_delimiter="__", frozen=True)

@@ -8,7 +8,7 @@ eg. database sessions or application configuration.
 
 import logging
 from functools import cache
-from typing import Annotated, AsyncGenerator, TypeVar
+from typing import Annotated, AsyncGenerator, ClassVar, TypeVar
 
 import httpx
 from fastapi import Depends, HTTPException, Request, status
@@ -55,11 +55,14 @@ def get_settings() -> Settings:
 
 class AuthenticatedJinjaBlocks(Jinja2Blocks):
     """
-    Derived class to ensure the TemplateResponse context has a request and a user passed
-    to it. Even if the user is None to denote an unauthenticated request.
+    Derived class to add objects needed by all responses to the TemplateResponse context.
+    Namely, the request, the user and where to find static assets.
+    The user may be None to denote an unauthenticated request.
     """
 
     class TemplateContext(BaseModel):
+        settings: ClassVar[Settings] = get_settings()
+        speculum_source: str = f"{settings.static_origin}/{settings.speculum_release}"
         request: Request
         user: User | None
 

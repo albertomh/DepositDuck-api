@@ -26,6 +26,7 @@ to create a new release.
 - Endpoint to retrieve the n most relevant snippets for a user query.
 - [speculum@1.3.0](https://github.com/albertomh/speculum) (re-skinned Bootstrap 5) to style
    the frontend.
+- Settings to make static origin & speculum release configurable.
 - Playwright for UI end-to-end testing, locally and in merge (CI) pipelines.
 
 ### Changed
