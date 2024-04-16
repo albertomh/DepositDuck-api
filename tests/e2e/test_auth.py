@@ -37,7 +37,7 @@ async def test_sign_up(browser_page: Page) -> None:
     await sign_up_form.get_by_role("button", name="Sign up").click()
     await browser_page.wait_for_url("**/login/?prev=/auth/signup/")
     await expect(browser_page.locator("//h1")).to_contain_text("Log in")
-    card = browser_page.locator("#pleaseVerifyCard")
+    card = browser_page.get_by_test_id("card-please-verify")
     await expect(card.get_by_role("heading")).to_contain_text("Please verify your email")
     await expect(
         card.get_by_text(

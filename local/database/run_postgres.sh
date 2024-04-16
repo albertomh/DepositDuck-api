@@ -37,4 +37,3 @@ docker run \
   postgres \
     -c 'hba_file=/etc/postgresql/pg_hba.conf' \
     -c 'config_file=/etc/postgresql/postgresql.conf'
-
