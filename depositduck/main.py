@@ -18,6 +18,7 @@ from depositduck import (
     VERSION_MINOR,
     VERSION_PATCH,
 )
+from depositduck.api.routes import api_router
 from depositduck.auth.routes import auth_frontend_router, auth_operations_router
 from depositduck.dependables import get_settings
 from depositduck.kitchensink.routes import kitchensink_router
@@ -41,6 +42,17 @@ def get_webapp() -> FastAPI:
     return webapp
 
 
+def get_apiapp() -> FastAPI:
+    apiapp = FastAPI(
+        title=f"⚙️ {settings.app_name} apiapp",
+        description="",
+        version=VERSION,
+        debug=settings.debug,
+        openapi_url="/openapi.json" if settings.debug else None,
+    )
+    return apiapp
+
+
 def get_llmapp() -> FastAPI:
     llmapp = FastAPI(
         title=f"🤖 {settings.app_name} llmapp",
@@ -59,6 +71,10 @@ webapp.include_router(auth_frontend_router)
 webapp.include_router(auth_operations_router)
 if settings.debug:
     webapp.include_router(kitchensink_router)
+
+apiapp = get_apiapp()
+webapp.mount("/api", apiapp)
+apiapp.include_router(api_router)
 
 llmapp = get_llmapp()
 webapp.mount("/llm", llmapp)
