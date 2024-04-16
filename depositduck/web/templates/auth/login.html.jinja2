@@ -12,7 +12,9 @@
             </h1>
 
             {% if prev_url == "/auth/signup/" or "LOGIN_USER_NOT_VERIFIED" in errors %}
-                <div class="card border-warning my-3">
+                <div
+                    class="card border-warning my-3"
+                    data-testid="card-please-verify">
                     <div class="card-body">
                         <div class="row">
                             <div class="col">
@@ -36,7 +38,9 @@
             {% endif %}
 
             {% if prompt_to_reverify %}
-                <div class="card border-info my-3" id="verificationInfoCard">
+                <div
+                    class="card border-info my-3"
+                    data-testid="card-verification-info">
                     <div class="card-body">
                         <div class="row">
                             <div class="col">
@@ -64,7 +68,9 @@
             {% endif %}
 
             {% if not prompt_to_reverify and prev_url == "/auth/verify/" %}
-                <div class="card border-success my-3">
+                <div
+                    class="card border-success my-3"
+                    data-testid="card-prompt-reverify">
                     <div class="card-body">
                         <div class="row">
                             <div class="col">
