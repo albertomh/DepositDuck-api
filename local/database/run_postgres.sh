@@ -15,7 +15,7 @@ set -evx
 
 script_dir=$(dirname "$0")
 PG_VERSION=15
-IMAGE="postgres:$PG_VERSION-bookworm"
+IMAGE="pgvector/pgvector:pg$PG_VERSION"
 CONTAINER_NAME=depositduck_db
 
 docker stop $CONTAINER_NAME || true
@@ -38,11 +38,3 @@ docker run \
     -c 'hba_file=/etc/postgresql/pg_hba.conf' \
     -c 'config_file=/etc/postgresql/postgresql.conf'
 
-PGVECTOR="postgresql-$PG_VERSION-pgvector"
-check_has_pgvector=$(docker exec $CONTAINER_NAME apt -qq list $PGVECTOR)
-if echo "$check_has_pgvector" | grep -q '\[installed\]'; then
-    echo "$PGVECTOR is already installed, skipping"
-else
-    docker exec $CONTAINER_NAME apt-get update
-    docker exec $CONTAINER_NAME apt-get install $PGVECTOR
-fi
