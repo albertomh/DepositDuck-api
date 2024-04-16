@@ -152,8 +152,8 @@ run: stop && stop
   #!/usr/bin/env bash
   set -euo pipefail
   just db &
-  just migrate &
-  just smtp &
+  just dotenv={{dotenv}} migrate &
+  just dotenv={{dotenv}} smtp &
   . {{VENV_DIR}}/bin/activate
   if [ -z ${CI:-} ]; then . ./local/read_dotenv.sh {{dotenv}}; fi
   uvicorn depositduck.main:webapp --reload
