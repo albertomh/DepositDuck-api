@@ -28,6 +28,15 @@ async def web_client():
 
 
 @pytest_asyncio.fixture
+async def api_client():
+    from depositduck.main import apiapp
+
+    api_client = await get_aclient(apiapp, "http://apitest")
+    async with api_client as client:
+        yield client
+
+
+@pytest_asyncio.fixture
 async def llm_client():
     from depositduck.main import llmapp
 
