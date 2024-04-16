@@ -42,7 +42,7 @@ jobs:
     runs-on: ubuntu-latest
     services:
       postgres:
-        image: postgres:15-bookworm
+        image: pgvector/pgvector:pg15
         env:
           POSTGRES_PASSWORD: password
         # Set health checks to wait until postgres has started
