@@ -108,11 +108,8 @@ def get_db_connection_string(settings=None) -> str:
 async def get_drallam_client(
     settings: Annotated[Settings, Depends(get_settings)],
 ) -> AYieldFixture[httpx.AsyncClient]:
-    drallam_url = (
-        f"{settings.drallam_protocol}://{settings.drallam_host}:{settings.drallam_port}"
-    )
     # create a new client for each request and close it once it is done
-    async with httpx.AsyncClient(base_url=drallam_url) as client:
+    async with httpx.AsyncClient(base_url=settings.drallam_origin) as client:
         yield client
 
 

@@ -38,9 +38,7 @@ class Settings(BaseSettings):
     smtp_sender_address: str
     smtp_password: str
 
-    drallam_protocol: str = "http"
-    drallam_host: str = "0.0.0.0"  # nosec B104
-    drallam_port: PositiveInt = 11434
+    drallam_origin: str = "http://0.0.0.0:11434"
     drallam_embeddings_model: str = "nomic-embed-text:v1.5"
 
     static_origin: str

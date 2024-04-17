@@ -53,9 +53,12 @@ just stop
 After doing the above the following are now available:
 
 - [0.0.0.0:8000/](http://0.0.0.0:8000/) - web frontend
-- [0.0.0.0:8000/docs](http://0.0.0.0:8000/docs) - interactive docs for the `webapp`
-- [0.0.0.0:8000/api/docs](http://0.0.0.0:8000/api/docs) - interactive docs for the `apiapp`
-- [0.0.0.0:8000/llm/docs](http://0.0.0.0:8000/llm/docs) - interactive docs for the `llmapp`
+- [0.0.0.0:8000/docs](http://0.0.0.0:8000/docs) - interactive `webapp` API docs.  
+  Serves the htmx frontend, responses are HTML pages & fragments.
+- [0.0.0.0:8000/api/docs](http://0.0.0.0:8000/api/docs) - interactive `apiapp` docs.  
+  Endpoints for operational tasks eg. healthchecks - responses are JSON.
+- [0.0.0.0:8000/llm/docs](http://0.0.0.0:8000/llm/docs) - interactive `llmapp` API docs.
+  Large language model & embeddings service.
 
 ### Environment variables / application Settings
 
