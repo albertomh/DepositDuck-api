@@ -2,13 +2,12 @@
 (c) 2024 Alberto Morón Hernández
 """
 
-import unittest.mock
-
 import pytest
 from starlette.routing import Mount
 
-from depositduck.main import get_apiapp, get_llmapp, get_webapp, webapp
-from tests.unit.conftest import get_aclient
+from depositduck.main import webapp
+from depositduck.settings import Settings
+from tests.unit.conftest import get_valid_settings_data
 
 
 def test_app_mounts():
@@ -31,36 +30,49 @@ def test_app_mounts():
 
 
 @pytest.mark.asyncio
-async def test_web_docs_inaccessible_when_debug_false():
-    with unittest.mock.patch("depositduck.dependables.get_settings") as mock_get_settings:
-        mock_get_settings.return_value.debug = True
-        webapp = get_webapp()
+@pytest.mark.parametrize("debug_value, expected_status_code", [(True, 200), (False, 404)])
+async def test_webapp_docs_visibility(
+    web_client_factory, debug_value, expected_status_code
+):
+    settings_data = get_valid_settings_data()
+    settings_data.update({"debug": debug_value})
+    settings = Settings(**settings_data)
+    web_client = await web_client_factory(settings)
 
-    web_client = await get_aclient(webapp, "http://webtest")
     async with web_client as client:
         response = await client.get("/docs")
-        assert response.status_code == 404
+
+    assert response.status_code == expected_status_code
 
 
 @pytest.mark.asyncio
-async def test_api_docs_inaccessible_when_debug_false():
-    with unittest.mock.patch("depositduck.dependables.get_settings") as mock_get_settings:
-        mock_get_settings.return_value.debug = True
-        llmapp = get_apiapp()
+@pytest.mark.parametrize("debug_value, expected_status_code", [(True, 200), (False, 404)])
+async def test_app_docs_visibility(api_client_factory, debug_value, expected_status_code):
+    settings_data = get_valid_settings_data()
+    settings_data.update({"debug": debug_value})
+    settings = Settings(**settings_data)
+    api_client = await api_client_factory(settings)
 
-    api_client = await get_aclient(llmapp, "http://apitest")
     async with api_client as client:
         response = await client.get("/docs")
-        assert response.status_code == 404
+
+    assert response.status_code == expected_status_code
 
 
 @pytest.mark.asyncio
-async def test_llm_docs_inaccessible_when_debug_false():
-    with unittest.mock.patch("depositduck.dependables.get_settings") as mock_get_settings:
-        mock_get_settings.return_value.debug = True
-        llmapp = get_llmapp()
+@pytest.mark.parametrize("debug_value, expected_status_code", [(True, 200), (False, 404)])
+async def test_llmapp_docs_visibility(
+    llm_client_factory, debug_value, expected_status_code
+):
+    settings_data = get_valid_settings_data()
+    settings_data.update({"debug": debug_value})
+    settings = Settings(**settings_data)
+    llm_client = await llm_client_factory(settings)
 
-    llm_client = await get_aclient(llmapp, "http://llmtest")
     async with llm_client as client:
         response = await client.get("/docs")
-        assert response.status_code == 404
+
+    assert response.status_code == expected_status_code
+
+
+# TODO: test kitchensink is not reachable when DEBUG=False
