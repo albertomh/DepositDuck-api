@@ -170,7 +170,11 @@ test: venv
   . {{VENV_DIR}}/bin/activate
   if [ -z ${CI:-} ]; then . ./local/read_dotenv.sh {{dotenv}}; fi
   uv pip sync {{REQS_DIR}}/test.txt
-  python -m pytest tests/unit/ -s -vvv -W always
+  if [ -z ${CI:-} ]; then
+    python -m pytest tests/unit/ -s -vvv -W always --pdb
+  else
+    python -m pytest tests/unit/ -s -vvv -W always
+  fi
 
 # run e2e Playwright tests
 # !must run as `just dotenv=.env.test e2e`
