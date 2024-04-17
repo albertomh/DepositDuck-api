@@ -19,8 +19,8 @@ fi
 
 tag="$1"
 
-SEMVER_REGEX='^[0-9]+\.[0-9]+\.[0-9]+$'
-if ! [[ $tag =~ $SEMVER_REGEX ]]; then
+semver_regex='^[0-9]+\.[0-9]+\.[0-9]+$'
+if ! [[ $tag =~ $semver_regex ]]; then
     echo "Error: $tag is not a valid semantic version"
     exit 1
 fi
@@ -38,6 +38,12 @@ if [ ! -f "$changelog" ]; then
     echo "Error: '$changelog' not found"
     exit 1
 fi
+
+python_init_file="depositduck/__init__.py"
+read major minor patch < <(echo $tag | ( IFS=".$IFS" ; read a b c && echo $a $b $c ))
+sed -i '' -e "s/^VERSION_MAJOR = .*$/VERSION_MAJOR = $major/" $python_init_file
+sed -i '' -e "s/^VERSION_MINOR = .*$/VERSION_MINOR = $minor/" $python_init_file
+sed -i '' -e "s/^VERSION_PATCH = .*$/VERSION_PATCH = $patch/" $python_init_file
 
 today=$(date +%F)
 # NB. in the MacOS version of `sed`, `-i` requires an argument(!)
