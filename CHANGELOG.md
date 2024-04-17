@@ -30,11 +30,15 @@ to create a new release.
 - Settings to make static origin & speculum release configurable.
 - Playwright for UI end-to-end testing, locally and in merge (CI) pipelines.
 
+### Fixed
+
+- `cut_release.sh` script updates the globals in `depositduck/__init__.py`.
+
 ### Changed
 
 - Make the db_session dependable a factory for ease of overriding in tests.
 - Refactor the FastAPI app getters in the main module to accept a Settings object for
-  flexibility and ease of testing. 
+  flexibility and ease of testing.
 - Serve static assets (`speculum`) from a Cloudflare R2 bucket.
 
 ###  Removed

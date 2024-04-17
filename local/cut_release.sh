@@ -39,6 +39,13 @@ if [ ! -f "$changelog" ]; then
     exit 1
 fi
 
+PYTHON_FILE="../depositduck/__init__.py"
+read major minor patch < <(echo $tag | ( IFS=".$IFS" ; read a b c && echo $a $b $c ))
+sed -i '' -e "s/^VERSION_MAJOR = .*$/VERSION_MAJOR = $major/" $PYTHON_FILE
+sed -i '' -e "s/^VERSION_MINOR = .*$/VERSION_MINOR = $minor/" $PYTHON_FILE
+sed -i '' -e "s/^VERSION_PATCH = .*$/VERSION_PATCH = $patch/" $PYTHON_FILE
+rm ../depositduck
+
 today=$(date +%F)
 # NB. in the MacOS version of `sed`, `-i` requires an argument(!)
 sed -i '' "s/## \[Unreleased\]/## [Unreleased]\n\n## [$tag] - $today/g" "$changelog"
