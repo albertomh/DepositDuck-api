@@ -11,6 +11,8 @@ import pytest_asyncio
 from fastapi import FastAPI
 from httpx import ASGITransport, AsyncClient
 
+VALID_FERNET_KEY = "ie6_e7cxZjIs_SAXsZzYLARaQTnhF16DYTCUUTdKgTQ="
+
 
 @pytest_asyncio.fixture(scope="session", autouse=True)
 def LOG():
@@ -60,7 +62,7 @@ async def llm_client():
 @pytest.fixture
 def valid_settings_data() -> dict[str, Any]:
     return {
-        "app_secret": "ie6_e7cxZjIs_SAXsZzYLARaQTnhF16DYTCUUTdKgTQ=",
+        "app_secret": VALID_FERNET_KEY,
         "app_origin": "http://www.depositduck-test.tld",
         "db_user": "db_user",
         "db_password": "db_password",
