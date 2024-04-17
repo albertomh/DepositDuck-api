@@ -10,11 +10,11 @@ import httpx
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy import insert, select
 from sqlalchemy.exc import IntegrityError, MultipleResultsFound, NoResultFound
-from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 from sqlalchemy.orm import selectinload
 from typing_extensions import Annotated
 
-from depositduck.dependables import db_session, get_drallam_client, get_settings
+from depositduck.dependables import db_session_factory, get_drallam_client, get_settings
 from depositduck.llm.embeddings import embed_document
 from depositduck.models.common import EntityById, TwoOhOneCreatedCount
 from depositduck.models.llm import NOMIC, EmbeddingBase, SnippetBase
@@ -52,6 +52,7 @@ async def find_by_id(db_session: AsyncSession, T: Type[Any], id: UUID) -> Source
 )
 async def snippets_from_sourcetext(
     source_text_by_id: EntityById,
+    db_session: Annotated[async_sessionmaker, Depends(db_session_factory)],
 ):
     """
     Given a SourceText in the database, split it and save as Snippet records.
@@ -62,6 +63,7 @@ async def snippets_from_sourcetext(
     _Returns:_
     - a count of how many Snippet records were saved to the database
     """
+    session: AsyncSession
     try:
         async with db_session.begin() as session:
             source_text: SourceText = await find_by_id(
@@ -99,6 +101,7 @@ async def snippets_from_sourcetext(
 async def embeddings_from_snippets(
     source_text_by_id: EntityById,
     settings: Annotated[Settings, Depends(get_settings)],
+    db_session: Annotated[async_sessionmaker, Depends(db_session_factory)],
     drallam_client: Annotated[httpx.AsyncClient, Depends(get_drallam_client)],
 ):
     """
@@ -112,6 +115,7 @@ async def embeddings_from_snippets(
     - **created_count (int)**: a count of how many Snippet records were saved to the
     database
     """
+    session: AsyncSession
     try:
         async with db_session.begin() as session:
             source_text: SourceText = await find_by_id(
@@ -160,6 +164,7 @@ async def embeddings_from_snippets(
 )
 async def find_snippets_relevant_to_query(
     settings: Annotated[Settings, Depends(get_settings)],
+    db_session: Annotated[async_sessionmaker, Depends(db_session_factory)],
     drallam_client: Annotated[httpx.AsyncClient, Depends(get_drallam_client)],
     query: str = Query(..., title="query", description=""),
     max_snippets: int = Query(5, title="max", description=""),
@@ -182,6 +187,7 @@ async def find_snippets_relevant_to_query(
 
     query_embedding = await embed_document(settings, drallam_client, query)
 
+    session: AsyncSession
     async with db_session.begin() as session:
         neighbours = await session.scalars(
             select(EmbeddingNomic)
