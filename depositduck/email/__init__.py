@@ -18,10 +18,11 @@ from smtplib import (
 
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 from pydantic import EmailStr
+from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
 from depositduck import BASE_DIR
 from depositduck.dependables import (
-    db_session,
+    db_session_factory,
     get_logger,
     get_settings,
 )
@@ -49,6 +50,8 @@ async def render_html_email(template_name: str, context: HtmlEmail) -> str:
 async def record_email(
     sender: EmailStr, recipient: EmailStr, subject: str, html_body: str
 ):
+    db_session: async_sessionmaker = await db_session_factory()
+    session: AsyncSession
     async with db_session.begin() as session:
         email = Email(
             sender_address=sender,

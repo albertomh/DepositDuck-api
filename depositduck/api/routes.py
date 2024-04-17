@@ -8,9 +8,10 @@ from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 from sqlalchemy import select
 from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 from typing_extensions import Annotated
 
-from depositduck.dependables import db_session, get_settings
+from depositduck.dependables import db_session_factory, get_settings
 from depositduck.settings import Settings
 
 api_router = APIRouter()
@@ -33,6 +34,7 @@ class ServicesSummary(BaseModel):
 )
 async def healthz(
     settings: Annotated[Settings, Depends(get_settings)],
+    db_session: Annotated[async_sessionmaker, Depends(db_session_factory)],
 ):
     status_summary = ServicesSummary(
         database=ServiceStatus(is_ok=True),
@@ -49,6 +51,7 @@ async def healthz(
         status_summary.static_assets.message = str(e)
 
     try:
+        session: AsyncSession
         async with db_session.begin() as session:
             result = await session.execute(select(1))
             if result.scalar_one() != 1:

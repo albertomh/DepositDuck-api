@@ -121,7 +121,7 @@ class UserManager(UUIDIDMixin, BaseUserManager[User, uuid.UUID]):
         LOG.info(f"{user} has reset their password.")
 
 
-async def _get_db_session() -> AYieldFixture[AsyncSession]:
+async def _get_auth_db_session() -> AYieldFixture[AsyncSession]:
     """
     A SQLAlchemy sessionmaker to be used only with fastapi-users related dependables.
     This is necessary because fastapi-users' internal methods call session.commit(),
@@ -137,7 +137,7 @@ async def _get_db_session() -> AYieldFixture[AsyncSession]:
         yield session
 
 
-async def get_user_db(db_session: Annotated[AsyncSession, Depends(_get_db_session)]):
+async def get_user_db(db_session: Annotated[AsyncSession, Depends(_get_auth_db_session)]):
     yield SQLAlchemyUserDatabase(db_session, User)
 
 
@@ -148,7 +148,7 @@ async def get_user_manager(
 
 
 async def get_access_token_db(
-    db_session: Annotated[AsyncSession, Depends(_get_db_session)],
+    db_session: Annotated[AsyncSession, Depends(_get_auth_db_session)],
 ):
     yield SQLModelAccessTokenDatabaseAsync(db_session, AccessToken)
 

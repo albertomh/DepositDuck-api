@@ -115,6 +115,21 @@ async def get_drallam_client(
 
 db_engine = create_async_engine(get_db_connection_string(), echo=get_settings().debug)
 
-# `expire_on_commit=False` allows accessing object attributes
-# even after a call to `AsyncSession.commit()`.
-db_session = async_sessionmaker(db_engine, class_=AsyncSession, expire_on_commit=False)
+
+async def db_session_factory() -> async_sessionmaker:
+    """
+    Usage:
+    ```python
+      async def example_route(
+          db_session: Annotated[async_sessionmaker, Depends(db_session_factory)],
+      ) -> Response:
+          session: AsyncSession
+          async with db_session.begin() as session:
+              ...
+              session.add(model_instance)
+              await session.commit()
+    ```
+    """
+    # `expire_on_commit=False` allows accessing object attributes
+    # even after a call to `AsyncSession.commit()`.
+    return async_sessionmaker(db_engine, class_=AsyncSession, expire_on_commit=False)

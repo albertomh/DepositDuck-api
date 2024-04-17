@@ -32,6 +32,9 @@ to create a new release.
 
 ### Changed
 
+- Make the db_session dependable a factory for ease of overriding in tests.
+- Refactor the FastAPI app getters in the main module to accept a Settings object for
+  flexibility and ease of testing. 
 - Serve static assets (`speculum`) from a Cloudflare R2 bucket.
 
 ###  Removed
