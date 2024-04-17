@@ -5,14 +5,16 @@
 import logging
 import os
 from typing import Any, Callable
+from unittest.mock import AsyncMock, Mock
 
 import pytest
 import pytest_asyncio
 from fastapi import FastAPI
 from httpx import ASGITransport, AsyncClient
+from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
 from depositduck.dependables import get_settings
-from depositduck.main import get_apiapp, get_webapp
+from depositduck.main import get_apiapp, get_llmapp, get_webapp
 from depositduck.settings import Settings
 
 VALID_FERNET_KEY = "ie6_e7cxZjIs_SAXsZzYLARaQTnhF16DYTCUUTdKgTQ="
@@ -49,7 +51,7 @@ def clear_env_vars():
 
 
 async def _create_client_factory(
-    get_app: Callable[[Settings], FastAPI],
+    app_getter: Callable[[Settings], FastAPI],
     base_url: str,
     settings: Settings | None = None,
     dependency_overrides: dict[Callable, Callable] | None = None,
@@ -70,7 +72,7 @@ async def _create_client_factory(
     """
     if not settings:
         settings = get_settings()
-    app: FastAPI = get_app(settings)
+    app: FastAPI = app_getter(settings)
     if dependency_overrides:
         for dependency, override in dependency_overrides.items():
             app.dependency_overrides[dependency] = override
@@ -111,7 +113,35 @@ def llm_client_factory():
         dependency_overrides: dict[callable, callable] | None = None,
     ):
         return await _create_client_factory(
-            get_apiapp, "http://llmtest", settings, dependency_overrides
+            get_llmapp, "http://llmtest", settings, dependency_overrides
         )
 
     return _create_llm_client
+
+
+class AsyncContextManagerMock(Mock):
+    async def __aenter__(self):
+        pass
+
+    async def __aexit__(self, exc_type, exc_value, traceback):
+        pass
+
+
+@pytest.fixture
+def mock_async_session():
+    """
+    Replaces the object returned by `db_session.begin()`. Where `db_session` is the
+    mocked `db_session_factory` dependable.
+    """
+    mock_session = AsyncMock()
+    mock_session.return_value.__aenter__.return_value = AsyncMock(spec=AsyncSession)
+    return mock_session
+
+
+@pytest.fixture
+def mock_async_sessionmaker(mock_async_session):
+    """Replaces the `db_session_factory` dependable."""
+    mock_sessionmaker = Mock(spec=async_sessionmaker)
+    mock_sessionmaker.begin = AsyncContextManagerMock(return_value=mock_async_session)
+    mock_sessionmaker.begin.return_value.__aenter__.return_value = mock_async_session
+    return mock_sessionmaker

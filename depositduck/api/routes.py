@@ -3,7 +3,7 @@
 """
 
 import httpx
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, Request, status
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 from sqlalchemy import select
@@ -33,6 +33,7 @@ class ServicesSummary(BaseModel):
     tags=["ops"],
 )
 async def healthz(
+    request: Request,
     settings: Annotated[Settings, Depends(get_settings)],
     db_session: Annotated[async_sessionmaker, Depends(db_session_factory)],
 ):
@@ -42,6 +43,7 @@ async def healthz(
     )
 
     try:
+        # TODO: refactor - inject as dependency to be more testable
         speculum_source = f"{settings.static_origin}/{settings.speculum_release}"
         async with httpx.AsyncClient(base_url=speculum_source) as client:
             res = await client.head("/css/main.min.css")
