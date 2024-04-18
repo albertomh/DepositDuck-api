@@ -10,6 +10,8 @@ to create a new release.
 
 ## [Unreleased]
 
+## [0.3.0] - 2024-04-18
+
 ### Added
 
 - Email-based sign-up and log-in flows.
