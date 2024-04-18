@@ -3,6 +3,8 @@
 """
 
 import pytest
+from fastapi import FastAPI
+from httpx import AsyncClient
 from starlette.routing import Mount
 
 from depositduck.main import webapp
@@ -30,12 +32,17 @@ def test_app_mounts():
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("debug_value, expected_status_code", [(True, 200), (False, 404)])
+@pytest.mark.parametrize(
+    "debug_setting, expected_status_code", [(True, 200), (False, 404)]
+)
 async def test_webapp_docs_visibility(
-    web_client_factory, debug_value, expected_status_code
+    web_client_factory, debug_setting, expected_status_code
 ):
+    """
+    Check that webapp's /docs is only visible when DEBUG=True.
+    """
     settings_data = get_valid_settings_data()
-    settings_data.update({"debug": debug_value})
+    settings_data.update({"debug": debug_setting})
     settings = Settings(**settings_data)
     web_client = await web_client_factory(settings)
 
@@ -46,10 +53,35 @@ async def test_webapp_docs_visibility(
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("debug_value, expected_status_code", [(True, 200), (False, 404)])
-async def test_app_docs_visibility(api_client_factory, debug_value, expected_status_code):
+@pytest.mark.parametrize("debug_setting", [True, False])
+async def test_webapp_kitchensink_presence(web_client_factory, debug_setting):
+    """
+    Check that webapp's /kitchensink/ routes are only present when DEBUG=True.
+    """
     settings_data = get_valid_settings_data()
-    settings_data.update({"debug": debug_value})
+    settings_data.update({"debug": debug_setting})
+    settings = Settings(**settings_data)
+    web_client: AsyncClient = await web_client_factory(settings)
+
+    app: FastAPI = web_client._transport.app
+    paths = [r.path for r in app.routes]
+
+    contains_kitchensink_routes = any(p.startswith("/kitchensink") for p in paths)
+    assert contains_kitchensink_routes is debug_setting
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    "debug_setting, expected_status_code", [(True, 200), (False, 404)]
+)
+async def test_api_docs_visibility(
+    api_client_factory, debug_setting, expected_status_code
+):
+    """
+    Check that apiapp's /docs is only visible when DEBUG=True.
+    """
+    settings_data = get_valid_settings_data()
+    settings_data.update({"debug": debug_setting})
     settings = Settings(**settings_data)
     api_client = await api_client_factory(settings)
 
@@ -60,12 +92,17 @@ async def test_app_docs_visibility(api_client_factory, debug_value, expected_sta
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("debug_value, expected_status_code", [(True, 200), (False, 404)])
+@pytest.mark.parametrize(
+    "debug_setting, expected_status_code", [(True, 200), (False, 404)]
+)
 async def test_llmapp_docs_visibility(
-    llm_client_factory, debug_value, expected_status_code
+    llm_client_factory, debug_setting, expected_status_code
 ):
+    """
+    Check that llmapp's /docs is only visible when DEBUG=True.
+    """
     settings_data = get_valid_settings_data()
-    settings_data.update({"debug": debug_value})
+    settings_data.update({"debug": debug_setting})
     settings = Settings(**settings_data)
     llm_client = await llm_client_factory(settings)
 
@@ -73,6 +110,3 @@ async def test_llmapp_docs_visibility(
         response = await client.get("/docs")
 
     assert response.status_code == expected_status_code
-
-
-# TODO: test kitchensink is not reachable when DEBUG=False

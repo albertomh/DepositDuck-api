@@ -55,7 +55,7 @@ async def _create_client_factory(
     base_url: str,
     settings: Settings | None = None,
     dependency_overrides: dict[Callable, Callable] | None = None,
-) -> Any:
+) -> AsyncClient:
     """
     Usage:
       Use any of the public fixtures that wrap this function: `web_client_factory`,
