@@ -20,7 +20,7 @@ from sqlalchemy.ext.asyncio import (
     async_sessionmaker,
     create_async_engine,
 )
-from starlette.responses import Response
+from starlette.templating import _TemplateResponse
 from structlog import configure, make_filtering_bound_logger
 from structlog import get_logger as get_structlogger
 
@@ -69,8 +69,8 @@ class AuthenticatedJinjaBlocks(Jinja2Blocks):
         model_config = ConfigDict(extra="allow", arbitrary_types_allowed=True)
 
     def TemplateResponse(
-        self, name: str, context: TemplateContext, *args, **kwargs
-    ) -> Response:
+        self, template_name: str, context: TemplateContext, *args, **kwargs
+    ) -> _TemplateResponse:
         if not isinstance(context, self.TemplateContext):
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -80,7 +80,9 @@ class AuthenticatedJinjaBlocks(Jinja2Blocks):
                 ),
             )
 
-        return super().TemplateResponse(name, context.model_dump(), *args, **kwargs)
+        return super().TemplateResponse(
+            template_name, context.model_dump(), *args, **kwargs
+        )
 
 
 @cache

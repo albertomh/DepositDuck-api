@@ -9,12 +9,13 @@ from unittest.mock import AsyncMock, Mock
 
 import pytest
 import pytest_asyncio
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from httpx import ASGITransport, AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
-from depositduck.dependables import get_settings
+from depositduck.dependables import AuthenticatedJinjaBlocks, get_settings
 from depositduck.main import get_apiapp, get_llmapp, get_webapp
+from depositduck.models.sql.auth import User
 from depositduck.settings import Settings
 
 VALID_FERNET_KEY = "ie6_e7cxZjIs_SAXsZzYLARaQTnhF16DYTCUUTdKgTQ="
@@ -145,3 +146,23 @@ def mock_async_sessionmaker(mock_async_session):
     mock_sessionmaker.begin = AsyncContextManagerMock(return_value=mock_async_session)
     mock_sessionmaker.begin.return_value.__aenter__.return_value = mock_async_session
     return mock_sessionmaker
+
+
+@pytest.fixture
+def mock_request():
+    return Mock(spec=Request)
+
+
+@pytest.fixture
+def mock_user():
+    return Mock(spec=User)
+
+
+@pytest.fixture
+def mock_settings():
+    return Mock(spec=Settings)
+
+
+@pytest.fixture
+def mock_authenticated_jinja_blocks():
+    return Mock(spec=AuthenticatedJinjaBlocks)
