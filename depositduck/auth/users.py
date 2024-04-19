@@ -33,6 +33,8 @@ cookie_transport = CookieTransport(
     cookie_name=AUTH_COOKIE_NAME,
     cookie_max_age=AUTH_COOKIE_MAX_AGE,
     # TODO: set cookie_domain for hosted environments when available via Settings
+    #   to `.dd.tld` (note leading dot) for cross-compat across all subdomains ie.
+    #   both www. and app. subdomains.
     # cookie_domain=,
     cookie_secure=cookie_secure,
     cookie_httponly=cookie_httponly,  # TODO: might not be needed
