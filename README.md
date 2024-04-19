@@ -31,10 +31,10 @@ A `justfile` defines common development tasks. Run `just` to show all available 
 
 ```sh
 # install base + dev dependencies in a virtualenv
-just install-deps-dev
+just install-deps
 
 # create a .env file and populate as needed
-# (see `Settings` class in `config.py`)
+# (see `Settings` class in `depositduck/settings.py`)
 cp .env.in .env
 
 # start the containerised LLM service on :11434
@@ -50,7 +50,10 @@ just run
 just stop
 ```
 
-After doing the above the following are now available:
+NB. `just` will default to using the `.env` file. An alternative dotenv can be specified
+eg. `just dotenv=.env.test test`.
+
+After invoking `just run` the following are available:
 
 - [0.0.0.0:8000/](http://0.0.0.0:8000/) - web frontend
 - [0.0.0.0:8000/docs](http://0.0.0.0:8000/docs) - interactive `webapp` API docs.  
@@ -101,7 +104,7 @@ directory. `.txt` files in that directory list pinned versions.
 # pin dependencies
 just [ pin-deps | pin-deps-base | pin-deps-dev | pin-deps-test ]
 
-# update dependency versions in line with constraints in requirements/*.in files
+# update dependencies in line with requirements/*.in files
 just [ update-deps | update-deps-base | update-deps-dev | update-deps-test ]
 ```
 
@@ -123,7 +126,7 @@ The project is split into the following packages:
 
 And the following top-level modules:
 
-- `dependables`: callables to be used with FastAPI's Dependency Injection system.
+- `dependables`: callables to be used with FastAPI's dependency injection system.
 - `main`: application entrypoint, defines FastAPI apps and attaches routers to these.
 - `settings`: application configuration driven by environment variables from a dotenv file.
 - `utils`: functions with limited scope that are useful throughout the application.
@@ -132,7 +135,7 @@ And the following top-level modules:
 
 Callables for use with FastAPI's dependency injection system are made available in the
 `dependables` module. These include utilities to access the `structlog` logger, a configured
-settings object, the database connection string and a Jinja fragments context.
+settings object, a database session factory and a Jinja fragments context.
 
 Packages may contain domain-specific dependables, such as the `auth.dependables` module.
 
@@ -167,7 +170,7 @@ in [perrygeo.com/dont-install-postgresql-using-containers-for-local-development]
 just db_logs
 
 # delete the volume backing the local database
-# last resort - prefer the method in `just _wipe_e2e_db` followed by `just migrate`
+# (prefer using `just _wipe_db` followed by `just migrate`)
 rm -rf local/database/pgdata/pgdata15
 ```
 
@@ -187,42 +190,48 @@ The migrations directory is `depositduck/models/migrations/`.
 # create a migration with the message 'add_person'
 just migration "add Person"
 
-# apply the latest migration (optionally specify a revision `just migrate <id>`)
+# apply the latest migration
+# (optionally specify a revision `just migrate <id>`)
 just migrate
 
-# revert to the previous migration (optionally specify a revision `just downgrade <id>`)
+# revert to the previous migration
+# (optionally specify a revision `just downgrade <id>`)
 just downgrade
 ```
 
 ### Frontend
 
-The frontend is styled using Bootstrap 5. Specifically, a project-specific version
-customised to use the DepositDuck palette which lives at [albertomh/speculum](https://github.com/albertomh/speculum).
+DepositDuck uses the `speculum` frontend toolkit. This is a distribution of Bootstrap 5
+customised to use the project's palette which lives at [albertomh/speculum](https://github.com/albertomh/speculum).
+`speculum` also includes ready-to-use minified versions of Bootstrap Icons and htmx.
 
-Static assets (Bootstrap, Bootstrap Icons, htmx) are hosted in a public Cloudflare R2 bucket
-with CORS enabled to allow GET from `localhost:8000`.
+`speculum` static assets are hosted in a public Cloudflare R2 bucket with CORS enabled to
+allow GET from `localhost:8000`.
 
 ## Test
 
-Tests live in `tests/`. This contains two sub-directories:
+Tests live in `tests/`, which contains two sub-directories:
 
 - `unit/` pytest unit tests.
 - `e2e/` end-to-end Playwright tests.
 
 ### Prerequisites
 
-The tools listed under 'Develop > Prerequisites' must be available in order to run tests.
+The tools listed under [Develop > Prerequisites](#prerequisites) must be available in
+order to run tests.
 
 ### Run tests locally
 
 ```sh
-# !important: remember to specify `dotenv=.env.test` every time when running test recipes.
+# !important: remember to specify `dotenv=.env.test`
+# every time when running test recipes.
 
 # run unit tests
 just dotenv=.env.test test
 
-# run end-to-end tests
-# will first wipe test database and restart smtp service & server in the background
+# run end-to-end Playwright tests
+# will wipe test database, then restart the smtp
+# service & app server in the background
 just dotenv=.env.test e2e
 ```
 
@@ -235,7 +244,7 @@ running locally.
 # run the application in the background
 just run &
 
-# activate virtual environment and launch Playwright Inspector
+# activate virtual env and launch Playwright Inspector
 . ./.venv/bin/activate
 playwright codegen 0.0.0.0:8000/
 ```
@@ -246,8 +255,8 @@ Continuous Integration pipelines run via GitHub Actions on push.
 Pipelines are defined by YAML files in the `.github/workflows/` directory.
 There are two workflows:
 
-- When a commit on a feature branch is pushed up to GitHub - `pr.yaml`
-- When a Pull Request is merged into the 'main' branch - `ci.yaml`
+- `pr.yaml`: when a commit on a feature branch is pushed up to GitHub.
+- `ci.yaml`: when a Pull Request is merged into the 'main' branch.
 
 They both run pre-commit hooks and unit tests against the codebase.
 
@@ -261,7 +270,8 @@ To run a Docker image locally:
 ```sh
 # 1. Visit https://github.com/settings/tokens/new?scopes=write:packages
 
-# 2. Select all relevant `packages` scopes and create a new Personal Access Token (PAT).
+# 2. Select all relevant `packages` scopes and create
+#    a new Personal Access Token (PAT).
 
 # 3. Save the PAT as an environment variable:
 export GHCR_PAT=YOUR_TOKEN
@@ -274,13 +284,13 @@ docker pull ghcr.io/albertomh/depositduck/main:latest
 
 # 6. Run the webapp on port 80
 docker run \
- --rm \
- --detach \
- --read-only \
- --volume ./.env:/app/.env \
- --publish 80:80 \
- --name depositduck_web \
- ghcr.io/albertomh/depositduck/main
+  --rm \
+  --detach \
+  --read-only \
+  --volume ./.env:/app/.env \
+  --publish 80:80 \
+  --name depositduck_web \
+  ghcr.io/albertomh/depositduck/main
 
 # 7. Stop the container
 docker stop depositduck_web
@@ -314,7 +324,7 @@ PGPASSWORD=password ./local/data_pipeline/raw_sourcetext_to_database.sh
 [draLLaM](https://github.com/albertomh/draLLaM) is DepositDuck's dedicated LLM service.
 As of draLLaM@0.1.0 the service focuses on generating text embeddings.  
 Invoke `just drallam` to run it locally - containerised and available on `:11434` - ready
-to respond to queries from the main DepositDuck service. There are draLLaM-specific settings
+to respond to queries from the main DepositDuck webapp. There are draLLaM-specific settings
 in `.env` that can be used to specify host and port.
 
 ## Deploy
@@ -326,8 +336,8 @@ in `.env` that can be used to specify host and port.
    This stamps the changelog and triggers a GitHub pipeline.
 1. Wait for the pipeline to succeed. It will have raised a PR for this release.
 1. Review and merge (merge-and-rebase) the PR.
-1. This will trigger a pipeline to tag the `main` branch, create a GitHub release, build
-   a container and push it to the GitHub Container Registry.
+1. This will trigger a pipeline that tags the `main` branch, creates a GitHub release,
+   builds a container and pushes it to the GitHub Container Registry.
 1. Wait for the pipeline to succeed and check a new tagged Docker container is available
    in the project's [container registry](https://github.com/albertomh/DepositDuck/pkgs/container/depositduck%2Fmain).
 
