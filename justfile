@@ -175,6 +175,15 @@ test: venv
   else
     python -m pytest tests/unit/ -s -vvv -W always
   fi
+  just dotenv={{dotenv}} coverage
+
+
+# report on unit test coverage
+coverage: venv
+    . {{VENV_DIR}}/bin/activate
+    if [ -z ${CI:-} ]; then . ./local/read_dotenv.sh {{dotenv}}; fi
+    uv pip sync {{REQS_DIR}}/test.txt
+    python -m pytest --cov=depositduck tests/unit/
 
 # run e2e Playwright tests
 # !must run as `just dotenv=.env.test e2e`

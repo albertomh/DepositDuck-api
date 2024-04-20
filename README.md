@@ -226,7 +226,7 @@ order to run tests.
 # !important: remember to specify `dotenv=.env.test`
 # every time when running test recipes.
 
-# run unit tests
+# run unit tests and show coverage report
 just dotenv=.env.test test
 
 # run end-to-end Playwright tests
