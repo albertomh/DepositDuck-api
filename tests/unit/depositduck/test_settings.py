@@ -5,11 +5,11 @@
 import pytest
 
 from depositduck.settings import Settings
-from tests.unit.conftest import get_valid_settings_data
+from tests.unit.conftest import get_valid_settings
 
 
 def test_valid_settings():
-    settings_data = get_valid_settings_data()
+    settings_data = get_valid_settings().model_dump()
     try:
         settings = Settings(**settings_data)
     except Exception as e:
@@ -20,7 +20,8 @@ def test_valid_settings():
 
 
 def test_default_values(clear_env_vars):
-    settings = Settings(**get_valid_settings_data())
+    settings_data = get_valid_settings().model_dump()
+    settings = Settings(**settings_data)
 
     assert settings.app_name == "DepositDuck"
     assert settings.debug is False
@@ -32,7 +33,7 @@ def test_default_values(clear_env_vars):
 
 
 def test_invalid_app_secret():
-    settings_data = get_valid_settings_data()
+    settings_data = get_valid_settings().model_dump()
     settings_data["app_secret"] = "invalid_secret_key"
 
     with pytest.raises(ValueError) as exc_info:
@@ -42,12 +43,8 @@ def test_invalid_app_secret():
 
 
 def test_invalid_app_secret_type():
-    settings_data = get_valid_settings_data()
-    settings_data.update(
-        {
-            "app_secret": 12345,
-        }
-    )
+    settings_data = get_valid_settings().model_dump()
+    settings_data["app_secret"] = 12345
 
     with pytest.raises(ValueError) as exc_info:
         Settings(**settings_data)
@@ -58,7 +55,7 @@ def test_invalid_app_secret_type():
 def test_trailing_slash_removed():
     app_origin = "https://example.com/"
     static_origin = "https://static.example.com/"
-    settings_data = get_valid_settings_data()
+    settings_data = get_valid_settings().model_dump()
 
     settings_data.update(
         {
