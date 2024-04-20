@@ -206,6 +206,7 @@ async def login(
     next: str | None = None,
     encrypted_email: str | None = Query(default=None, alias="email"),
 ):
+    # TODO: redirect away if already logged in.
     prompt_to_reverify = False
     # value to auto-fill in the 'email' input
     user_email = ""
@@ -225,7 +226,8 @@ async def login(
 
     context = AuthenticatedJinjaBlocks.TemplateContext(
         request=request,
-        user=user,
+        # avoid showing authenticated navbar to users following verification links
+        user=None,
         prev_url=prev,
         next_url=next,
         prompt_to_reverify=prompt_to_reverify,
