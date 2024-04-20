@@ -124,16 +124,18 @@ downgrade down="-1": venv
   python -m alembic downgrade {{down}}
 
 # stop anything already running on :1025
-_stop_smtp:
-  @lsof -t -i :1025 | xargs -I {} kill -9 {}
+_stop_mailhog:
+  docker stop mailhog || true
 
 # local mailserver to catch outgoing mail
-smtp: venv _stop_smtp
-  #!/usr/bin/env bash
-  set -euo pipefail
-  . {{VENV_DIR}}/bin/activate
-  if [ -z ${CI:-} ]; then . ./local/read_dotenv.sh {{dotenv}}; fi
-  python -m aiosmtpd --nosetuid --debug --listen :1025
+mailhog: _stop_mailhog
+  @docker run \
+    --rm \
+    --log-driver=none \
+    --publish 8025:8025 \
+    --publish 1025:1025 \
+    --name mailhog \
+    mailhog/mailhog:v1.0.1
 
 # run the embeddings service in a container https://github.com/albertomh/draLLaM
 drallam:
@@ -153,7 +155,7 @@ run: stop && stop
   set -euo pipefail
   just db &
   just dotenv={{dotenv}} migrate &
-  just dotenv={{dotenv}} smtp &
+  just dotenv={{dotenv}} mailhog &
   . {{VENV_DIR}}/bin/activate
   if [ -z ${CI:-} ]; then . ./local/read_dotenv.sh {{dotenv}}; fi
   uvicorn depositduck.main:webapp --reload
@@ -187,10 +189,10 @@ coverage: venv
 
 # run e2e Playwright tests
 # !must run as `just dotenv=.env.test e2e`
-e2e: venv _wipe_db && _stop_smtp _stop_server
+e2e: venv _wipe_db && _stop_mailhog _stop_server
   #!/usr/bin/env bash
   set -euo pipefail
-  just dotenv={{dotenv}} smtp &
+  just dotenv={{dotenv}} mailhog &
   just dotenv={{dotenv}} run &
   . {{VENV_DIR}}/bin/activate
   if [ -z ${CI:-} ]; then . ./local/read_dotenv.sh {{dotenv}}; fi
@@ -204,7 +206,7 @@ e2e: venv _wipe_db && _stop_smtp _stop_server
 stop:
   docker stop depositduck_db || true
   docker stop drallam || true
-  just dotenv={{dotenv}} _stop_smtp
+  just dotenv={{dotenv}} _stop_mailhog
   just dotenv={{dotenv}} _stop_server
 
 # cut a release and raise a pull request for it
