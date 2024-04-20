@@ -38,7 +38,7 @@ async def test_record_email(mock_async_sessionmaker, mock_async_session):
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize("use_ssl", [False, True])
-async def test_send_email(monkeypatch, mock_async_sessionmaker, use_ssl):
+async def test_send_email(mock_async_sessionmaker, use_ssl):
     settings_data = get_valid_settings().model_dump()
     settings_data["smtp_use_ssl"] = use_ssl
     settings = Settings(**settings_data)
