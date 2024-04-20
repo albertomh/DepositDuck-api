@@ -189,7 +189,7 @@ coverage: venv
 
 # run e2e Playwright tests
 # !must run as `just dotenv=.env.test e2e`
-e2e: venv _wipe_db && _stop_mailhog _stop_server
+e2e: venv _wipe_db && stop
   #!/usr/bin/env bash
   set -euo pipefail
   just dotenv={{dotenv}} mailhog &
