@@ -21,16 +21,12 @@ from pydantic import EmailStr
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
 from depositduck import BASE_DIR
-from depositduck.dependables import (
-    db_session_factory,
-    get_logger,
-    get_settings,
-)
+from depositduck.dependables import get_logger
 from depositduck.models.email import HtmlEmail
 from depositduck.models.sql.email import Email
+from depositduck.settings import Settings
 
 LOG = get_logger()
-settings = get_settings()
 
 
 async def render_html_email(template_name: str, context: HtmlEmail) -> str:
@@ -48,11 +44,14 @@ async def render_html_email(template_name: str, context: HtmlEmail) -> str:
 
 
 async def record_email(
-    sender: EmailStr, recipient: EmailStr, subject: str, html_body: str
+    db_session_factory: async_sessionmaker,
+    sender: EmailStr,
+    recipient: EmailStr,
+    subject: str,
+    html_body: str,
 ):
-    db_session: async_sessionmaker = await db_session_factory()
     session: AsyncSession
-    async with db_session.begin() as session:
+    async with db_session_factory.begin() as session:
         email = Email(
             sender_address=sender,
             recipient_address=recipient,
@@ -65,7 +64,12 @@ async def record_email(
 
 
 async def send_email(
-    recipient: EmailStr, subject: str, html_body: str, plain_body: str | None = None
+    settings: Settings,
+    db_session_factory: async_sessionmaker,
+    recipient: EmailStr,
+    subject: str,
+    html_body: str,
+    plain_body: str | None = None,
 ) -> None:
     sender = settings.smtp_sender_address
     smtp_password = settings.smtp_password
@@ -95,7 +99,7 @@ async def send_email(
                 server.starttls()
                 server.login(sender, smtp_password)
             server.sendmail(sender, recipient, message.as_string())
-            await record_email(sender, recipient, subject, html_body)
+            await record_email(db_session_factory, sender, recipient, subject, html_body)
         except (
             SMTPHeloError,
             SMTPRecipientsRefused,
