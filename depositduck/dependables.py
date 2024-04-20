@@ -143,7 +143,7 @@ async def db_session_factory() -> async_sessionmaker:
     Usage:
     ```python
       async def example_route(
-          db_session: Annotated[async_sessionmaker, Depends(db_session_factory)],
+          db_session_factory: Annotated[async_sessionmaker, Depends(db_session_factory)],
       ) -> Response:
           session: AsyncSession
           async with db_session.begin() as session:

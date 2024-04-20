@@ -20,7 +20,13 @@ from sqlalchemy.ext.asyncio import (
     async_sessionmaker,
 )
 
-from depositduck.dependables import AYieldFixture, db_engine, get_logger, get_settings
+from depositduck.dependables import (
+    AYieldFixture,
+    db_engine,
+    db_session_factory,
+    get_logger,
+    get_settings,
+)
 from depositduck.email import render_html_email, send_email
 from depositduck.models.auth import UserCreate
 from depositduck.models.email import HtmlEmail
@@ -102,7 +108,8 @@ class UserManager(UUIDIDMixin, BaseUserManager[User, uuid.UUID]):
             verification_url=verification_url,
         )
         html: str = await render_html_email("please_verify.html.jinja2", context)
-        await send_email(user.email, subject, html)
+        db_sessionmaker: async_sessionmaker = await db_session_factory()
+        await send_email(settings, db_sessionmaker, user.email, subject, html)
 
     async def on_after_forgot_password(
         self,
@@ -130,10 +137,10 @@ async def _get_auth_db_session() -> AYieldFixture[AsyncSession]:
     """
     # `expire_on_commit=False` allows accessing object attributes
     # even after a call to `AsyncSession.commit()`.
-    async_session = async_sessionmaker(
+    db_session_factory = async_sessionmaker(
         db_engine, class_=AsyncSession, expire_on_commit=False
     )
-    async with async_session() as session:
+    async with db_session_factory() as session:
         yield session
 
 

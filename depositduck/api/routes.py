@@ -35,7 +35,7 @@ class ServicesSummary(BaseModel):
 async def healthz(
     request: Request,
     settings: Annotated[Settings, Depends(get_settings)],
-    db_session: Annotated[async_sessionmaker, Depends(db_session_factory)],
+    db_session_factory: Annotated[async_sessionmaker, Depends(db_session_factory)],
 ):
     status_summary = ServicesSummary(
         database=ServiceStatus(is_ok=True),
@@ -54,7 +54,7 @@ async def healthz(
 
     try:
         session: AsyncSession
-        async with db_session.begin() as session:
+        async with db_session_factory.begin() as session:
             result = await session.execute(select(1))
             if result.scalar_one() != 1:
                 raise SQLAlchemyError("database failed 'SELECT(1)' check")
