@@ -4,7 +4,7 @@
 
 import logging
 import os
-from typing import Any, Callable
+from typing import Callable
 from unittest.mock import AsyncMock, Mock
 
 import pytest
@@ -21,20 +21,20 @@ from depositduck.settings import Settings
 VALID_FERNET_KEY = "ie6_e7cxZjIs_SAXsZzYLARaQTnhF16DYTCUUTdKgTQ="
 
 
-def get_valid_settings_data() -> dict[str, Any]:
-    return {
-        "app_secret": VALID_FERNET_KEY,
-        "app_origin": "http://www.depositduck-test.tld",
-        "db_user": "db_user",
-        "db_password": "db_password",
-        "db_name": "db_name",
-        "db_host": "localhost",
-        "smtp_server": "smtp.sendservice.mail",
-        "smtp_sender_address": "sender@depositduck-test.tld",
-        "smtp_password": "smtp_password",
-        "static_origin": "https://bucket.provider.cloud",
-        "speculum_release": "1.0.0",
-    }
+def get_valid_settings() -> Settings:
+    return Settings(
+        app_secret=VALID_FERNET_KEY,
+        app_origin="http://www.depositduck-test.tld",
+        db_user="db_user",
+        db_password="db_password",
+        db_name="db_name",
+        db_host="localhost",
+        smtp_server="smtp.sendservice.mail",
+        smtp_sender_address="sender@depositduck-test.tld",
+        smtp_password="smtp_password",
+        static_origin="https://bucket.provider.cloud",
+        speculum_release="1.0.0",
+    )
 
 
 @pytest_asyncio.fixture(scope="session", autouse=True)
