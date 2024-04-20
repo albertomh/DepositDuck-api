@@ -31,3 +31,4 @@ async def browser_page() -> AsyncGenerator[Page, None]:
             yield page
         finally:
             await browser.close()
+
