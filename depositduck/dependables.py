@@ -58,6 +58,9 @@ class AuthenticatedJinjaBlocks(Jinja2Blocks):
     Derived class to add objects needed by all responses to the TemplateResponse context.
     Namely, the request, the user and where to find static assets.
     The user may be None to denote an unauthenticated request.
+
+    Usage:
+      consult the `get_templates` dependable.
     """
 
     class TemplateContext(BaseModel):
@@ -87,6 +90,23 @@ class AuthenticatedJinjaBlocks(Jinja2Blocks):
 
 @cache
 def get_templates() -> AuthenticatedJinjaBlocks:
+    """
+    Usage:
+      @router.get("/path/")
+      async def path_func(
+        templates: Annotated[AuthenticatedJinjaBlocks, Depends(get_templates)],
+        request: Request,
+      ):
+      ...
+      context = AuthenticatedJinjaBlocks.TemplateContext(
+          request=request,
+          user=user,
+          key=value,  # arbitrary kwargs will propagate to the template
+      )
+      return templates.TemplateResponse(
+          "dir/template.html.jinja2", context=context, [block_name="fragment_id"]
+      )
+    """
     templates_dir_path = BASE_DIR / "web" / "templates"
 
     return AuthenticatedJinjaBlocks(
