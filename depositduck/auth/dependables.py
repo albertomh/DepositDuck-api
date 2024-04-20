@@ -20,18 +20,15 @@ from sqlalchemy.ext.asyncio import (
     async_sessionmaker,
 )
 
+from depositduck.auth import send_verification_email
 from depositduck.dependables import (
     AYieldFixture,
     db_engine,
-    db_session_factory,
     get_logger,
     get_settings,
 )
-from depositduck.email import render_html_email, send_email
 from depositduck.models.auth import UserCreate
-from depositduck.models.email import HtmlEmail
 from depositduck.models.sql.auth import AccessToken, User
-from depositduck.utils import encrypt
 
 settings = get_settings()
 LOG = get_logger()
@@ -96,20 +93,7 @@ class UserManager(UUIDIDMixin, BaseUserManager[User, uuid.UUID]):
         token: str,
         request: Optional[Request] = None,
     ):
-        LOG.debug(f"verification requested for {user} - token: {token}")
-        subject = "Your DepositDuck account verification"
-        encrypted_email = encrypt(settings.app_secret, user.email)
-        verification_url = (
-            f"{settings.app_origin}/auth/verify/?email={encrypted_email}&token={token}"
-        )
-        context = HtmlEmail(
-            title=subject,
-            preheader="Please verify your DepositDuck account - and get what's yours!",
-            verification_url=verification_url,
-        )
-        html: str = await render_html_email("please_verify.html.jinja2", context)
-        db_sessionmaker: async_sessionmaker = await db_session_factory()
-        await send_email(settings, db_sessionmaker, user.email, subject, html)
+        await send_verification_email(user, token)
 
     async def on_after_forgot_password(
         self,
