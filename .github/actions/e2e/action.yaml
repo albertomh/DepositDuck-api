@@ -17,7 +17,7 @@ runs:
     - uses: ./.github/actions/uv
     # must run as its own step because environment variables are
     # only available in steps following the one that sets them.
-    - run: ./local/read_dotenv.sh .env.test
+    - run: ./local/read_dotenv.sh .env.e2e
       shell: bash
       # dotenv intentionally left blank when calling 'just'
     - run: |

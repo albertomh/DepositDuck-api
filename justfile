@@ -160,15 +160,17 @@ run: stop && stop
   if [ -z ${CI:-} ]; then . ./local/read_dotenv.sh {{dotenv}}; fi
   uvicorn depositduck.main:webapp --reload
 
+
+# Setting env vars from a dotenv in GitHub Actions is handled in a step of the action
+# separate from the one that invokes the recipe. This is because environment variables are
+# only available in steps following the one that sets them. Similarly, a separate step
+# installs test dependencies.
+
 # run unit & integration tests
 # !must run as `just dotenv=.env.test test`
 test: venv
   #!/usr/bin/env bash
   set -euo pipefail
-  # setting env vars using `.env.test` in GitHub Actions is handled in a step of the
-  # `test` action separate from the one that invokes `just test`. This is because
-  # environment variables are only available in steps following the one that sets them.
-  # similarly, a separate step installs test dependencies separate from this recipe.
   . {{VENV_DIR}}/bin/activate
   if [ -z ${CI:-} ]; then . ./local/read_dotenv.sh {{dotenv}}; fi
   uv pip sync {{REQS_DIR}}/test.txt
