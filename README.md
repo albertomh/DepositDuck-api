@@ -1,3 +1,4 @@
+<!-- markdownlint-disable MD033 -->
 # DepositDuck
 
 _Get what's yours_ <!-- markdownlint-disable-line MD036 -->

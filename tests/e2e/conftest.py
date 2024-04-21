@@ -3,16 +3,15 @@
 """
 
 import os
-
 from enum import StrEnum
 from typing import AsyncGenerator
 
 import pytest_asyncio
 from playwright.async_api import BrowserType, Page, async_playwright
 
-
 HEADLESS: bool = os.getenv("E2E_HEADLESS", "true").lower() == "true" or False
 SLOW_MO = int(os.getenv("E2E_SLOW_MO", 0))  # delay between steps, in milliseconds
+
 
 class Browser(StrEnum):
     """
