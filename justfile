@@ -188,7 +188,7 @@ coverage: venv
     python -m pytest --cov=depositduck tests/unit/
 
 # run e2e Playwright tests
-# !must run as `just dotenv=.env.test e2e`
+# !must run as `just dotenv=.env.e2e e2e`
 e2e: venv _wipe_db && stop
   #!/usr/bin/env bash
   set -euo pipefail
