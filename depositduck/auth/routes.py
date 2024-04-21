@@ -82,10 +82,8 @@ async def signup(
     return templates.TemplateResponse("auth/signup.html.jinja2", context)
 
 
-
-@auth_operations_router.post("/register/first-half/")
-async def register_first_half(
-):
+@auth_operations_router.post("/filterProspect/")
+async def filter_prospect_for_signup():
     pass  # TODO:
 
 
