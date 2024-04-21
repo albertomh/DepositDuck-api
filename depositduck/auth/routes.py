@@ -82,6 +82,13 @@ async def signup(
     return templates.TemplateResponse("auth/signup.html.jinja2", context)
 
 
+
+@auth_operations_router.post("/register/first-half/")
+async def register_first_half(
+):
+    pass  # TODO:
+
+
 @auth_operations_router.post("/register/")
 async def register(
     email: Annotated[EmailStr, Form()],

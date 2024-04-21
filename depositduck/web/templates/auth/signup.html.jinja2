@@ -8,19 +8,35 @@
         <div class="col-10 offset-1 col-md-8 offset-md-2">
 
             <div class="row">
-                <div class="col-2 text-center"><i class="bi bi-house-heart text-primary h1"></i></div>
-                <div class="col-10"><h1>Sign up</h1></div>
+                <div class="col-2 text-center"><i class="bi bi-house-heart text-primary fs-1"></i></div>
+                <div class="col-10"><h1 class="mt-1">Sign up</h1></div>
             </div>
 
+            {# First half of sign-up form, filtering prospects #}
+
+            {# Q1/4: question - provider #}
             <div class="row mt-2">
-                <div class="col-2 text-center"><i class="bi bi-1-circle-fill"></i></div>
-                <div class="col-10">Who is your deposit registered with?</div>
+                <div class="col-2 position-relative">
+                    <div class="row h-50"></div>
+                    <div class="row h-50">
+                        <div class="col border-end border-1 border-black"></div>
+                        <div class="col border-start border-1 border-black"></div>
+                    </div>
+                    <span class="position-absolute top-50 start-50 translate-middle bg-white">
+                        <i class="bi bi-1-circle-fill fs-3"></i>
+                    </span>
+                </div>
+
+                <div class="col-10">
+                    <p class="fs-5 mb-0">Who is your deposit registered with?</p>
+                </div>
             </div>
 
+            {# Q1/4: answer input #}
             <div class="row">
-                <div class="col-1 border-end border-1 border-black pb-5"></div>
-                <div class="col-1 border-start border-1 border-black pb-5"></div>
-                <div class="col-10 py-3 ps-4">
+                <div class="col border-end border-1 border-black"></div>
+                <div class="col border-start border-1 border-black"></div>
+                <div class="col-10 py-3 ps-4 pb-5">
 
                     <div class="row">
                         <div class="col-12 col-md-6 form-check pb-3 pb-md-0">
@@ -35,9 +51,79 @@
                             A different provider
                             </label>
                         </div>
+                    </div>
 
                 </div>
             </div>
+
+            {# Q2/4: question - end date #}
+            <div class="row">
+                <div class="col-2 position-relative">
+                    <div class="row h-50">
+                        <div class="col border-end border-1 border-black"></div>
+                        <div class="col border-start border-1 border-black"></div>
+                    </div>
+                    <div class="row h-50">
+                        <div class="col border-end border-1 border-black"></div>
+                        <div class="col border-start border-1 border-black"></div>
+                    </div>
+                    <span class="position-absolute top-50 start-50 translate-middle bg-white">
+                        <i class="bi bi-2-circle-fill fs-3"></i>
+                    </span>
+                </div>
+
+                <div class="col-10">
+                    <p class="fs-5 mb-0">When did you or will you leave the property?</p>
+                </div>
+            </div>
+
+            {# Q2/4: answer input #}
+            <div class="row">
+                <div class="col border-end border-1 border-black"></div>
+                <div class="col border-start border-1 border-black"></div>
+                <div class="col-10 py-3 ps-4 pb-5">
+
+                    <label>
+                        <input type="date" name="tenancyEndDate" class="form-control" />
+                    </label>
+
+                </div>
+            </div>
+
+            {# first half form submission #}
+            <div class="row">
+                <div class="col-2 position-relative">
+                    <div class="row h-50">
+                        <div class="col border-end border-1 border-black"></div>
+                        <div class="col border-start border-1 border-black"></div>
+                    </div>
+                    <div class="row h-50">
+                        <div class="col border-end border-1 border-black"></div>
+                        <div class="col border-start border-1 border-black"></div>
+                    </div>
+                    <span class="position-absolute top-50 start-50 translate-middle bg-white">
+                        <i class="bi bi-arrow-right-circle fs-3"></i>
+                    </span>
+                </div>
+
+                <div class="col-10">
+                    <button type="submit" class="btn btn-primary float-end">
+                        Next
+                    </button>
+                </div>
+            </div>
+
+
+
+
+
+
+
+
+
+
+
+
 
             {% block signup_form %}
                 <form id="signupForm" class="mt-5" hx-post="/auth/register/">
