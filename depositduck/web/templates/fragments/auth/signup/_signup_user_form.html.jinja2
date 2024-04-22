@@ -1,0 +1,135 @@
+{#
+ # (c) 2024 Alberto Morón Hernández
+ #}
+
+{# second half of sign-up form, registering users #}
+
+{% block signup_form %}
+    {% include "/fragments/auth/signup/_filter_prospect_answers.html.jinja2" %}
+
+    <div class="row">
+        <div class="col-1 border-end border-1 border-dark-subtle"></div>
+        <div class="col-1 border-start border-1 border-dark-subtle"></div>
+        <div class="col-10 pt-3 pb-2 ps-4">{# vertical spacer #}</div>
+    </div>
+
+    <form id="signupForm" hx-post="/auth/register/">
+        {# Q3/3: question - email and password #}
+        <div class="row">
+            <div class="col-2 position-relative">
+                <div class="row h-50">
+                    <div
+                        class="col border-end border-1 border-dark-subtle"></div>
+                    <div
+                        class="col border-start border-1 border-dark-subtle"></div>
+                </div>
+                <div class="row h-50">
+                    <div class="col border-end border-1 border-black"></div>
+                    <div class="col border-start border-1 border-black"></div>
+                </div>
+                <span
+                    class="position-absolute top-50 start-50 translate-middle bg-white">
+                    <i class="bi bi-3-circle-fill fs-3"></i>
+                </span>
+            </div>
+
+            <div class="col-10 pb-2">
+                <p class="fs-5 mb-0">Create your account</p>
+            </div>
+        </div>
+
+        {# Q3/3: answer input #}
+        <div class="row">
+            <div class="col-1 border-end border-1 border-black"></div>
+            <div class="col-1 border-start border-1 border-black"></div>
+            <div class="col-10 col-md-6 ps-4">
+                <div class="mb-3">
+                    <label for="email" class="form-label fw-bold">Email:</label>
+                    <input
+                        type="text"
+                        id="email"
+                        name="email"
+                        value="{{ email }}"
+                        class="form-control {{ classes_by_id['email'] }}"
+                        required />
+                    {% if "REGISTER_INVALID_EMAIL" in errors %}
+                        <div class="invalid-feedback">
+                            Please provide a valid email.
+                        </div>
+                    {% endif %}
+                </div>
+                <div class="mb-3">
+                    <label for="password" class="form-label fw-bold">
+                        Password:
+                    </label>
+                    <input
+                        type="password"
+                        id="password"
+                        name="password"
+                        value="{{ password }}"
+                        class="form-control {{ classes_by_id['password'] }}"
+                        aria-describedby="passwordHelp"
+                        required />
+                    <div id="passwordHelp" class="form-text">
+                        Password must be at least 8 characters long.
+                    </div>
+                    {% if "REGISTER_INVALID_PASSWORD" in errors %}
+                        <div class="invalid-feedback">
+                            {% if "PASSWORD_TOO_SHORT" in errors %}
+                                Please make sure your password is at least 8
+                                characters long.
+                            {% else %}
+                                Please provide a valid password.
+                            {% endif %}
+                        </div>
+                    {% endif %}
+                </div>
+                <div class="mb-3">
+                    <label for="confirm-password" class="form-label fw-bold">
+                        Confirm password:
+                    </label>
+                    <input
+                        type="password"
+                        id="confirm-password"
+                        name="confirm_password"
+                        class="form-control {{ classes_by_id['confirm-password'] }}"
+                        required />
+                    {% if "CONFIRM_PASSWORD_DOES_NOT_MATCH" in errors %}
+                        <div class="invalid-feedback">
+                            Please provide the same password twice.
+                        </div>
+                    {% endif %}
+                </div>
+
+                <!--div class="my-4 form-check">
+                <input type="checkbox" class="form-check-input" id="agreeTcCheck">
+                <label class="form-check-label" for="agreeTcCheck">I agree to the Terms & Conditions</label>
+                </div-->
+                <p class="my-4">
+                    By signing up you agree to the Terms & Conditions
+                </p>
+            </div>
+        </div>
+
+        {# second half form submission #}
+        <div class="row">
+            <div class="col-2 position-relative">
+                <div class="row h-50">
+                    <div class="col border-end border-1 border-black"></div>
+                    <div class="col border-start border-1 border-black"></div>
+                </div>
+                <div class="row h-50"></div>
+                <span
+                    class="position-absolute top-50 start-50 translate-middle bg-white">
+                    <i class="bi bi-circle fs-3"></i>
+                </span>
+            </div>
+
+            <div class="col-10">
+                <button type="submit" class="btn btn-primary float-end">
+                    Sign up
+                </button>
+            </div>
+        </div>
+    </form>
+{% endblock signup_form %}

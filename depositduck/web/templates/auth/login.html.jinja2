@@ -145,15 +145,30 @@
                         </div>
                     {% endif %}
 
-                    <button
-                        type="submit"
-                        id="submit"
-                        class="btn btn-primary float-end"
-                        {% if prompt_to_reverify %}disabled{% endif %}>
-                        Log in
-                    </button>
+                    <div class="row">
+                        <div class="col-12">
+                            <button
+                                type="submit"
+                                id="submit"
+                                class="btn btn-primary float-end"
+                                {% if prompt_to_reverify %}disabled{% endif %}>
+                                Log in
+                            </button>
+                        </div>
+                    </div>
                 </form>
             {% endblock %}
+
+            <hr class="mt-5" />
+
+            <div class="row">
+                <div class="col-12 text-center">
+                    <p>
+                        Don't have an account yet?
+                        <a href="/signup/">Sign up</a>
+                    </p>
+                </div>
+            </div>
         </div>
     </div>
 {% endblock %}

@@ -1,0 +1,47 @@
+{#
+ # (c) 2024 Alberto Morón Hernández
+ #}
+
+{%- macro previous_answer(is_good_answer, label) -%}
+    <div class="row">
+        <div class="col-2 position-relative">
+            <div class="row h-50"></div>
+            <div class="row h-50">
+                <div class="col border-end border-1 border-dark-subtle"></div>
+                <div class="col border-start border-1 border-dark-subtle"></div>
+            </div>
+            <span
+                class="position-absolute top-50 start-50 translate-middle bg-white">
+                {% if is_good_answer %}
+                    <i
+                        class="bi bi-check-circle-fill fs-3 text-black text-opacity-25"></i>
+                {% else %}
+                    <i
+                        class="bi bi-slash-circle-fill fs-3 text-black text-opacity-25"></i>
+                {% endif %}
+            </span>
+        </div>
+
+        <div class="col-10">
+            <p class="fs-5 mb-0 text-black text-opacity-50">{{ label }}</p>
+        </div>
+    </div>
+{%- endmacro -%}
+
+{% if provider_choice == "other" %}
+    {{ previous_answer(False, "Deposit held by other provider") }}
+{% else %}
+    {{ previous_answer(True, "Deposit held by TDS") }}
+{% endif %}
+
+<div class="row">
+    <div class="col-1 border-end border-1 border-dark-subtle"></div>
+    <div class="col-1 border-start border-1 border-dark-subtle"></div>
+    <div class="col-10 pt-3 pb-2 ps-4">{# vertical spacer #}</div>
+</div>
+{% if end_date_is_past %}
+    {% set date_answer_label = "Tenancy ended on " ~ tenancy_end_date %}
+{% else %}
+    {% set date_answer_label = "Tenancy will end on " ~ tenancy_end_date %}
+{% endif %}
+{{ previous_answer(end_date_is_good, date_answer_label) }}
