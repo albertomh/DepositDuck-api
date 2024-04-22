@@ -2,6 +2,8 @@
 (c) 2024 Alberto Morón Hernández
 """
 
+from datetime import date, datetime, timedelta
+
 from cryptography.fernet import Fernet
 
 
@@ -28,3 +30,22 @@ def decrypt(secret_key: str, encrypted_token: str) -> str:
     token_bytes: bytes = encrypted_token.encode()
     decrypted_bytes: bytes = _get_fernet(secret_key).decrypt(token_bytes)
     return decrypted_bytes.decode()
+
+
+async def date_from_iso8601_str(date_str: str) -> date | None:
+    try:
+        return datetime.strptime(date_str, "%Y-%m-%d").date()
+    except ValueError:
+        print(f"invalid date format: {date_str}")
+        return None
+
+
+async def days_since_date(target_date: date) -> int:
+    """
+    Positive for dates in the past.
+    Zero for today.
+    Negative for future dates.
+    """
+    today = datetime.today().date()
+    delta: timedelta = today - target_date
+    return delta.days
