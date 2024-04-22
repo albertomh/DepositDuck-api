@@ -1,5 +1,103 @@
 {#
  # (c) 2024 Alberto Morón Hernández
  #}
-{% include "/fragments/auth/signup/_filter_prospect_answers.html.jinja2" %}
-FOO
+
+{% block signup_form %}
+    {% include "/fragments/auth/signup/_filter_prospect_answers.html.jinja2" %}
+
+    <div class="row mt-4">
+        <div class="d-none d-md-block col-md-2">
+            <p class="h2 float-end">👉👈</p>
+        </div>
+
+        <div class="col-12 col-md-8">
+            <h2>It's not you, it's us...</h2>
+            <p>We're sorry, DepositDuck is currently only available for:</p>
+            <ul>
+                <li class="pb-2">
+                    People with deposits protected by
+                    <strong>TDS</strong>
+                    .
+                </li>
+                <li>
+                    Deposit disputes within the
+                    <strong>three-month deadline</strong>
+                    set by TDS.
+                </li>
+            </ul>
+            <p>
+                Please don't hesitate to tell friends &amp; family for whom the
+                above applies about DepositDuck!
+            </p>
+
+            <a href="/signup/" class="fs-5 float-end">
+                <i class="bi bi-arrow-counterclockwise pe-1"></i>
+                Start over
+            </a>
+        </div>
+    </div>
+
+    {% block unsuitable_prospect_funnel %}
+        <div class="row mt-5">
+            <div class="d-none d-md-block col-md-2"></div>
+
+            <div class="col-12 col-md-8">
+                <div class="card mb-3">
+                    <div class="card-body">
+                        {% if has_submitted_funnel_form %}
+
+                        {% else %}
+                            <p class="card-text">
+                                Let us know who your current deposit provider is
+                                and we'll get in touch once DepositDuck catches
+                                up with your needs.
+                            </p>
+
+                            <form hx-post="/auth/unsuitableProspectFunnel/">
+                                <div class="mb-3">
+                                    <label
+                                        for="provider_name"
+                                        class="form-label fw-bold">
+                                        Your email:
+                                    </label>
+                                    <div class="row">
+                                        <div class="col-12 col-md-9">
+                                            <input
+                                                type="text"
+                                                id="provider-name"
+                                                name="provider_name"
+                                                class="form-control"
+                                                required />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <label
+                                        for="username"
+                                        class="form-label fw-bold">
+                                        Current deposit provider:
+                                    </label>
+                                    <div class="row">
+                                        <div class="col-12 col-md-9">
+                                            <input
+                                                type="text"
+                                                id="username"
+                                                name="username"
+                                                class="form-control"
+                                                required />
+                                        </div>
+                                    </div>
+                                </div>
+                                <button
+                                    type="submit"
+                                    class="btn btn-outline-secondary float-end">
+                                    Submit
+                                </button>
+                            </form>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endblock unsuitable_prospect_funnel %}
+{% endblock signup_form %}
