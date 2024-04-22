@@ -68,6 +68,9 @@ class AuthenticatedJinjaBlocks(Jinja2Blocks):
         speculum_source: str = f"{settings.static_origin}/{settings.speculum_release}"
         request: Request
         user: User | None
+        # TODO: add other sensible defaults that I may want to set based on context
+        #       eg. `show_footer_links` should default to True but may want to set
+        #       to False to reduce distractions on eg. /signup/ page.
 
         model_config = ConfigDict(extra="allow", arbitrary_types_allowed=True)
 
