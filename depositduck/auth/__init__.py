@@ -2,7 +2,6 @@
 (c) 2024 Alberto Morón Hernández
 """
 
-from datetime import date
 from enum import Enum
 
 from sqlalchemy.ext.asyncio import async_sessionmaker
@@ -11,7 +10,7 @@ from depositduck.dependables import db_session_factory, get_logger, get_settings
 from depositduck.email import render_html_email, send_email
 from depositduck.models.email import HtmlEmail
 from depositduck.models.sql.auth import User
-from depositduck.utils import days_since_date, encrypt
+from depositduck.utils import encrypt
 
 settings = get_settings()
 LOG = get_logger()
@@ -33,21 +32,41 @@ VERIFICATION_EMAIL_PREHEADER = (
 )
 
 
-async def is_prospect_acceptable(deposit_provider: str, tenancy_end_date: date) -> bool:
+class UnsuitableProvider(Exception):
+    pass
+
+
+class TenancyEndDateOutOfRange(Exception):
+    pass
+
+
+async def is_prospect_suitable(deposit_provider: str, days_since_end_date: int) -> bool:
     """
     Determine whether a prospect can be accepted as a DepositDuck user or not, based on:
       - their deposit being held by TDS
       - today falling between their tenancy end date and TDS' time limit
+
+    Args:
+        deposit_provider (str): A string representation of their deposit provider.
+        days_since_end_date (int): Number of days since the tenancy ended.
+
+    Returns:
+        bool: True if the prospect is suitable to become a user
+
+    Raises:
+        UnsuitableProvider: Provider is other than TDS.
+        TenancyEndDateOutOfRange: Too many days have passed since the end of the tenancy.
     """
     provider_is_accepted = deposit_provider.lower() == DepositProvider.TDS.value
     if not provider_is_accepted:
-        raise ValueError(f"prospect unacceptable due to provider '{deposit_provider}'")
+        raise UnsuitableProvider(
+            f"prospect unsuitable due to provider '{deposit_provider}'"
+        )
 
-    days_since_end_date = await days_since_date(tenancy_end_date)
     end_date_is_within_limit = days_since_end_date < TDS_TIME_LIMIT_IN_DAYS
     if not end_date_is_within_limit:
-        raise ValueError(
-            f"prospect unacceptable due to end date '{str(tenancy_end_date)}'"
+        raise TenancyEndDateOutOfRange(
+            f"prospect unsuitable due to end date being {days_since_end_date} days ago"
         )
 
     return provider_is_accepted and end_date_is_within_limit
