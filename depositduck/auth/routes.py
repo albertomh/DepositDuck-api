@@ -83,8 +83,41 @@ async def signup(
 
 
 @auth_operations_router.post("/filterProspect/")
-async def filter_prospect_for_signup():
-    pass  # TODO:
+async def filter_prospect_for_signup(
+    provider_choice: Annotated[str, Form(alias="providerChoice")],
+    tenancy_end_date: Annotated[str, Form(alias="tenancyEndDate")],
+    templates: Annotated[AuthenticatedJinjaBlocks, Depends(get_templates)],
+    user: Annotated[User, Depends(current_active_user)],
+    request: Request,
+):
+    # TODO: validate providerChoice & tenancyEndDate and return
+    #       `"auth/signup.html.jinja2", context, block_name="signup_form"`
+    #       with validation messages.
+
+    # TODO: check tenancy_end_date and set `end_date_is_good` & `end_date_is_past`
+    end_date_is_good = False
+    end_date_is_past = False
+
+    context = AuthenticatedJinjaBlocks.TemplateContext(
+        request=request,
+        user=user,
+        provider_choice=provider_choice,
+        tenancy_end_date=tenancy_end_date,
+        end_date_is_good=end_date_is_good,
+        end_date_is_past=end_date_is_past,
+        classes_by_id={},
+    )
+
+    # TODO: if providerChoice & tenancyEndDate are valid but not acceptable,
+    #       return "_filter_prospect_reject.html.jinja2" with context.
+    if provider_choice == "other" or not end_date_is_good:
+        return templates.TemplateResponse(
+            "fragments/auth/signup/_filter_prospect_reject.html.jinja2", context
+        )
+
+    return templates.TemplateResponse(
+        "fragments/auth/signup/_signup_user_form.html.jinja2", context
+    )
 
 
 @auth_operations_router.post("/register/")
