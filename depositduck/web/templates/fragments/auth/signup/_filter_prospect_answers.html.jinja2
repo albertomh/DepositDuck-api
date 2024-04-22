@@ -17,7 +17,7 @@
                         class="bi bi-check-circle-fill fs-3 text-black text-opacity-25"></i>
                 {% else %}
                     <i
-                        class="bi bi-slash-circle-fill fs-3 text-black text-opacity-25"></i>
+                        class="bi bi-dash-circle-fill fs-3 text-black text-opacity-25"></i>
                 {% endif %}
             </span>
         </div>
@@ -39,9 +39,9 @@
     <div class="col-1 border-start border-1 border-dark-subtle"></div>
     <div class="col-10 pt-3 pb-2 ps-4">{# vertical spacer #}</div>
 </div>
-{% if end_date_is_past %}
+{% if days_since_end_date >= 0 %}
     {% set date_answer_label = "Tenancy ended on " ~ tenancy_end_date %}
 {% else %}
     {% set date_answer_label = "Tenancy will end on " ~ tenancy_end_date %}
 {% endif %}
-{{ previous_answer(end_date_is_good, date_answer_label) }}
+{{ previous_answer(end_date_is_within_limit, date_answer_label) }}

@@ -10,6 +10,16 @@ to create a new release.
 
 ## [Unreleased]
 
+### Added
+
+- Utilities for date manipulation and comparison.
+- Produce coverage reports when unit tests run.
+
+### Changed
+
+- Flesh out prospect filtering on sign-up screen.
+- Use MailHog to catch email during development.
+
 ## [0.3.0] - 2024-04-18
 
 ### Added

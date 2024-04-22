@@ -20,7 +20,12 @@ from fastapi_users.router.common import ErrorCode
 from pydantic import EmailStr, ValidationError
 from typing_extensions import Annotated
 
-from depositduck.auth import AUTH_COOKIE_NAME
+from depositduck.auth import (
+    AUTH_COOKIE_NAME,
+    TenancyEndDateOutOfRange,
+    UnsuitableProvider,
+    is_prospect_suitable,
+)
 from depositduck.auth.dependables import (
     InvalidPasswordReason,
     UserManager,
@@ -37,7 +42,7 @@ from depositduck.dependables import (
 from depositduck.models.auth import UserCreate
 from depositduck.models.sql.auth import User
 from depositduck.settings import Settings
-from depositduck.utils import decrypt
+from depositduck.utils import date_from_iso8601_str, days_since_date, decrypt
 from depositduck.web.templates import BootstrapClasses
 
 auth_frontend_router = APIRouter(tags=["auth", "frontend"])
@@ -94,23 +99,35 @@ async def filter_prospect_for_signup(
     #       `"auth/signup.html.jinja2", context, block_name="signup_form"`
     #       with validation messages.
 
-    # TODO: check tenancy_end_date and set `end_date_is_good` & `end_date_is_past`
-    end_date_is_good = False
-    end_date_is_past = False
+    end_date = await date_from_iso8601_str(tenancy_end_date)
+    if end_date is None:
+        return  # TODO: return form with validation message
+
+    days_since_end_date = await days_since_date(end_date)
 
     context = AuthenticatedJinjaBlocks.TemplateContext(
         request=request,
         user=user,
+        is_suitable_prospect=False,
         provider_choice=provider_choice,
+        suitable_provider=True,
         tenancy_end_date=tenancy_end_date,
-        end_date_is_good=end_date_is_good,
-        end_date_is_past=end_date_is_past,
+        days_since_end_date=days_since_end_date,
+        end_date_is_within_limit=True,
         classes_by_id={},
     )
 
-    # TODO: if providerChoice & tenancyEndDate are valid but not acceptable,
-    #       return "_filter_prospect_reject.html.jinja2" with context.
-    if provider_choice == "other" or not end_date_is_good:
+    try:
+        context.is_suitable_prospect = await is_prospect_suitable(
+            provider_choice,
+            days_since_end_date,
+        )
+    except (UnsuitableProvider, TenancyEndDateOutOfRange) as e:
+        LOG.info(str(e))
+        if isinstance(e, UnsuitableProvider):
+            context.suitable_provider = False
+        elif isinstance(e, TenancyEndDateOutOfRange):
+            context.end_date_is_within_limit = False
         return templates.TemplateResponse(
             "fragments/auth/signup/_filter_prospect_reject.html.jinja2", context
         )
