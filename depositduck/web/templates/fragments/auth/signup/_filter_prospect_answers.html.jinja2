@@ -2,13 +2,24 @@
  # (c) 2024 Alberto Morón Hernández
  #}
 
-{%- macro previous_answer(is_good_answer, label) -%}
+{%- macro previous_answer(is_good_answer, label, is_first=False, is_last=False) -%}
     <div class="row">
         <div class="col-2 position-relative">
-            <div class="row h-50"></div>
             <div class="row h-50">
-                <div class="col border-end border-1 border-dark-subtle"></div>
-                <div class="col border-start border-1 border-dark-subtle"></div>
+                {% if not is_first %}
+                    <div
+                        class="col border-end border-1 border-dark-subtle"></div>
+                    <div
+                        class="col border-start border-1 border-dark-subtle"></div>
+                {% endif %}
+            </div>
+            <div class="row h-50">
+                {% if not is_last %}
+                    <div
+                        class="col border-end border-1 border-dark-subtle"></div>
+                    <div
+                        class="col border-start border-1 border-dark-subtle"></div>
+                {% endif %}
             </div>
             <span
                 class="position-absolute top-50 start-50 translate-middle bg-white">
@@ -28,10 +39,11 @@
     </div>
 {%- endmacro -%}
 
+<div class="mt-2"></div>
 {% if provider_choice == "other" %}
-    {{ previous_answer(False, "Deposit held by other provider") }}
+    {{ previous_answer(False, "Deposit held by other provider", True) }}
 {% else %}
-    {{ previous_answer(True, "Deposit held by TDS") }}
+    {{ previous_answer(True, "Deposit held by TDS", True) }}
 {% endif %}
 
 <div class="row">
@@ -44,4 +56,4 @@
 {% else %}
     {% set date_answer_label = "Tenancy will end on " ~ tenancy_end_date %}
 {% endif %}
-{{ previous_answer(end_date_is_within_limit, date_answer_label) }}
+{{ previous_answer(end_date_is_within_limit, date_answer_label, False, True) }}
