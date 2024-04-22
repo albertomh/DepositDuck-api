@@ -64,7 +64,7 @@ def test_TemplateContext_default_speculum_source(mock_request: Request):
     )
 
 
-def test_get_templates():
+def test_get_templates() -> None:
     templates = get_templates()
 
     assert isinstance(templates, AuthenticatedJinjaBlocks)

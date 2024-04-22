@@ -11,6 +11,8 @@ _Get what's yours_ <!-- markdownlint-disable-line MD036 -->
 | dev tooling  | [![justfile](https://img.shields.io/badge/🤖_justfile-EFF1F3)](https://github.com/casey/just) [![uv](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/uv/main/assets/badge/v0.json&labelColor=261230&color=de60e9)](https://github.com/astral-sh/uv) [![MailHog](https://img.shields.io/badge/🐽_MailHog-952225)](https://github.com/mailhog/MailHog) [![pre-commit](https://img.shields.io/badge/pre--commit-FAB040?logo=pre-commit&logoColor=1f2d23)](https://github.com/pre-commit/pre-commit) [![ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json&labelColor=261230&color=d8ff64)](https://github.com/astral-sh/ruff) <tr></tr> |
 | tests        | [![pytest](https://img.shields.io/badge/pytest-0A9EDC?logo=pytest&logoColor=white)](https://github.com/pytest-dev/pytest) [![playwright](https://img.shields.io/badge/playwright-2ead34?logo=playwright&logoColor=e2584c)](https://playwright.dev/docs/intro) [![CI](https://github.com/albertomh/DepositDuck/actions/workflows/ci.yaml/badge.svg)](https://github.com/albertomh/DepositDuck/actions/workflows/ci.yaml) <tr></tr> |
 
+<!-- TODO: add coverage % as shield to 'tests' row -->
+
 ### Prerequisites
 
 To develop DepositDuck the following must be available locally:
