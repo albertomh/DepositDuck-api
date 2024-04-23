@@ -31,7 +31,7 @@
             <div class="col-1 border-start border-1 border-black"></div>
             <div class="col-10 pt-3 pb-5 ps-4">
                 <div class="row">
-                    <div class="col-12 col-md-6 form-check pb-3 pb-md-0">
+                    <div class="col-12 form-check pb-3">
                         <input
                             class="form-check-input"
                             type="radio"
@@ -45,7 +45,7 @@
                             Tenancy Deposit Scheme (TDS)
                         </label>
                     </div>
-                    <div class="col-12 col-md-6 form-check">
+                    <div class="col-12 form-check">
                         <input
                             class="form-check-input"
                             type="radio"
@@ -102,13 +102,47 @@
         <div class="row">
             <div class="col-1 border-end border-1 border-black"></div>
             <div class="col-1 border-start border-1 border-black"></div>
-            <div class="col-10 pt-3 pb-5 ps-4">
+            <div class="col-10 pt-3 ps-4">
                 <label>
                     <input
                         type="date"
                         name="tenancyEndDate"
                         class="form-control" />
                 </label>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-1 border-end border-1 border-black"></div>
+            <div class="col-1 border-start border-1 border-black"></div>
+            <div class="col-10 col-md-6 pt-3 pb-5">
+                <div
+                    class="accordion accordion-flush"
+                    id="accordionFlushExample">
+                    <div class="accordion-item">
+                        <h2
+                            class="accordion-header border-bottom border-1 border-light">
+                            <button
+                                class="accordion-button collapsed p-1 text-muted"
+                                type="button"
+                                data-bs-toggle="collapse"
+                                data-bs-target="#flush-collapseOne"
+                                aria-expanded="false"
+                                aria-controls="flush-collapseOne">
+                                <i class="bi bi-info-circle pe-2"></i>
+                                Why do we ask?
+                            </button>
+                        </h2>
+                        <div
+                            id="flush-collapseOne"
+                            class="accordion-collapse collapse"
+                            data-bs-parent="#accordionFlushExample">
+                            <div class="accordion-body py-1 text-muted">
+                                The TDS dispute process is only available for
+                                the three months after you leave a property.
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
 
