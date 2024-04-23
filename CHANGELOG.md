@@ -12,6 +12,7 @@ to create a new release.
 
 ### Added
 
+- Models and tables to hold data on People and Prospects.
 - Form to collect details from unsuitable prospects as part of the sign-up rejection flow.
 - Utilities for date manipulation and comparison.
 - Produce coverage reports when unit tests run.

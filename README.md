@@ -121,6 +121,7 @@ The project is split into the following packages:
 - `email`: email templates and utilities to render and send HTML emails.
 - `llm`: language agent functionality eg. ingest data, generate embeddings, etc.
 - `models`: Pydantic schemas, SQLModel table definitions and Alembic migrations.
+- `people`: track prospects and humans linked to auth users.
 - `web`: core FastAPI app on which everything else hangs off. Serves the htmx frontend.
 
 And the following top-level modules:
