@@ -45,6 +45,7 @@ def upgrade() -> None:
         ),
         sa.PrimaryKeyConstraint("id"),
     )
+    op.create_unique_constraint("uq_email", "people__prospect", ["email"])
 
 
 def downgrade() -> None:
