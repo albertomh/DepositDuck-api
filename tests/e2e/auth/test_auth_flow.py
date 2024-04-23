@@ -33,7 +33,7 @@ async def test_sign_up_happy_path(browser_page: Page) -> None:
     # navigate to sign-up form
     await browser_page.goto("http://0.0.0.0:8000/")
     await browser_page.get_by_role("button", name="Sign up").click()
-    await expect(browser_page.get_by_role("heading")).to_contain_text("Sign up")
+    await expect(browser_page.get_by_role("heading", name="Sign up")).to_be_visible()
     # TODO: refactor & reinstate
     # fill out sign-up form
     # sign_up_form = browser_page.locator("#signupForm")
