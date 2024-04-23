@@ -46,19 +46,13 @@ from depositduck.models.auth import UserCreate
 from depositduck.models.sql.auth import User
 from depositduck.models.sql.people import Prospect
 from depositduck.settings import Settings
-from depositduck.utils import date_from_iso8601_str, days_since_date, decrypt
+from depositduck.utils import date_from_iso8601_str, days_since_date, decrypt, htmx_redirect_to
 from depositduck.web.templates import BootstrapClasses
 
 auth_frontend_router = APIRouter(tags=["auth", "frontend"])
 auth_operations_router = APIRouter(prefix="/auth", tags=["auth"])
 
 LOG = get_logger()
-
-
-async def htmx_redirect_to(redirect_to: str) -> Response:
-    headers = {"HX-Redirect": redirect_to}
-    response = Response(status_code=status.HTTP_302_FOUND, headers=headers)
-    return response
 
 
 async def log_user_in(
@@ -83,6 +77,9 @@ async def signup(
     user: Annotated[User, Depends(current_active_user)],
     request: Request,
 ):
+    if user:
+        return RedirectResponse(url="/")
+
     context = AuthenticatedJinjaBlocks.TemplateContext(
         request=request,
         user=user,
@@ -180,7 +177,6 @@ async def register(
     user: Annotated[User, Depends(current_active_user)],
     request: Request,
 ):
-    # TODO: redirect user away if already logged in.
     errors: list[str] = []
     classes_by_id: dict[str, str] = defaultdict(str)
 
@@ -294,7 +290,9 @@ async def login(
     next: str | None = None,
     encrypted_email: str | None = Query(default=None, alias="email"),
 ):
-    # TODO: redirect away if already logged in.
+    if user:
+        return RedirectResponse(url="/")
+
     prompt_to_reverify = False
     # value to auto-fill in the 'email' input
     user_email = ""
