@@ -10,21 +10,23 @@
                 <div class="col-2 text-center">
                     <i class="bi bi-house-heart text-primary fs-1"></i>
                 </div>
-                <div class="col-10"><h1 class="mt-1">Sign up</h1></div>
+                <div class="col-10">
+                    <h1 class="mt-1">Sign up</h1>
+                </div>
             </div>
 
             {% include "/fragments/auth/signup/_filter_prospect_form.html.jinja2" %}
 
-            <hr class="mt-4" />
-
-            <div class="row">
-                <div class="col-12 text-center">
+            <div class="row mt-4">
+                <div class="col-12 col-md-10 text-center">
+                    <hr>
                     <p>
                         Already have an account?
                         <a href="/login/">Log in</a>
                     </p>
                 </div>
             </div>
+
         </div>
     </div>
 {% endblock main %}
