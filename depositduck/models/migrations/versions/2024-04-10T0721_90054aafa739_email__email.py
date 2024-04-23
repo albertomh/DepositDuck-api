@@ -23,16 +23,16 @@ depends_on: Union[str, Sequence[str], None] = None
 def upgrade() -> None:
     op.create_table(
         "email__email",
-        sa.Column("deleted_at", sa.DateTime(), nullable=True),
-        sa.Column(
-            "created_at", sa.DateTime(), server_default=sa.text("now()"), nullable=False
-        ),
         sa.Column(
             "id",
             sqlmodel.sql.sqltypes.GUID(),
             server_default=sa.text("gen_random_uuid()"),
             nullable=False,
         ),
+        sa.Column(
+            "created_at", sa.DateTime(), server_default=sa.text("now()"), nullable=False
+        ),
+        sa.Column("deleted_at", sa.DateTime(), nullable=True),
         sa.Column("sender_address", sqlmodel.sql.sqltypes.AutoString(), nullable=False),
         sa.Column(
             "recipient_address", sqlmodel.sql.sqltypes.AutoString(), nullable=False

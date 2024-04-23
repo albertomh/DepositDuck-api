@@ -37,7 +37,7 @@ class DeletedAtMixin:
     deleted_at: datetime | None = Field()
 
 
-class TableBase(SQLModel, IdMixin, CreatedAtMixin, DeletedAtMixin):
+class TableBase(SQLModel, DeletedAtMixin, CreatedAtMixin, IdMixin):
     pass
 
 
