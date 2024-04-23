@@ -60,7 +60,6 @@ async def record_email(
             sent_at=datetime.now(),
         )
         session.add(email)
-        await session.commit()
 
 
 async def send_email(

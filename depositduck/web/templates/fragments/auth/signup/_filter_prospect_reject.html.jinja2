@@ -26,26 +26,45 @@
                 </li>
             </ul>
             <p>
-                Please don't hesitate to tell friends &amp; family for whom the
-                above applies about DepositDuck!
+                If the above applies to friends &amp; family, please let them
+                know about DepositDuck!
             </p>
 
-            <a href="/signup/" class="fs-5 float-end">
-                <i class="bi bi-arrow-counterclockwise pe-1"></i>
-                Start over
-            </a>
+            <p class="text-center">
+                <a href="/signup/" class="fs-5 float-end">
+                    <i class="bi bi-arrow-counterclockwise pe-1"></i>
+                    Start over
+                </a>
+            </p>
         </div>
     </div>
 
     {% block unsuitable_prospect_funnel %}
-        <div class="row mt-5">
+        <div class="row mt-5" id="unsuitable-prospect-funnel-card">
             <div class="d-none d-md-block col-md-2"></div>
 
             <div class="col-12 col-md-8">
-                <div class="card mb-3">
+                <div
+                    class="card mb-3 {% if has_submitted_funnel_form %}border-success{% endif %}">
                     <div class="card-body">
                         {% if has_submitted_funnel_form %}
-
+                            <div class="row">
+                                <div class="col">
+                                    <i
+                                        class="bi bi-check-circle-fill text-success h5"></i>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col">
+                                    <h5 class="card-title">
+                                        We hope to see you soon
+                                    </h5>
+                                </div>
+                                <p class="card-text">
+                                    Thank you for your interest in DepositDuck.
+                                    We'll be in touch once we match your needs.
+                                </p>
+                            </div>
                         {% else %}
                             <p class="card-text">
                                 Let us know who your current deposit provider is
@@ -53,19 +72,21 @@
                                 up with your needs.
                             </p>
 
-                            <form hx-post="/auth/unsuitableProspectFunnel/">
+                            <form
+                                hx-post="/auth/unsuitableProspectFunnel/"
+                                hx-target="#unsuitable-prospect-funnel-card">
                                 <div class="mb-3">
                                     <label
-                                        for="provider_name"
+                                        for="email"
                                         class="form-label fw-bold">
                                         Your email:
                                     </label>
                                     <div class="row">
                                         <div class="col-12 col-md-9">
                                             <input
-                                                type="text"
-                                                id="provider-name"
-                                                name="provider_name"
+                                                type="email"
+                                                id="email"
+                                                name="email"
                                                 class="form-control"
                                                 required />
                                         </div>
@@ -73,7 +94,7 @@
                                 </div>
                                 <div class="mb-3">
                                     <label
-                                        for="username"
+                                        for="provider-name"
                                         class="form-label fw-bold">
                                         Current deposit provider:
                                     </label>
@@ -81,8 +102,8 @@
                                         <div class="col-12 col-md-9">
                                             <input
                                                 type="text"
-                                                id="username"
-                                                name="username"
+                                                id="provider-name"
+                                                name="providerName"
                                                 class="form-control"
                                                 required />
                                         </div>
