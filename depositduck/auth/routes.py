@@ -150,30 +150,19 @@ async def unsuitable_prospect_funnel(
     user: Annotated[User, Depends(current_active_user)],
     request: Request,
 ):
+    try:
+        prospect = Prospect(email=email, deposit_provider_name=provider_name)
+        session: AsyncSession
+        async with db_session_factory.begin() as session:
+            session.add(prospect)
+    except (ValueError, SQLAlchemyError) as e:
+        LOG.error(f"error when trying to record prospect [{email}]: {str(e)}")
+
     context = AuthenticatedJinjaBlocks.TemplateContext(
         request=request,
         user=user,
         has_submitted_funnel_form=True,
-        classes_by_id={},
     )
-
-    try:
-        prospect = Prospect(email=email, deposit_provider_name=provider_name)
-    except ValidationError as e:
-        # TODO: return markup block with validation messages
-        raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail=str(e)
-        )
-
-    # TODO: handle email already associated with a prospect.
-
-    try:
-        session: AsyncSession
-        async with db_session_factory.begin() as session:
-            session.add(prospect)
-    except SQLAlchemyError as e:
-        LOG.error(f"error when trying to record prospect: {str(e)}")
-
     return templates.TemplateResponse(
         "fragments/auth/signup/_filter_prospect_reject.html.jinja2",
         context=context,
