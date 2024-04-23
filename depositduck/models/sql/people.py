@@ -26,6 +26,7 @@ class Person(PersonBase, TableBase, table=True):
 class Prospect(ProspectBase, TableBase, table=True):
     __tablename__ = "people__prospect"
 
+    email: str = Field(unique=True, index=True)
     person_id: UUID = Field(nullable=True, default=None, foreign_key="people__person.id")
 
     person: "Person" = Relationship(
