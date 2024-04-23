@@ -24,15 +24,15 @@ def upgrade() -> None:
     op.create_table(
         "auth__user",
         sa.Column("id", sqlmodel.sql.sqltypes.GUID(), nullable=False),
+        sa.Column(
+            "created_at", sa.DateTime(), server_default=sa.text("now()"), nullable=False
+        ),
+        sa.Column("deleted_at", sa.DateTime(), nullable=True),
         sa.Column("email", sqlmodel.sql.sqltypes.AutoString(), nullable=False),
         sa.Column("is_active", sa.Boolean(), nullable=False),
         sa.Column("is_superuser", sa.Boolean(), nullable=False),
         sa.Column("is_verified", sa.Boolean(), nullable=False),
         sa.Column("hashed_password", sqlmodel.sql.sqltypes.AutoString(), nullable=False),
-        sa.Column(
-            "created_at", sa.DateTime(), server_default=sa.text("now()"), nullable=False
-        ),
-        sa.Column("deleted_at", sa.DateTime(), nullable=True),
         sa.PrimaryKeyConstraint("id"),
     )
     op.create_index(op.f("ix_auth__user_email"), "auth__user", ["email"], unique=True)
