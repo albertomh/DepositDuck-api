@@ -4,7 +4,7 @@
 
 from collections import defaultdict
 
-from fastapi import APIRouter, Depends, Form, Query, Request, status
+from fastapi import APIRouter, Depends, Form, HTTPException, Query, Request, status
 from fastapi.responses import RedirectResponse, Response
 from fastapi.security import OAuth2PasswordRequestForm
 from fastapi_users.authentication.strategy.db import DatabaseStrategy
@@ -18,6 +18,8 @@ from fastapi_users.exceptions import (
 )
 from fastapi_users.router.common import ErrorCode
 from pydantic import EmailStr, ValidationError
+from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 from typing_extensions import Annotated
 
 from depositduck.auth import (
@@ -35,12 +37,14 @@ from depositduck.auth.dependables import (
 from depositduck.auth.users import auth_backend, current_active_user
 from depositduck.dependables import (
     AuthenticatedJinjaBlocks,
+    db_session_factory,
     get_logger,
     get_settings,
     get_templates,
 )
 from depositduck.models.auth import UserCreate
 from depositduck.models.sql.auth import User
+from depositduck.models.sql.people import Prospect
 from depositduck.settings import Settings
 from depositduck.utils import date_from_iso8601_str, days_since_date, decrypt
 from depositduck.web.templates import BootstrapClasses
@@ -134,6 +138,46 @@ async def filter_prospect_for_signup(
 
     return templates.TemplateResponse(
         "fragments/auth/signup/_signup_user_form.html.jinja2", context
+    )
+
+
+@auth_operations_router.post("/unsuitableProspectFunnel/")
+async def unsuitable_prospect_funnel(
+    email: Annotated[EmailStr, Form()],
+    provider_name: Annotated[str, Form(alias="providerName")],
+    db_session_factory: Annotated[async_sessionmaker, Depends(db_session_factory)],
+    templates: Annotated[AuthenticatedJinjaBlocks, Depends(get_templates)],
+    user: Annotated[User, Depends(current_active_user)],
+    request: Request,
+):
+    context = AuthenticatedJinjaBlocks.TemplateContext(
+        request=request,
+        user=user,
+        has_submitted_funnel_form=True,
+        classes_by_id={},
+    )
+
+    try:
+        prospect = Prospect(email=email, deposit_provider_name=provider_name)
+    except ValidationError as e:
+        # TODO: return markup block with validation messages
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail=str(e)
+        )
+
+    # TODO: handle email already associated with a prospect.
+
+    try:
+        session: AsyncSession
+        async with db_session_factory.begin() as session:
+            session.add(prospect)
+    except SQLAlchemyError as e:
+        LOG.error(f"error when trying to record prospect: {str(e)}")
+
+    return templates.TemplateResponse(
+        "fragments/auth/signup/_filter_prospect_reject.html.jinja2",
+        context=context,
+        block_name="unsuitable_prospect_funnel",
     )
 
 

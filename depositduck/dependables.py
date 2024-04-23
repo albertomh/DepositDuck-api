@@ -152,7 +152,6 @@ async def db_session_factory() -> async_sessionmaker:
           async with db_session.begin() as session:
               ...
               session.add(model_instance)
-              await session.commit()
     ```
     """
     # `expire_on_commit=False` allows accessing object attributes
