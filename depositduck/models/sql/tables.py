@@ -9,3 +9,4 @@ only table models in the alembic `env` module.
 from depositduck.models.sql.auth import AccessToken, User
 from depositduck.models.sql.email import Email
 from depositduck.models.sql.llm import EmbeddingNomic, Snippet, SourceText
+from depositduck.models.sql.people import Person
