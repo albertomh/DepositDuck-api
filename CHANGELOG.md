@@ -20,6 +20,7 @@ to create a new release.
 ### Changed
 
 - Flesh out prospect filtering on sign-up screen.
+- Use speculum@1.4.0 to style the frontend.
 - Use MailHog to catch email during development.
 
 ## [0.3.0] - 2024-04-18
