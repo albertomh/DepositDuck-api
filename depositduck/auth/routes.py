@@ -46,7 +46,12 @@ from depositduck.models.auth import UserCreate
 from depositduck.models.sql.auth import User
 from depositduck.models.sql.people import Prospect
 from depositduck.settings import Settings
-from depositduck.utils import date_from_iso8601_str, days_since_date, decrypt, htmx_redirect_to
+from depositduck.utils import (
+    date_from_iso8601_str,
+    days_since_date,
+    decrypt,
+    htmx_redirect_to,
+)
 from depositduck.web.templates import BootstrapClasses
 
 auth_frontend_router = APIRouter(tags=["auth", "frontend"])
@@ -180,23 +185,25 @@ async def register(
     errors: list[str] = []
     classes_by_id: dict[str, str] = defaultdict(str)
 
+    if confirm_password != password:
+        errors.append(InvalidPasswordReason.CONFIRM_PASSWORD_DOES_NOT_MATCH.value)
+    try:
+        await user_manager.validate_password(password)
+    except InvalidPasswordException as e:
+        errors.append(e.reason.value)
+
     try:
         user_create = UserCreate(
             email=email, password=password, confirm_password=confirm_password
         )
         user = await user_manager.create(user_create, safe=True, request=request)
     except UserAlreadyExists:
-        errors.append(ErrorCode.REGISTER_USER_ALREADY_EXISTS.value)
-        classes_by_id["email"] += f" {BootstrapClasses.IS_INVALID.value}"
-        # TODO: redirect user to /login/.
+        redirect_response = await htmx_redirect_to("/login/?prev=existingUser")
+        return redirect_response
     except InvalidPasswordException as e:
-        errors.extend([ErrorCode.REGISTER_INVALID_PASSWORD.value, e.reason.value])
-        classes_by_id["password"] += f" {BootstrapClasses.IS_INVALID.value}"
-        if e.reason.value == InvalidPasswordReason.CONFIRM_PASSWORD_DOES_NOT_MATCH:
-            classes_by_id["confirm-password"] += f" {BootstrapClasses.IS_INVALID.value}"
+        errors.append(e.reason.value)
     except ValidationError:
         errors.append("REGISTER_INVALID_EMAIL")
-        classes_by_id["email"] += f" {BootstrapClasses.IS_INVALID.value}"
 
     if user is not None:
         try:
@@ -206,9 +213,16 @@ async def register(
         except (UserNotExists, UserInactive, UserAlreadyVerified) as e:
             LOG.warn(f"exception when initiating verification for {user}: {e}")
 
-    for element_id, classes in classes_by_id.items():
-        if BootstrapClasses.IS_INVALID not in classes:
-            classes_by_id[element_id] += f" {BootstrapClasses.IS_VALID.value}"
+    fields_to_exceptions = {
+        "email": ["REGISTER_INVALID_EMAIL"],
+        "password": [InvalidPasswordReason.PASSWORD_TOO_SHORT.value],
+        "confirm-password": [InvalidPasswordReason.CONFIRM_PASSWORD_DOES_NOT_MATCH.value],
+    }
+    for field_id, excs in fields_to_exceptions.items():
+        if set(errors).intersection(set(excs)):
+            classes_by_id[field_id] += f" {BootstrapClasses.IS_INVALID.value}"
+        else:
+            classes_by_id[field_id] += f" {BootstrapClasses.IS_VALID.value}"
 
     context = AuthenticatedJinjaBlocks.TemplateContext(
         request=request,
@@ -219,7 +233,9 @@ async def register(
         errors=errors,
     )
     return templates.TemplateResponse(
-        "auth/signup.html.jinja2", context=context, block_name="signup_form"
+        "fragments/auth/signup/_signup_user_form.html.jinja2",
+        context=context,
+        block_name="signup_form",
     )
 
 
@@ -353,7 +369,7 @@ async def authenticate(
         errors=errors,
     )
     return templates.TemplateResponse(
-        "auth/login.html.jinja2", context=context, block_name="login_form"
+        "auth/login.html.jinja2", context=context, block_name="main"
     )
 
 

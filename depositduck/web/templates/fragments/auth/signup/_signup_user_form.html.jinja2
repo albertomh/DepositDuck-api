@@ -3,10 +3,9 @@
  #}
 
 {# second half of sign-up form, registering users #}
+{% include "/fragments/auth/signup/_filter_prospect_answers.html.jinja2" %}
 
 {% block signup_form %}
-    {% include "/fragments/auth/signup/_filter_prospect_answers.html.jinja2" %}
-
     <div class="row">
         <div class="col-1 border-end border-1 border-dark-subtle"></div>
         <div class="col-1 border-start border-1 border-dark-subtle"></div>
@@ -73,14 +72,10 @@
                     <div id="passwordHelp" class="form-text">
                         Password must be at least 8 characters long.
                     </div>
-                    {% if "REGISTER_INVALID_PASSWORD" in errors %}
+                    {% if "PASSWORD_TOO_SHORT" in errors %}
                         <div class="invalid-feedback">
-                            {% if "PASSWORD_TOO_SHORT" in errors %}
-                                Please make sure your password is at least 8
-                                characters long.
-                            {% else %}
-                                Please provide a valid password.
-                            {% endif %}
+                            Please make sure your password is at least 8
+                            characters long.
                         </div>
                     {% endif %}
                 </div>
