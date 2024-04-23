@@ -5,6 +5,7 @@
 from datetime import date, datetime, timedelta
 
 from cryptography.fernet import Fernet
+from fastapi import Response, status
 
 
 def is_valid_fernet_key(candidate_key: str) -> bool:
@@ -49,3 +50,9 @@ async def days_since_date(target_date: date) -> int:
     today = datetime.today().date()
     delta: timedelta = today - target_date
     return delta.days
+
+
+async def htmx_redirect_to(redirect_to: str) -> Response:
+    headers = {"HX-Redirect": redirect_to}
+    response = Response(status_code=status.HTTP_303_SEE_OTHER, headers=headers)
+    return response

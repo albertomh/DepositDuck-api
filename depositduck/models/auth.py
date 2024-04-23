@@ -9,6 +9,8 @@ from pydantic import BaseModel
 
 
 class UserBase(BaseModel):
+    # TODO: add audit fields to complement fastapi-users' `is_active`, `is_verified`
+    #       ie. `activated_at`, `verified_at`
     pass
 
 
