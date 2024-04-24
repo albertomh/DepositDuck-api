@@ -118,6 +118,14 @@ def get_templates() -> AuthenticatedJinjaBlocks:
     )
 
 
+async def get_speculum_client(
+    settings: Annotated[Settings, Depends(get_settings)],
+) -> AYieldFixture[httpx.AsyncClient]:
+    speculum_source = f"{settings.static_origin}/{settings.speculum_release}"
+    async with httpx.AsyncClient(base_url=speculum_source) as client:
+        yield client
+
+
 def get_db_connection_string(settings=None) -> str:
     if not settings:
         settings = get_settings()
@@ -127,15 +135,6 @@ def get_db_connection_string(settings=None) -> str:
     host = settings.db_host
     port = settings.db_port
     return f"postgresql+asyncpg://{user}:{password}@{host}:{port}/{name}"
-
-
-# @cache
-async def get_drallam_client(
-    settings: Annotated[Settings, Depends(get_settings)],
-) -> AYieldFixture[httpx.AsyncClient]:
-    # create a new client for each request and close it once it is done
-    async with httpx.AsyncClient(base_url=settings.drallam_origin) as client:
-        yield client
 
 
 db_engine = create_async_engine(get_db_connection_string(), echo=get_settings().debug)
@@ -157,3 +156,12 @@ async def db_session_factory() -> async_sessionmaker:
     # `expire_on_commit=False` allows accessing object attributes
     # even after a call to `AsyncSession.commit()`.
     return async_sessionmaker(db_engine, class_=AsyncSession, expire_on_commit=False)
+
+
+# @cache
+async def get_drallam_client(
+    settings: Annotated[Settings, Depends(get_settings)],
+) -> AYieldFixture[httpx.AsyncClient]:
+    # create a new client for each request and close it once it is done
+    async with httpx.AsyncClient(base_url=settings.drallam_origin) as client:
+        yield client
