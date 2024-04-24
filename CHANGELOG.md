@@ -16,7 +16,7 @@ to create a new release.
 - Form to collect details from currently unsuitable prospects as part of the sign-up
   rejection flow.
 - Utilities for date manipulation and comparison.
-- Produce coverage reports when unit tests run.
+- Produce coverage reports when unit tests run and display badge in README.
 
 ### Changed
 

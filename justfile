@@ -180,6 +180,7 @@ test: venv
     python -m pytest tests/unit/ -s -vvv -W always
   fi
   just dotenv={{dotenv}} coverage
+  . ./local/update_coverage_badge.sh
 
 
 # report on unit test coverage
