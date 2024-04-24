@@ -18,7 +18,9 @@ async def test_healthz_endpoint(
     # arrange
     mock_speculum_client = AsyncMock(spec=httpx.AsyncClient)
     mock_speculum_response = Mock()
-    mock_speculum_client.head.return_value.__aenter__.return_value = mock_speculum_response
+    mock_speculum_client.head.return_value.__aenter__.return_value = (
+        mock_speculum_response
+    )
     dependency_overrides = {
         get_speculum_client: lambda: mock_speculum_client,
         db_session_factory: lambda: mock_async_sessionmaker,
@@ -32,7 +34,7 @@ async def test_healthz_endpoint(
         mock_result.scalar_one = mock_scalar_one
         mock_execute.return_value = mock_result
 
-    # act
+        # act
         async with api_client as client:
             response = await client.get("/healthz")
 

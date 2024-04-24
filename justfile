@@ -184,10 +184,12 @@ test: venv
 
 # report on unit test coverage
 coverage: venv
-    . {{VENV_DIR}}/bin/activate
-    if [ -z ${CI:-} ]; then . ./local/read_dotenv.sh {{dotenv}}; fi
-    uv pip sync {{REQS_DIR}}/test.txt
-    python -m pytest --cov=depositduck tests/unit/
+  #!/usr/bin/env bash
+  set -euo pipefail
+  . {{VENV_DIR}}/bin/activate
+  if [ -z ${CI:-} ]; then . ./local/read_dotenv.sh {{dotenv}}; fi
+  uv pip sync {{REQS_DIR}}/test.txt
+  python -m coverage report
 
 # run e2e Playwright tests
 # !must run as `just dotenv=.env.e2e e2e`

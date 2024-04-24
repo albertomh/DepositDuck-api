@@ -32,7 +32,6 @@ cffi==1.16.0
 click==8.1.7
     # via uvicorn
 coverage==7.5.0
-    # via pytest-cov
 cryptography==42.0.5
     # via pyjwt
 dnspython==2.6.1
@@ -105,11 +104,8 @@ pyee==11.1.0
 pyjwt==2.8.0
     # via fastapi-users
 pytest==8.1.1
-    # via
-    #   pytest-asyncio
-    #   pytest-cov
+    # via pytest-asyncio
 pytest-asyncio==0.23.6
-pytest-cov==5.0.0
 python-dotenv==1.0.1
     # via
     #   pydantic-settings
