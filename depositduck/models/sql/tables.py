@@ -13,4 +13,4 @@ from depositduck.models.sql.llm import (  # pragma: no cover
     Snippet,
     SourceText,
 )
-from depositduck.models.sql.people import Person, Prospect  # pragma: no cover
+from depositduck.models.sql.people import Prospect  # pragma: no cover
