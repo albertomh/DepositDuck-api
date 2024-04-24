@@ -31,7 +31,7 @@ cffi==1.16.0
     #   cryptography
 click==8.1.7
     # via uvicorn
-coverage==7.4.4
+coverage==7.5.0
     # via pytest-cov
 cryptography==42.0.5
     # via pyjwt
@@ -92,12 +92,12 @@ pwdlib==0.2.0
     # via fastapi-users
 pycparser==2.22
     # via cffi
-pydantic==2.7.0
+pydantic==2.7.1
     # via
     #   fastapi
     #   pydantic-settings
     #   sqlmodel
-pydantic-core==2.18.1
+pydantic-core==2.18.2
     # via pydantic
 pydantic-settings==2.2.1
 pyee==11.1.0
