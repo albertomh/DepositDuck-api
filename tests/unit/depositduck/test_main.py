@@ -5,7 +5,7 @@
 from typing import Iterable, cast
 
 import pytest
-from fastapi import FastAPI
+from fastapi import FastAPI, status
 from httpx import AsyncClient
 from starlette.routing import Mount, Route
 
@@ -46,7 +46,7 @@ async def test_webapp_docs_visibility(
     settings_data = get_valid_settings().model_dump()
     settings_data["debug"] = debug_setting
     settings = Settings(**settings_data)
-    web_client = await web_client_factory(settings)
+    web_client = await web_client_factory(settings=settings, dependency_overrides=None)
 
     async with web_client as client:
         response = await client.get("/docs")
@@ -63,7 +63,9 @@ async def test_webapp_kitchensink_presence(web_client_factory, debug_setting) ->
     settings_data = get_valid_settings().model_dump()
     settings_data["debug"] = debug_setting
     settings = Settings(**settings_data)
-    web_client: AsyncClient = await web_client_factory(settings)
+    web_client: AsyncClient = await web_client_factory(
+        settings=settings, dependency_overrides=None
+    )
 
     app: FastAPI = web_client._transport.app
     paths = [r.path for r in cast(Iterable[Route], app.routes)]
@@ -74,7 +76,8 @@ async def test_webapp_kitchensink_presence(web_client_factory, debug_setting) ->
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize(
-    "debug_setting, expected_status_code", [(True, 200), (False, 404)]
+    "debug_setting, expected_status_code",
+    [(True, status.HTTP_200_OK), (False, status.HTTP_404_NOT_FOUND)],
 )
 async def test_api_docs_visibility(
     api_client_factory, debug_setting, expected_status_code
@@ -85,7 +88,7 @@ async def test_api_docs_visibility(
     settings_data = get_valid_settings().model_dump()
     settings_data["debug"] = debug_setting
     settings = Settings(**settings_data)
-    api_client = await api_client_factory(settings)
+    api_client = await api_client_factory(settings=settings, dependency_overrides=None)
 
     async with api_client as client:
         response = await client.get("/docs")
@@ -95,7 +98,8 @@ async def test_api_docs_visibility(
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize(
-    "debug_setting, expected_status_code", [(True, 200), (False, 404)]
+    "debug_setting, expected_status_code",
+    [(True, status.HTTP_200_OK), (False, status.HTTP_404_NOT_FOUND)],
 )
 async def test_llmapp_docs_visibility(
     llm_client_factory, debug_setting, expected_status_code
@@ -106,7 +110,7 @@ async def test_llmapp_docs_visibility(
     settings_data = get_valid_settings().model_dump()
     settings_data["debug"] = debug_setting
     settings = Settings(**settings_data)
-    llm_client = await llm_client_factory(settings)
+    llm_client = await llm_client_factory(settings=settings, dependency_overrides=None)
 
     async with llm_client as client:
         response = await client.get("/docs")

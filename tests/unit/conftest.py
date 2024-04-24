@@ -66,7 +66,9 @@ async def _create_client_factory(
       @pytest.mark.asyncio
       async def test_example(web_client_factory):
             settings = Settings(**{...})
-            web_client = await web_client_factory(settings)
+            web_client = await web_client_factory(
+                settings=settings, dependency_overrides=None
+            )
             async with web_client as client:
                 response = await client.get("/path")
       ```
@@ -84,6 +86,7 @@ async def _create_client_factory(
 @pytest.fixture
 def web_client_factory():
     async def _create_web_client(
+        *,
         settings: Settings | None = None,
         dependency_overrides: dict[Callable, Callable] | None = None,
     ):
@@ -97,6 +100,7 @@ def web_client_factory():
 @pytest.fixture
 def api_client_factory():
     async def _create_api_client(
+        *,
         settings: Settings | None = None,
         dependency_overrides: dict[Callable, Callable] | None = None,
     ):
@@ -110,6 +114,7 @@ def api_client_factory():
 @pytest.fixture
 def llm_client_factory():
     async def _create_llm_client(
+        *,
         settings: Settings | None = None,
         dependency_overrides: dict[callable, callable] | None = None,
     ):
