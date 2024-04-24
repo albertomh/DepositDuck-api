@@ -23,3 +23,6 @@ class Prospect(ProspectBase, TableBase, table=True):
     user: "User" = Relationship(
         sa_relationship_kwargs={"uselist": False}, back_populates="prospect"
     )
+
+    def __str__(self) -> str:
+        return f"Prospect[{self.id}]"

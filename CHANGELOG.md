@@ -12,7 +12,7 @@ to create a new release.
 
 ### Added
 
-- Models and tables to hold data on People and Prospects.
+- Models and tables to hold data on Prospects, Tenancies.
 - Form to collect details from currently unsuitable prospects as part of the sign-up
   rejection flow.
 - Utilities for date manipulation and comparison.

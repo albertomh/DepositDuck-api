@@ -11,6 +11,7 @@ from sqlmodel import AutoString, Field, Relationship
 
 from depositduck.models.auth import UserBase
 from depositduck.models.common import CreatedAtMixin, DeletedAtMixin
+from depositduck.models.sql.deposit import Tenancy
 from depositduck.models.sql.people import Prospect
 
 if TYPE_CHECKING:
@@ -30,9 +31,10 @@ class User(DeletedAtMixin, CreatedAtMixin, SQLModelBaseUserDB, UserBase, table=T
     prospect: "Prospect" = Relationship(
         sa_relationship_kwargs={"uselist": False}, back_populates="user"
     )
+    tenancy: list["Tenancy"] = Relationship(back_populates="user")
 
-    def __repr__(self):
-        return f"User [id={self.id}]"
+    def __str__(self) -> str:
+        return f"User[{self.id}]"
 
 
 class AccessToken(SQLModelBaseAccessToken, table=True):
@@ -42,8 +44,8 @@ class AccessToken(SQLModelBaseAccessToken, table=True):
 
     user: User = Relationship(back_populates="access_tokens")
 
-    def __repr__(self):
-        return f"AccessToken for User [id={self.user_id}]"
+    def __str__(self) -> str:
+        return f"AccessToken for User[{self.user_id}]"
 
 
 User.model_rebuild()

@@ -21,3 +21,6 @@ class Email(EmailBase, TableBase, table=True):
     sent_at: datetime = Field(nullable=True, default=None)
 
     user: User = Relationship(back_populates="emails")
+
+    def __str__(self) -> str:
+        return f"Email[{self.id}]"
