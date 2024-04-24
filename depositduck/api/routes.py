@@ -11,7 +11,7 @@ from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 from typing_extensions import Annotated
 
-from depositduck.dependables import db_session_factory, get_settings
+from depositduck.dependables import db_session_factory, get_settings, get_speculum_client
 from depositduck.settings import Settings
 
 api_router = APIRouter()
@@ -20,6 +20,7 @@ api_router = APIRouter()
 class ServiceStatus(BaseModel):
     is_ok: bool
     message: str | None = None
+    error: str | None = None
 
 
 class ServicesSummary(BaseModel):
@@ -35,6 +36,7 @@ class ServicesSummary(BaseModel):
 async def healthz(
     request: Request,
     settings: Annotated[Settings, Depends(get_settings)],
+    get_speculum_client: Annotated[httpx.AsyncClient, Depends(get_speculum_client)],
     db_session_factory: Annotated[async_sessionmaker, Depends(db_session_factory)],
 ):
     status_summary = ServicesSummary(
@@ -43,14 +45,12 @@ async def healthz(
     )
 
     try:
-        # TODO: refactor - inject as dependency to be more testable
-        speculum_source = f"{settings.static_origin}/{settings.speculum_release}"
-        async with httpx.AsyncClient(base_url=speculum_source) as client:
-            res = await client.head("/css/main.min.css")
-            res.raise_for_status()
+        res = await get_speculum_client.head("/css/main.min.css")
+        res.raise_for_status()
+        status_summary.static_assets.message = f"'{res.url}' returned HTTP {res.status_code}"
     except httpx.HTTPError as e:
         status_summary.static_assets.is_ok = False
-        status_summary.static_assets.message = str(e)
+        status_summary.static_assets.error = str(e)
 
     try:
         session: AsyncSession
@@ -60,7 +60,7 @@ async def healthz(
                 raise SQLAlchemyError("database failed 'SELECT(1)' check")
     except SQLAlchemyError as e:
         status_summary.database.is_ok = False
-        status_summary.database.message = str(e)
+        status_summary.database.error = str(e)
 
     status_code = status.HTTP_200_OK
     summary_data = status_summary.model_dump(exclude_none=True)
