@@ -29,6 +29,8 @@ def upgrade() -> None:
         ),
         sa.Column("deleted_at", sa.DateTime(), nullable=True),
         sa.Column("email", sqlmodel.sql.sqltypes.AutoString(), nullable=False),
+        sa.Column("first_name", sqlmodel.sql.sqltypes.AutoString(), nullable=True),
+        sa.Column("family_name", sqlmodel.sql.sqltypes.AutoString(), nullable=True),
         sa.Column("is_active", sa.Boolean(), nullable=False),
         sa.Column("is_superuser", sa.Boolean(), nullable=False),
         sa.Column("is_verified", sa.Boolean(), nullable=False),

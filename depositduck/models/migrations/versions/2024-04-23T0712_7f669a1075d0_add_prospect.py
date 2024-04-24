@@ -15,7 +15,7 @@ from alembic import op
 
 # revision identifiers, used by Alembic.
 revision: str = "7f669a1075d0"
-down_revision: Union[str, None] = "d6f3c7a542f7"
+down_revision: Union[str, None] = "90054aafa739"
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 
@@ -38,15 +38,19 @@ def upgrade() -> None:
             "deposit_provider_name", sqlmodel.sql.sqltypes.AutoString(), nullable=False
         ),
         sa.Column("converted_at", sa.DateTime(), nullable=True),
-        sa.Column("person_id", sqlmodel.sql.sqltypes.GUID(), nullable=True),
+        sa.Column("user_id", sqlmodel.sql.sqltypes.GUID(), nullable=False),
         sa.ForeignKeyConstraint(
-            ["person_id"],
-            ["people__person.id"],
+            ["user_id"],
+            ["auth__user.id"],
         ),
         sa.PrimaryKeyConstraint("id"),
     )
     op.create_unique_constraint("uq_email", "people__prospect", ["email"])
+    op.create_index(
+        op.f("ix_people__prospect_email"), "people__prospect", ["email"], unique=True
+    )
 
 
 def downgrade() -> None:
+    op.drop_index(op.f("ix_people__prospect_email"), table_name="people__prospect")
     op.drop_table("people__prospect")

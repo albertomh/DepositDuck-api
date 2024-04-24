@@ -11,7 +11,7 @@ from sqlmodel import AutoString, Field, Relationship
 
 from depositduck.models.auth import UserBase
 from depositduck.models.common import CreatedAtMixin, DeletedAtMixin
-from depositduck.models.sql.people import Person
+from depositduck.models.sql.people import Prospect
 
 if TYPE_CHECKING:
     from depositduck.models.sql.email import Email
@@ -27,7 +27,7 @@ class User(DeletedAtMixin, CreatedAtMixin, SQLModelBaseUserDB, UserBase, table=T
 
     emails: list["Email"] = Relationship(back_populates="user")
     access_tokens: list["AccessToken"] = Relationship(back_populates="user")
-    person: "Person" = Relationship(
+    prospect: "Prospect" = Relationship(
         sa_relationship_kwargs={"uselist": False}, back_populates="user"
     )
 
