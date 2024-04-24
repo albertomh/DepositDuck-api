@@ -47,7 +47,9 @@ async def healthz(
     try:
         res = await get_speculum_client.head("/css/main.min.css")
         res.raise_for_status()
-        status_summary.static_assets.message = f"'{res.url}' returned HTTP {res.status_code}"
+        status_summary.static_assets.message = (
+            f"'{res.url}' returned HTTP {res.status_code}"
+        )
     except httpx.HTTPError as e:
         status_summary.static_assets.is_ok = False
         status_summary.static_assets.error = str(e)

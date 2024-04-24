@@ -6,7 +6,7 @@ only table models in the alembic `env` module.
 """
 
 # ruff: noqa: F401
-from depositduck.models.sql.auth import AccessToken, User
-from depositduck.models.sql.email import Email
-from depositduck.models.sql.llm import EmbeddingNomic, Snippet, SourceText
-from depositduck.models.sql.people import Person, Prospect
+from depositduck.models.sql.auth import AccessToken, User                   # pragma: no cover
+from depositduck.models.sql.email import Email                              # pragma: no cover
+from depositduck.models.sql.llm import EmbeddingNomic, Snippet, SourceText  # pragma: no cover
+from depositduck.models.sql.people import Person, Prospect                  # pragma: no cover
