@@ -15,8 +15,11 @@ if TYPE_CHECKING:
 
 
 class Tenancy(TenancyBase, TableBase, table=True):
-    __tablename__ = "deposit__case"
+    __tablename__ = "deposit__tenancy"
 
     user_id: UUID = Field(default=None, foreign_key="auth__user.id")
 
-    user: "User" = Relationship(back_populates="person")
+    user: "User" = Relationship(back_populates="tenancy")
+
+    def __str__(self) -> str:
+        return f"Tenancy[{self.id}]"

@@ -27,7 +27,7 @@ class CreatedAtMixin:
 
 
 # TODO: created_by
-# updated_at, updated_by, etc. should be inferred from an `audit` table
+# TODO: updated_at, updated_by, etc. should be inferred from an `audit` table
 # updated_at: datetime | None = Field(
 #     sa_column=Column(DateTime(), onupdate=func.now())
 # )

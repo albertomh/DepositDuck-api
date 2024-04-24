@@ -13,8 +13,6 @@ class UserBase(BaseModel):
     family_name: str | None = None
     # TODO: add audit fields to complement fastapi-users' `is_active`, `is_verified`
     #       ie. `activated_at`, `verified_at`
-    pass
-
 
 class UserRead(UserBase, schemas.BaseUser[uuid.UUID]):
     pass
