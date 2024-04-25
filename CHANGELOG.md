@@ -10,6 +10,8 @@ to create a new release.
 
 ## [Unreleased]
 
+## [0.4.0] - 2024-04-25
+
 ### Added
 
 - Models and tables to hold data on Prospects, Tenancies.
