@@ -34,6 +34,7 @@ async def test_auth_routes_redirect_user_based_on_authentication(
     async with web_client as client:
         response = await client.get(url)
 
+    assert response.status_code == expected_status_code
     if auth_user:
         assert response.next_request.url.path == next_url_path
     else:

@@ -1,7 +1,7 @@
 [project]
 name = "depositduck"
 version = "0.0.0"
-description = ""  # TODO
+description = "DepositDuck - get what's yours!"
 authors = [
   {name = "Alberto Morón Hernández", email = "alberto.moronh@gmail.com"},
 ]
@@ -49,13 +49,13 @@ source = [
 ]
 omit = [
   "./depositduck/kitchensink/*",
-  "./depositduck/models/sql/tables.py",
+  "./depositduck/models/sql/*",
 ]
 
 [tool.coverage.report]
 omit = [
   "./depositduck/kitchensink/*",
-  "./depositduck/models/sql/tables.py",
+  "./depositduck/models/sql/*",
 ]
 exclude_lines = [
     "pragma: no cover",

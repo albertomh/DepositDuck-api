@@ -14,9 +14,7 @@ SLOW_MO = int(os.getenv("E2E_SLOW_MO", 0))  # delay between steps, in millisecon
 
 
 class Browser(StrEnum):
-    """
-    Used to get a property on an instance of the Playwright class.
-    """
+    """Used to get a property on an instance of the Playwright class."""
 
     CHROMIUM = "chromium"
     FIREFOX = "firefox"
