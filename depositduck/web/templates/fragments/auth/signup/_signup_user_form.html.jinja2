@@ -42,6 +42,10 @@
             <div class="col-1 border-end border-1 border-black"></div>
             <div class="col-1 border-start border-1 border-black"></div>
             <div class="col-10 col-md-6 ps-4">
+                <input
+                    type="hidden"
+                    name="tenancyEndDate"
+                    value="{{ tenancy_end_date }}" />
                 <div class="mb-3">
                     <label for="email" class="form-label fw-bold">Email:</label>
                     <input
@@ -86,7 +90,7 @@
                     <input
                         type="password"
                         id="confirm-password"
-                        name="confirm_password"
+                        name="confirmPassword"
                         class="form-control {{ classes_by_id['confirm-password'] }}"
                         required />
                     {% if "CONFIRM_PASSWORD_DOES_NOT_MATCH" in errors %}

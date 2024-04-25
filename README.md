@@ -35,7 +35,7 @@ cp .env.in .env
 
 # start the containerised LLM service on :11434
 # see 'Embeddings Service' below and https://github.com/albertomh/draLLaM
-just drallam
+just drallam &
 
 # start database, local email server on :1025,
 # run migrations and start server on :8000
@@ -144,6 +144,7 @@ It contains:
 
 - the `auth` module - user authentication.
 - the `common` module - mixins to help build base models and tables elsewhere.
+- the `deposit` module - track deposit recovery cases linked to users.
 - the `email` module - templates and utilities to render and send HTML emails.
 - the `llm` module - models used when interacting with LLMs and storing their output
   (embeddings, etc.)

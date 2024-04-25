@@ -2,17 +2,14 @@
 (c) 2024 Alberto Morón Hernández
 """
 
-from builtins import breakpoint
 from datetime import datetime
 from unittest.mock import Mock
 
 import pytest
 from fastapi import status
 
-from depositduck.auth.dependables import get_user_manager
 from depositduck.auth.routes import register
 from depositduck.auth.users import current_active_user
-from depositduck.dependables import db_session_factory, get_templates
 from depositduck.models.sql.auth import User
 
 

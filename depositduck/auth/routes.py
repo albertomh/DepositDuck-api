@@ -3,6 +3,7 @@
 """
 
 from collections import defaultdict
+from datetime import datetime
 
 from fastapi import APIRouter, Depends, Form, Query, Request, status
 from fastapi.responses import RedirectResponse, Response
@@ -44,6 +45,7 @@ from depositduck.dependables import (
 )
 from depositduck.models.auth import UserCreate
 from depositduck.models.sql.auth import User
+from depositduck.models.sql.deposit import Tenancy
 from depositduck.models.sql.people import Prospect
 from depositduck.settings import Settings
 from depositduck.utils import (
@@ -174,9 +176,11 @@ async def unsuitable_prospect_funnel(
 
 @auth_operations_router.post("/register/")
 async def register(
+    tenancy_end_date: Annotated[datetime, Form(alias="tenancyEndDate")],
     email: Annotated[EmailStr, Form()],
     password: Annotated[str, Form()],
-    confirm_password: Annotated[str, Form()],
+    confirm_password: Annotated[str, Form(alias="confirmPassword")],
+    db_session_factory: Annotated[async_sessionmaker, Depends(db_session_factory)],
     templates: Annotated[AuthenticatedJinjaBlocks, Depends(get_templates)],
     user_manager: Annotated[UserManager, Depends(get_user_manager)],
     user: Annotated[User, Depends(current_active_user)],
@@ -196,7 +200,7 @@ async def register(
         user_create = UserCreate(
             email=email, password=password, confirm_password=confirm_password
         )
-        user = await user_manager.create(user_create, safe=True, request=request)
+        new_user = await user_manager.create(user_create, safe=True, request=request)
     except UserAlreadyExists:
         redirect_response = await htmx_redirect_to("/login/?prev=existingUser")
         return redirect_response
@@ -205,13 +209,23 @@ async def register(
     except ValidationError:
         errors.append("REGISTER_INVALID_EMAIL")
 
-    if user is not None:
+    if new_user is not None:
         try:
-            await user_manager.request_verify(user)
+            tenancy = Tenancy(
+                deposit_in_p=0, end_date=tenancy_end_date, user_id=new_user.id
+            )
+            session: AsyncSession
+            async with db_session_factory.begin() as session:
+                session.add(tenancy)
+        except (ValueError, SQLAlchemyError) as e:
+            LOG.error(f"error when trying to record tenancy for {new_user}: {str(e)}")
+
+        try:
+            await user_manager.request_verify(new_user)
             redirect_response = await htmx_redirect_to("/login/?prev=/auth/signup/")
             return redirect_response
         except (UserNotExists, UserInactive, UserAlreadyVerified) as e:
-            LOG.warn(f"exception when initiating verification for {user}: {e}")
+            LOG.warn(f"exception when initiating verification for {new_user}: {e}")
 
     fields_to_exceptions = {
         "email": ["REGISTER_INVALID_EMAIL"],
