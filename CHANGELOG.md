@@ -13,6 +13,7 @@ to create a new release.
 ### Added
 
 - Models and tables to hold data on Prospects, Tenancies.
+- Record skeletal Tenancy object for user as part of sign-up flow.
 - Form to collect details from currently unsuitable prospects as part of the sign-up
   rejection flow.
 - Utilities for date manipulation and comparison.
