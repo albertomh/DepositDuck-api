@@ -6,6 +6,7 @@ https://fastapi-users.github.io/fastapi-users/13.0/configuration/user-manager/
 """
 
 import uuid
+from datetime import datetime
 from enum import Enum
 from typing import Annotated, Any, Optional
 
@@ -76,7 +77,7 @@ class UserManager(UUIDIDMixin, BaseUserManager[User, uuid.UUID]):
         request: Optional[Request] = None,
     ):
         # TODO: stub - save event for analytics
-        LOG.debug(f"User {user.id} registered")
+        LOG.debug(f"{user} registered")
 
     async def on_after_login(
         self,
@@ -95,6 +96,13 @@ class UserManager(UUIDIDMixin, BaseUserManager[User, uuid.UUID]):
     ):
         await send_verification_email(user, token)
 
+    async def on_after_verify(
+        self,
+        user: User,
+        request: Optional[Request] = None,
+    ):
+        await self.user_db.update(user, {"verified_at": datetime.now()})
+
     async def on_after_forgot_password(
         self,
         user: User,
@@ -102,14 +110,14 @@ class UserManager(UUIDIDMixin, BaseUserManager[User, uuid.UUID]):
         request: Optional[Request] = None,
     ):
         # TODO: stub - rate limit & enqueue reset email
-        LOG.debug(f"user {user.id} requested a password reset - token: {token}")
+        LOG.debug(f"{user} requested a password reset - token: {token}")
 
     async def on_after_reset_password(
         self,
         user: User,
         request: Optional[Request] = None,
     ):
-        LOG.info(f"{user} has reset their password.")
+        LOG.info(f"{user} has reset their password")
 
 
 async def _get_auth_db_session() -> AYieldFixture[AsyncSession]:
