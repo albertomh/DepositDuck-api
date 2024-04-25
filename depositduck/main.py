@@ -20,6 +20,10 @@ from depositduck import (
 )
 from depositduck.api.routes import api_router
 from depositduck.auth.routes import auth_frontend_router, auth_operations_router
+from depositduck.dashboard.routes import (
+    dashboard_frontend_router,
+    dashboard_operations_router,
+)
 from depositduck.dependables import get_settings
 from depositduck.kitchensink.routes import kitchensink_router
 from depositduck.llm.routes import llm_router
@@ -70,6 +74,8 @@ def get_webapp(settings: Settings) -> FastAPI:
     webapp.include_router(web_router)
     webapp.include_router(auth_frontend_router)
     webapp.include_router(auth_operations_router)
+    webapp.include_router(dashboard_frontend_router)
+    webapp.include_router(dashboard_operations_router)
     if settings.debug:
         webapp.include_router(kitchensink_router)
 

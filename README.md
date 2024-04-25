@@ -116,6 +116,7 @@ The project is split into the following packages:
 
 - `api`: operations endpoints that return JSON.
 - `auth`: authentication backend (database strategy + cookie transport) and UserManager.
+- `dashboard`: dashboard and onboarding
 - `email`: email templates and utilities to render and send HTML emails.
 - `llm`: language agent functionality eg. ingest data, generate embeddings, etc.
 - `models`: Pydantic schemas, SQLModel table definitions and Alembic migrations.
