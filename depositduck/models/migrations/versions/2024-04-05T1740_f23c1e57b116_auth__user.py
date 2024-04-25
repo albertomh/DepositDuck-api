@@ -32,8 +32,9 @@ def upgrade() -> None:
         sa.Column("first_name", sqlmodel.sql.sqltypes.AutoString(), nullable=True),
         sa.Column("family_name", sqlmodel.sql.sqltypes.AutoString(), nullable=True),
         sa.Column("is_active", sa.Boolean(), nullable=False),
-        sa.Column("is_superuser", sa.Boolean(), nullable=False),
         sa.Column("is_verified", sa.Boolean(), nullable=False),
+        sa.Column("verified_at", sa.DateTime(), nullable=True),
+        sa.Column("is_superuser", sa.Boolean(), nullable=False),
         sa.Column("hashed_password", sqlmodel.sql.sqltypes.AutoString(), nullable=False),
         sa.PrimaryKeyConstraint("id"),
     )
