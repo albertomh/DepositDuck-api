@@ -223,10 +223,10 @@ order to run tests.
 
 ```sh
 # !important: remember to specify `dotenv=.env.test`
-# every time when running test recipes.
+# or `dotenv=.env.e2e` when running test recipes.
 
 # run unit tests and show coverage report
-just dotenv=.env.test test
+just dotenv=.env.test test coverage
 
 # run end-to-end Playwright tests
 # will wipe test database, then restart the smtp
