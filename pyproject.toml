@@ -47,8 +47,16 @@ log_cli_date_format = "%Y-%m-%d %H:%M:%S"
 source = [
   "./depositduck/",
 ]
+omit = [
+  "./depositduck/kitchensink/*",
+  "./depositduck/models/sql/tables.py",
+]
 
 [tool.coverage.report]
+omit = [
+  "./depositduck/kitchensink/*",
+  "./depositduck/models/sql/tables.py",
+]
 exclude_lines = [
     "pragma: no cover",
     "def __repr__",
