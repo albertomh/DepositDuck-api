@@ -15,5 +15,5 @@ ROUTE_TAGS_METADATA = [
     {"name": "frontend", "description": "HTMX frontend"},
     {"name": "auth", "description": "Authentication operations"},
     {"name": "ops", "description": "Internal ops - healthchecks, etc."},
-    {"name": "kitchensink", "description": "Development WIP - TODO: delete for 1.0.0"},
+    {"name": "kitchensink", "description": "Development WIP"},
 ]
