@@ -28,14 +28,15 @@ def upgrade() -> None:
             "created_at", sa.DateTime(), server_default=sa.text("now()"), nullable=False
         ),
         sa.Column("deleted_at", sa.DateTime(), nullable=True),
+        sa.Column("is_superuser", sa.Boolean(), nullable=False),
         sa.Column("email", sqlmodel.sql.sqltypes.AutoString(), nullable=False),
-        sa.Column("first_name", sqlmodel.sql.sqltypes.AutoString(), nullable=True),
-        sa.Column("family_name", sqlmodel.sql.sqltypes.AutoString(), nullable=True),
+        sa.Column("hashed_password", sqlmodel.sql.sqltypes.AutoString(), nullable=False),
         sa.Column("is_active", sa.Boolean(), nullable=False),
         sa.Column("is_verified", sa.Boolean(), nullable=False),
         sa.Column("verified_at", sa.DateTime(), nullable=True),
-        sa.Column("is_superuser", sa.Boolean(), nullable=False),
-        sa.Column("hashed_password", sqlmodel.sql.sqltypes.AutoString(), nullable=False),
+        sa.Column("completed_onboarding_at", sa.DateTime(), nullable=True),
+        sa.Column("first_name", sqlmodel.sql.sqltypes.AutoString(), nullable=True),
+        sa.Column("family_name", sqlmodel.sql.sqltypes.AutoString(), nullable=True),
         sa.PrimaryKeyConstraint("id"),
     )
     op.create_index(op.f("ix_auth__user_email"), "auth__user", ["email"], unique=True)
