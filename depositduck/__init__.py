@@ -14,6 +14,7 @@ VERSION_PATCH = 0
 ROUTE_TAGS_METADATA = [
     {"name": "frontend", "description": "HTMX frontend"},
     {"name": "auth", "description": "Authentication operations"},
+    {"name": "dashboard", "description": "Dashboard & onboarding"},
     {"name": "ops", "description": "Internal ops - healthchecks, etc."},
     {"name": "kitchensink", "description": "Development WIP"},
 ]
