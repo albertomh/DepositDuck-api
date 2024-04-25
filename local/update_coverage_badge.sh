@@ -17,4 +17,14 @@ fi
 
 percentage=$(just coverage | tail -n 1 | awk '{ print $NF }' | sed 's/\%//')
 
-sed -i '' -E "s/coverage-[0-9]+/coverage-$percentage/" $readme
+if (( percentage >= 0 && percentage < 50 )); then
+    colour="F24F4F" # red
+elif (( percentage >= 50 && percentage < 70 )); then
+    colour="EF8354" # orange
+elif (( percentage >= 70 && percentage < 85 )); then
+    colour="EADF6C" # yellow
+elif (( percentage >= 85 && percentage <= 100 )); then
+    colour="29AB47" # green
+fi
+
+sed -i '' -E "s/coverage-[0-9]+%25.+\?/coverage-$percentage%25-$colour?/" $readme
