@@ -13,6 +13,7 @@ from fastapi import FastAPI, Request
 from httpx import ASGITransport, AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
+from depositduck.auth.dependables import UserManager
 from depositduck.dependables import AuthenticatedJinjaBlocks, get_settings
 from depositduck.main import get_apiapp, get_llmapp, get_webapp
 from depositduck.models.sql.auth import User
@@ -161,6 +162,13 @@ def mock_request():
 @pytest.fixture
 def mock_user():
     return Mock(spec=User)
+
+
+@pytest.fixture
+def mock_user_manager(mock_user):
+    mock_manager = AsyncMock(spec=UserManager)
+    mock_manager.create = AsyncMock(return_value=mock_user)
+    return mock_manager
 
 
 @pytest.fixture
