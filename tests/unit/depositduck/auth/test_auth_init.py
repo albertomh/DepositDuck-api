@@ -3,7 +3,7 @@
 """
 
 from datetime import datetime
-from unittest.mock import Mock, patch
+from unittest.mock import patch
 
 import pytest
 
@@ -15,7 +15,6 @@ from depositduck.auth import (
     is_prospect_suitable,
     send_verification_email,
 )
-from depositduck.models.sql.auth import User
 
 TODAY_DATE = datetime.today().date()
 
@@ -66,9 +65,8 @@ async def test_is_prospect_suitable_not_accepted_due_to_date_limit():
 
 
 @pytest.mark.asyncio
-async def test_send_verification_email():
+async def test_send_verification_email(mock_user):
     user_email = "user@example.com"
-    mock_user = Mock(spec=User)
     mock_user.email = user_email
     token = "encrypted_token"
 
