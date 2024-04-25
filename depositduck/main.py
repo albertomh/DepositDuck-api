@@ -27,6 +27,9 @@ from depositduck.settings import Settings
 from depositduck.web.routes import web_router
 
 VERSION = f"{VERSION_MAJOR}.{VERSION_MINOR}.{VERSION_PATCH}"
+settings = get_settings()
+if settings.debug:
+    VERSION = f"WIP (on {VERSION})"
 
 
 def get_apiapp(settings: Settings) -> FastAPI:
@@ -78,5 +81,4 @@ def get_webapp(settings: Settings) -> FastAPI:
     return webapp
 
 
-settings = get_settings()
 webapp = get_webapp(settings)

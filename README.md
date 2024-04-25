@@ -334,9 +334,10 @@ in `.env` that can be used to specify host and port.
 
 ### Cut a release
 
-1. Pick the semver number (`X.Y.Z`) for the release.
-1. Run `just release X.Y.Z`  
-   This stamps the changelog and triggers a GitHub pipeline.
+1. Pick the semantic version (`M.m.p`) for the release.
+1. Run `just release M.m.p`  
+   This stamps the changelog & updates the semver globals in `depositduck/__init__.py`.
+   It also triggers a GitHub pipeline that automates the rest of the release.
 1. Wait for the pipeline to succeed. It will have raised a PR for this release.
 1. Review and merge (merge-and-rebase) the PR.
 1. This will trigger a pipeline that tags the `main` branch, creates a GitHub release,
