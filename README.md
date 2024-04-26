@@ -199,6 +199,12 @@ just migrate
 just downgrade
 ```
 
+### Fixtures
+
+Fixtures with data needed during development and e2e tests can be found in `local/database/init-scripts/`.
+These are applied as part of the `just migrate` script. The development fixture creates an
+admin user: `admin@example.com // password`.
+
 ### Frontend
 
 DepositDuck uses the `speculum` frontend toolkit. This is a distribution of Bootstrap 5

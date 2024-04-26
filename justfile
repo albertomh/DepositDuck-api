@@ -115,6 +115,18 @@ migrate up="head": venv
   if [ -z ${CI:-} ]; then . ./local/read_dotenv.sh {{dotenv}}; fi
   python -m alembic upgrade {{up}}
 
+  # run data fixtures for local development or e2e testing
+  echo "running fixture"
+  if [ -z ${E2E:-} ]; then
+    FIXTURE_PATH="/docker-entrypoint-initdb.d/dev_fixture.sql"
+  else
+    FIXTURE_PATH="/docker-entrypoint-initdb.d/e2e_fixture.sql"
+  fi
+  CONN_STR="postgresql://$DB_USER:$DB_PASSWORD@$DB_HOST:$DB_PORT/$DB_NAME"
+  PSQL_CMD="psql $CONN_STR -f $FIXTURE_PATH"
+  CMD="docker exec depositduck_db bash -c \"$PSQL_CMD\""
+  eval "$CMD"
+
 # downgrade to a given alembic revision - previous one if not specified
 downgrade down="-1": venv
   #!/usr/bin/env bash
