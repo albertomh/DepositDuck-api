@@ -5,22 +5,4 @@
 
 {% block main %}
     <h1>Home</h1>
-
-    {% block motd %}
-        <div id="motd">
-            <p>{% if motd %}{{ motd }}{% else %}---{% endif %}</p>
-            {% if motd is not defined %}
-                <button
-                    hx-get="/kitchensink/motd/"
-                    hx-trigger="click"
-                    hx-target="#motd">
-                    🔄 Refresh
-                </button>
-            {% endif %}
-        </div>
-    {% endblock %}
-
-    <p>name: {{ app_name }}</p>
-
-    <div hx-get="/kitchensink/fragment/" hx-trigger="load">Loading...</div>
 {% endblock %}

@@ -12,6 +12,8 @@ to create a new release.
 
 ### Added
 
+- Add router-level middlewares that redirect users based on their authentication status as
+  appropriate.
 - Apply a fixture to the database after running migrations for local development and e2e
   tests.
 

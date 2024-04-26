@@ -43,6 +43,7 @@ from depositduck.dependables import (
     get_settings,
     get_templates,
 )
+from depositduck.middleware import frontend_auth_middleware, operations_auth_middleware
 from depositduck.models.auth import UserCreate
 from depositduck.models.sql.auth import User
 from depositduck.models.sql.deposit import Tenancy
@@ -56,8 +57,15 @@ from depositduck.utils import (
 )
 from depositduck.web.templates import BootstrapClasses
 
-auth_frontend_router = APIRouter(tags=["auth", "frontend"])
-auth_operations_router = APIRouter(prefix="/auth", tags=["auth"])
+auth_frontend_router = APIRouter(
+    dependencies=[Depends(frontend_auth_middleware)],
+    tags=["auth", "frontend"],
+)
+auth_operations_router = APIRouter(
+    prefix="/auth",
+    dependencies=[Depends(operations_auth_middleware)],
+    tags=["auth"],
+)
 
 LOG = get_logger()
 
@@ -84,9 +92,6 @@ async def signup(
     user: Annotated[User, Depends(current_active_user)],
     request: Request,
 ):
-    if user:
-        return RedirectResponse(url="/")
-
     context = AuthenticatedJinjaBlocks.TemplateContext(
         request=request,
         user=user,
@@ -271,8 +276,7 @@ async def request_verification(
         try:
             user = await user_manager.get_by_email(email)
         except UserNotExists:
-            # TODO:
-            pass
+            LOG.warn(f"re-verify request for inexistent user [email={email}]")
 
         try:
             user = await user_manager.get_by_email(email)
@@ -320,9 +324,6 @@ async def login(
     next: str | None = None,
     encrypted_email: str | None = Query(default=None, alias="email"),
 ):
-    if user:
-        return RedirectResponse(url="/")
-
     prompt_to_reverify = False
     # value to auto-fill in the 'email' input
     user_email = ""
