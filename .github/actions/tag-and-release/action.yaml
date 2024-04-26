@@ -6,7 +6,7 @@
 #   steps:
 #     - uses: ./.github/actions/tag-and-release
 #       with:
-#         tag: X.Y.Z
+#         tag: M.m.p
 #   ```
 #
 # (c) 2024 Alberto Morón Hernández

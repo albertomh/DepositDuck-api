@@ -4,13 +4,13 @@
 # return the release notes for that tag.
 #
 # Usage:
-#   ./local/get_changelog_for_tag.sh X.Y.Z
+#   ./.github/get_changelog_for_tag.sh M.m.p
 #
 # (c) 2024 Alberto Morón Hernández
 
 
 if [ "$#" -ne 1 ]; then
-    echo "Usage: $0 "
+    echo "Usage: $0 M.m.p"
     exit 1
 fi
 

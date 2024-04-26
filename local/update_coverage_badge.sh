@@ -3,7 +3,7 @@
 # Run coverage and use result to update the coverage badge in the README.
 #
 # Usage:
-#   ./local/update_coverage_badge.sh
+#   ./local/update_coverage_badge.sh <PERCENT_INTEGER>
 #
 # (c) 2024 Alberto Morón Hernández
 
@@ -15,7 +15,19 @@ if [ ! -f "$readme" ]; then
     exit 1
 fi
 
-percentage=$(just coverage | tail -n 1 | awk '{ print $NF }' | sed 's/\%//')
+
+if [ "$#" -ne 1 ]; then
+    echo "Usage: $0 <PERCENT_INTEGER>"
+    exit 1
+fi
+
+percentage="$1"
+
+percentage_regex='^[0-9]{1,2}$'
+if ! [[ $percentage =~ $percentage_regex ]]; then
+    echo "Error: please provide percent coverage as the first and only argument"
+    exit 1
+fi
 
 if (( percentage >= 0 && percentage < 50 )); then
     colour="F24F4F" # red
