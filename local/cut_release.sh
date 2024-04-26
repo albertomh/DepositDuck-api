@@ -1,19 +1,19 @@
 #!/usr/bin/env bash
 
 # Cut a release by stamping the CHANGELOG, committing and pushing up to GitHub.
-# A GitHub Actions pipeline will detect `release-X.Y.Z` as a release branch
-# and will open a PR. Merging this PR will tag main as `X.Y.Z` at the git
+# A GitHub Actions pipeline will detect `release-M.m.p` as a release branch
+# and will open a PR. Merging this PR will tag main as `M.m.p` at the git
 # head and push a container to the GitHub Container Registry.
 #
 # Usage:
-#   ./local/cut_release.sh X.Y.Z
+#   ./local/cut_release.sh M.m.p
 #
 # (c) 2024 Alberto Morón Hernández
 
 set -ex
 
 if [ "$#" -ne 1 ]; then
-    echo "Usage: $0 "
+    echo "Usage: $0 M.m.p"
     exit 1
 fi
 

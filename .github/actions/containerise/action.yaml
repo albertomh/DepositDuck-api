@@ -9,7 +9,7 @@
 #       shell: bash
 #     - uses: ./.github/actions/containerise
 #         with:
-#           git_ref: [ X.Y.Z | main ]
+#           git_ref: [ M.m.p | main ]
 #           registry: ${{ env.REGISTRY }}
 #           username: ${{ env.username }}
 #           password: ${{ env.password }}

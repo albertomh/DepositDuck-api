@@ -187,7 +187,7 @@ test: venv
   if [ -z ${CI:-} ]; then . ./local/read_dotenv.sh {{dotenv}}; fi
   uv pip sync {{REQS_DIR}}/test.txt
   if [ -z ${CI:-} ]; then
-    python -m pytest tests/unit/ -s -vvv -W always --pdb
+    python -m coverage run -m pytest tests/unit/ -s -vvv -W always --pdb
   else
     python -m pytest tests/unit/ -s -vvv -W always
   fi
@@ -199,7 +199,11 @@ coverage: venv
   . {{VENV_DIR}}/bin/activate
   if [ -z ${CI:-} ]; then . ./local/read_dotenv.sh {{dotenv}}; fi
   uv pip sync {{REQS_DIR}}/test.txt
-  python -m coverage report
+  report=$(python -m coverage report)
+  echo "$report"
+  percentage=$(echo "$report" | tail -n 1 | awk '{ print $NF }' | sed 's/\%//')
+  ./local/update_coverage_badge.sh $percentage
+
 
 # run e2e Playwright tests
 # !must run as `just dotenv=.env.e2e e2e`
