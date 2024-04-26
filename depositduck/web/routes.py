@@ -10,11 +10,14 @@ from fastapi import APIRouter, Depends, Request
 from typing_extensions import Annotated
 
 from depositduck.auth.users import current_active_user
-from depositduck.dependables import AuthenticatedJinjaBlocks, get_settings, get_templates
+from depositduck.dependables import AuthenticatedJinjaBlocks, get_templates
+from depositduck.middleware import frontend_auth_middleware
 from depositduck.models.sql.auth import User
-from depositduck.settings import Settings
 
-web_router = APIRouter()
+web_router = APIRouter(
+    dependencies=[Depends(frontend_auth_middleware)],
+    tags=["dashboard", "frontend"],
+)
 
 
 @web_router.get(
@@ -23,7 +26,6 @@ web_router = APIRouter()
     tags=["frontend"],
 )
 async def root(
-    settings: Annotated[Settings, Depends(get_settings)],
     templates: Annotated[AuthenticatedJinjaBlocks, Depends(get_templates)],
     user: Annotated[User, Depends(current_active_user)],
     request: Request,
@@ -31,6 +33,5 @@ async def root(
     context = AuthenticatedJinjaBlocks.TemplateContext(
         request=request,
         user=user,
-        app_name=settings.app_name,
     )
     return templates.TemplateResponse("home.html.jinja2", context)
