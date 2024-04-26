@@ -10,6 +10,11 @@ to create a new release.
 
 ## [Unreleased]
 
+### Added
+
+- Apply a fixture to the database after running migrations for local development and e2e
+  tests.
+
 ## [0.4.0] - 2024-04-25
 
 ### Added
