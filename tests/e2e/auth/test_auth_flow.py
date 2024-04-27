@@ -9,7 +9,7 @@ from tests.e2e.conftest import APP_ORIGIN, E2EUser, log_in_user
 
 
 @pytest.mark.asyncio
-async def test_navbar_logged_out(page: Page) -> None:
+async def test_navbar_logged_out_then_in(page: Page) -> None:
     await page.goto(f"{APP_ORIGIN}/")
     navbar = page.get_by_role("navigation")
     await expect(navbar).to_be_visible()
@@ -20,10 +20,14 @@ async def test_navbar_logged_out(page: Page) -> None:
     )
 
 
-# TODO: test navbar logged-in
-
-
-# TODO: add Faker
+@pytest.mark.asyncio
+async def test_navbar_logged_in(page: Page) -> None:
+    await log_in_user(page, E2EUser.ACTIVE_VERIFIED)
+    await page.get_by_test_id("navbarAccountDropdown").click()
+    await expect(
+        page.get_by_test_id("navbarAccountDropdown").get_by_role("list")
+    ).to_have_count(1)
+    await expect(page.get_by_text("Log out")).to_be_visible()
 
 
 @pytest.mark.asyncio
