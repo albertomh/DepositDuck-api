@@ -1,5 +1,6 @@
 /*
  * Data fixture for local development.
+ * All user passwords are 'password'.
  *
  * (c) 2024 Alberto Morón Hernández
  */
@@ -31,4 +32,18 @@ VALUES (
     NULL,
     NULL,
     NULL
+),
+(
+    '12055aef-8e6b-41b5-8bb0-cea7f578af6a',
+    now(),
+    NULL,
+    false,
+    'needs_onboarding@example.com',
+    '$argon2id$v=19$m=65536,t=3,p=4$sVduMqKKFO6nC+Sglre5oQ$301ht+a6A4LEH8PicBmwuY1SHxdN5Wtn90qHDWGwMvk',
+    true,
+    true,
+    now(),
+    NULL,
+    'User',
+    'NeedsOnboarding'
 );

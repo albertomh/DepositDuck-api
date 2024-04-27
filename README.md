@@ -212,8 +212,17 @@ just downgrade
 
 Fixtures with data needed during development and e2e tests can be found in `local/database/init-scripts/`.
 These are applied as part of the `just migrate` script.  
-The development fixture creates an admin user: `admin@example.com // password`. See [E2E users](#e2e-users)
-below for information on users available during e2e scenarios and how to use these.
+The development fixture creates the following users:
+
+| email                        | is_superuser | is_active | is_verified | completed_onboarding_at |
+|------------------------------|--------------|-----------|-------------|-------------------------|
+| <admin@example.com>            |       ✔️      |     ✔️     |      ✔️      |           N/A           |
+| <needs_onboarding@example.com> |              |     ✔️     |      ✔️      |           null          |
+
+All users have the password `password`.
+
+See [E2E users](#e2e-users) below for information on users available during e2e scenarios
+and how to use these.
 
 ### Frontend
 
