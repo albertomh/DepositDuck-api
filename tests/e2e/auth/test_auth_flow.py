@@ -5,7 +5,7 @@
 import pytest
 from playwright.async_api import Page, expect
 
-from tests.e2e.conftest import APP_ORIGIN, E2EUser, log_in_user
+from tests.e2e.conftest import APP_ORIGIN, E2E_USER_PASSWORD, E2EUser, log_in_user
 
 
 @pytest.mark.asyncio
@@ -91,3 +91,17 @@ async def test_log_in_happy_path(page: Page) -> None:
     navbar = page.get_by_role("navigation")
     await expect(navbar.get_by_role("button", name="Log in")).to_have_count(0)
     await expect(navbar.get_by_role("button", name="Sign up")).to_have_count(0)
+
+
+@pytest.mark.asyncio
+async def test_protected_routes_next_path_is_forwarded(page: Page) -> None:
+    # TODO: make more robust by changing to path other than `/welcome/` once one is
+    #       available. Reasoning: `/welcome/` is default for non-onboarded users so
+    #       other redirects might interfere with clarity of this test.
+    target_path = "/welcome/"
+    await page.goto(f"{APP_ORIGIN}{target_path}")
+    await expect(page).to_have_url(f"{APP_ORIGIN}/login/?next={target_path}")
+    await page.get_by_label("Email:").fill(E2EUser.NEEDS_ONBOARDING.value)
+    await page.get_by_label("Password:", exact=True).fill(E2E_USER_PASSWORD)
+    await page.locator("#loginForm").get_by_role("button", name="Log in").click()
+    await expect(page).to_have_url(f"{APP_ORIGIN}{target_path}")

@@ -104,3 +104,19 @@ async def test_protected_routes_redirects_user_to_onboarding(
 
 
 # TODO: add coverage for `OPERATIONS_MUST_BE_LOGGED_OUT_PATHS` and check 401 returned
+
+
+@pytest.mark.asyncio
+async def test_protected_routes_next_path_is_present_in_redirect(web_client_factory):
+    dependency_overrides = {current_active_user: lambda: None}
+    web_client = await web_client_factory(
+        settings=None, dependency_overrides=dependency_overrides
+    )
+
+    target_path = "/welcome/"
+    async with web_client as client:
+        response = await client.get(target_path)
+
+        assert response.status_code == status.HTTP_307_TEMPORARY_REDIRECT
+        next_path = response.next_request.url.raw_path.decode()
+        assert next_path == f"/login/?next={target_path}"
