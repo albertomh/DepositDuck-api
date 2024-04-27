@@ -9,7 +9,7 @@ from tests.e2e.conftest import APP_ORIGIN, E2EUser, log_in_user
 
 
 @pytest.mark.asyncio
-async def test_navbar_logged_out_then_in(page: Page) -> None:
+async def test_navbar_logged_out(page: Page) -> None:
     await page.goto(f"{APP_ORIGIN}/")
     navbar = page.get_by_role("navigation")
     await expect(navbar).to_be_visible()
@@ -23,6 +23,7 @@ async def test_navbar_logged_out_then_in(page: Page) -> None:
 @pytest.mark.asyncio
 async def test_navbar_logged_in(page: Page) -> None:
     await log_in_user(page, E2EUser.ACTIVE_VERIFIED)
+    await expect(page.get_by_test_id("navbarAccountDropdown")).to_be_visible()
     await page.get_by_test_id("navbarAccountDropdown").click()
     await expect(
         page.get_by_test_id("navbarAccountDropdown").get_by_role("list")
@@ -87,7 +88,6 @@ async def test_sign_up_happy_path(page: Page) -> None:
 async def test_log_in_happy_path(page: Page) -> None:
     await log_in_user(page, E2EUser.ACTIVE_VERIFIED)
     await expect(page.get_by_test_id("navbarAccountDropdown")).to_be_visible()
-    await expect(
-        page.locator("#navbar").get_by_role("button", name="Log in")
-    ).not_to_be_visible()
-    await expect(page.get_by_role("button", name="Sign up")).not_to_be_visible()
+    navbar = page.get_by_role("navigation")
+    await expect(navbar.get_by_role("button", name="Log in")).to_have_count(0)
+    await expect(navbar.get_by_role("button", name="Sign up")).to_have_count(0)
