@@ -26,7 +26,7 @@ from depositduck.models.sql.auth import User
 
 settings = get_settings()
 
-cookie_secure = not settings.debug
+cookie_secure = not settings.debug and not settings.e2e
 cookie_samesite: Literal["lax", "strict"] = "lax" if settings.debug else "strict"
 cookie_httponly = not settings.debug
 cookie_transport = CookieTransport(

@@ -25,6 +25,9 @@ class Settings(BaseSettings):
     app_origin: str
     # controls FastAPI's debug mode and whether or not to show `/docs`.
     debug: bool = False
+    # set during end-to-end tests to run as close to production (ie. debug=false)
+    # but still modify some behaviours (eg. cookies are not secure when e2e=true).
+    e2e: bool = False
 
     db_user: str
     db_password: str
