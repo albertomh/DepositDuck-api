@@ -3,14 +3,17 @@
 """
 
 from fastapi import APIRouter, Depends, Request
-from fastapi.responses import RedirectResponse
 from typing_extensions import Annotated
 
 from depositduck.auth.users import current_active_user
 from depositduck.dependables import AuthenticatedJinjaBlocks, get_logger, get_templates
+from depositduck.middleware import frontend_auth_middleware
 from depositduck.models.sql.auth import User
 
-dashboard_frontend_router = APIRouter(tags=["dashboard", "frontend"])
+dashboard_frontend_router = APIRouter(
+    dependencies=[Depends(frontend_auth_middleware)],
+    tags=["dashboard", "frontend"],
+)
 dashboard_operations_router = APIRouter(prefix="/dashboard", tags=["dashboard"])
 
 LOG = get_logger()
@@ -25,13 +28,9 @@ async def onboarding(
     user: Annotated[User, Depends(current_active_user)],
     request: Request,
 ):
-    # TODO: refactor to middleware
-    if not user:
-        return RedirectResponse(url="/")
-
     context = AuthenticatedJinjaBlocks.TemplateContext(
         request=request,
         user=user,
         classes_by_id={},
     )
-    return templates.TemplateResponse("dashboard/template.html.jinja2", context)
+    return templates.TemplateResponse("dashboard/onboarding.html.jinja2", context)
