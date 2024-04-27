@@ -5,11 +5,13 @@
 import pytest
 from playwright.async_api import Page, expect
 
+from tests.e2e.conftest import APP_ORIGIN, E2EUser, log_in_user
+
 
 @pytest.mark.asyncio
-async def test_navbar_logged_out(browser_page: Page) -> None:
-    await browser_page.goto("http://0.0.0.0:8000/")
-    navbar = browser_page.get_by_role("navigation")
+async def test_navbar_logged_out(page: Page) -> None:
+    await page.goto(f"{APP_ORIGIN}/")
+    navbar = page.get_by_role("navigation")
     await expect(navbar).to_be_visible()
     await expect(navbar.get_by_role("button", name="Log in")).to_be_visible()
     await expect(navbar.get_by_role("button", name="Sign up")).to_be_visible()
@@ -25,25 +27,25 @@ async def test_navbar_logged_out(browser_page: Page) -> None:
 
 
 @pytest.mark.asyncio
-async def test_sign_up_happy_path(browser_page: Page) -> None:
+async def test_sign_up_happy_path(page: Page) -> None:
     # email = "test@domain.tld"
     # password = "MyPassword"
 
     # navigate to sign-up form
-    await browser_page.goto("http://0.0.0.0:8000/")
-    await browser_page.get_by_role("button", name="Sign up").click()
-    await expect(browser_page.get_by_role("heading", name="Sign up")).to_be_visible()
+    await page.goto(f"{APP_ORIGIN}/")
+    await page.get_by_role("button", name="Sign up").click()
+    await expect(page.get_by_role("heading", name="Sign up")).to_be_visible()
     # TODO: refactor & reinstate
     # fill out sign-up form
-    # sign_up_form = browser_page.locator("#signupForm")
-    # await browser_page.get_by_label("Email:").fill(email)
-    # await browser_page.get_by_label("Password:", exact=True).fill(password)
-    # await browser_page.get_by_label("Confirm password:").fill(password)
+    # sign_up_form = page.locator("#signupForm")
+    # await page.get_by_label("Email:").fill(email)
+    # await page.get_by_label("Password:", exact=True).fill(password)
+    # await page.get_by_label("Confirm password:").fill(password)
     # await sign_up_form.get_by_role("button", name="Sign up").click()
-    # await browser_page.wait_for_url("**/login/?prev=/auth/signup/")
-    # await expect(browser_page.locator("//h1")).to_contain_text("Log in")
+    # await page.wait_for_url("**/login/?prev=/auth/signup/")
+    # await expect(page.locator("//h1")).to_contain_text("Log in")
     # # check user prompted to find verification email
-    # card = browser_page.get_by_test_id("cardPleaseVerify")
+    # card = page.get_by_test_id("cardPleaseVerify")
     # await expect(card.get_by_role("heading")).to_contain_text("Pleaseverifyyour email")
     # await expect(
     #     card.get_by_text(
@@ -57,18 +59,18 @@ async def test_sign_up_happy_path(browser_page: Page) -> None:
     # soup = BeautifulSoup(mh_email.Content.Body, "html.parser")
     # verify_anchor = soup.find("a", attrs={"data-testid": "link-to-verify"})
     # verify_url = verify_anchor["href"]
-    # await browser_page.goto(verify_url)
-    # assert "/login" in browser_page.url
-    # await expect(browser_page.locator("//h1")).to_contain_text("Log in")
-    # card = browser_page.get_by_test_id("card-verification-info")
+    # await page.goto(verify_url)
+    # assert "/login" in page.url
+    # await expect(page.locator("//h1")).to_contain_text("Log in")
+    # card = page.get_by_test_id("card-verification-info")
     # await expect(card.get_by_role("heading")).to_contain_text("Thank you for verifying")
     # # check can log in
-    # log_in_form = browser_page.locator("#loginForm")
-    # await expect(browser_page.get_by_label("Email:")).to_have_value(email)
-    # await browser_page.get_by_label("Password:", exact=True).fill(password)
+    # log_in_form = page.locator("#loginForm")
+    # await expect(page.get_by_label("Email:")).to_have_value(email)
+    # await page.get_by_label("Password:", exact=True).fill(password)
     # await log_in_form.get_by_role("button", name="Log in").click()
-    # await browser_page.wait_for_url("**/")
-    # await expect(browser_page.locator("//h1")).to_contain_text("Home")
+    # await page.wait_for_url("**/")
+    # await expect(page.locator("//h1")).to_contain_text("Home")
 
 
 # TODO: test unhappy paths: test validation of sign up fields
@@ -78,15 +80,10 @@ async def test_sign_up_happy_path(browser_page: Page) -> None:
 
 
 @pytest.mark.asyncio
-async def test_log_in_happy_path(browser_page: Page) -> None:
-    await browser_page.goto("http://0.0.0.0:8000/login/")
-    await browser_page.get_by_label("Email:").fill("active_verified_user@example.com")
-    await browser_page.get_by_label("Password:", exact=True).fill("password")
-    log_in_form = browser_page.locator("#loginForm")
-    await log_in_form.get_by_role("button", name="Log in").click()
-    await browser_page.wait_for_url("**/")
-    await expect(browser_page.get_by_test_id("navbarAccountDropdown")).to_be_visible()
+async def test_log_in_happy_path(page: Page) -> None:
+    await log_in_user(page, E2EUser.ACTIVE_VERIFIED)
+    await expect(page.get_by_test_id("navbarAccountDropdown")).to_be_visible()
     await expect(
-        browser_page.locator("#navbar").get_by_role("button", name="Log in")
+        page.locator("#navbar").get_by_role("button", name="Log in")
     ).not_to_be_visible()
-    await expect(browser_page.get_by_role("button", name="Sign up")).not_to_be_visible()
+    await expect(page.get_by_role("button", name="Sign up")).not_to_be_visible()

@@ -17,6 +17,10 @@ to create a new release.
 - Apply a fixture to the database after running migrations for local development and e2e
   tests.
 
+### Changed
+
+- Abstract parts of the e2e tests for greater code re-use.
+
 ## [0.4.0] - 2024-04-25
 
 ### Added

@@ -211,8 +211,9 @@ just downgrade
 ### Fixtures
 
 Fixtures with data needed during development and e2e tests can be found in `local/database/init-scripts/`.
-These are applied as part of the `just migrate` script. The development fixture creates an
-admin user: `admin@example.com // password`.
+These are applied as part of the `just migrate` script.  
+The development fixture creates an admin user: `admin@example.com // password`. See [E2E users](#e2e-users)
+below for information on users available during e2e scenarios and how to use these.
 
 ### Frontend
 
@@ -235,11 +236,10 @@ Tests live in `tests/`, which contains two sub-directories:
 The tools listed under [Develop > Prerequisites](#prerequisites) must be available in
 order to run tests.
 
-### Run tests locally
+### Unit tests
 
 ```sh
-# !important: remember to specify `dotenv=.env.test`
-# or `dotenv=.env.e2e` when running test recipes.
+# !important: remember to specify `dotenv=.env.test` when running the test recipe.
 
 # run unit tests and show coverage report
 just dotenv=.env.test test coverage
@@ -248,18 +248,22 @@ just dotenv=.env.test test coverage
 Unit tests have the `--pdb` flag when run locally, so will drop you into an interactive
 debugger at the first failure.
 
+### E2E tests
+
 ```sh
+# !important: remember to specify `dotenv=.env.e2e` when running the e2e tests recipe.
+
 # run end-to-end Playwright tests
 # will wipe test database, then restart the smtp
 # service & app server in the background
-just dotenv=.env.e2e e2e
+just dotenv=.env.e2e e2e coverage
 ```
 
 Playwright tests run in headless mode by default. To run them in a visible browser window
 and/or slow them down, set `E2E_HEADLESS` and `E2E_SLOW_MO` (in milliseconds) accordingly
 in `.env.e2e`.
 
-### Generate e2e tests
+#### Generate e2e tests
 
 The Playwright Inspector can be used to record tests by interacting with the webapp
 running locally.
@@ -272,6 +276,13 @@ just run &
 . ./.venv/bin/activate
 playwright codegen 0.0.0.0:8000/
 ```
+
+#### E2E users
+
+The `e2e_fixture.sql` generates the following users, which are available to test code from
+an enum in `e2e/conftest` and can be used with the utility methods to eg. log in as a
+specific user in an e2e scenario. All e2e users should use the `E2E_USER_PASSWORD`, also
+defined in `conftest`.
 
 ## Continuous Integration
 
