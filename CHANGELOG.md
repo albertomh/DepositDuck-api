@@ -22,6 +22,7 @@ to create a new release.
 ### Changed
 
 - Abstract parts of the e2e tests for greater code re-use.
+- Authentication redirects set 'next' query parameter post-login navigation.
 
 ## [0.4.0] - 2024-04-25
 

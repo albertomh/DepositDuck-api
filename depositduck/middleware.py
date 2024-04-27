@@ -28,11 +28,20 @@ OPERATIONS_MUST_BE_LOGGED_OUT_PATHS = [
 ONBOARDING_PATH = "/welcome/"
 
 
-async def _get_path_from_request(request: Request) -> str:
+async def _get_path_from_request(request: Request) -> tuple[str, str | None]:
+    """
+    Returns:
+        tuple[str, str | None]: the path and (optionally) query param for the request.
+        eg. `("/login/", "next=/")
+    """
     base = str(request.base_url).rstrip("/")
     url = str(request.url)
     path = url[len(base) :]
-    return path
+    path_parts = path.split("?")
+    if len(path_parts) == 1:
+        return (path_parts[0], None)
+    else:
+        return (path_parts[0], path_parts[1])
 
 
 async def frontend_auth_middleware(
@@ -44,24 +53,39 @@ async def frontend_auth_middleware(
     with the request (if any). Define an allowlist of which routes may be
     accessed without auth. Assume all others require a logged-in user.
     """
-    path = await _get_path_from_request(request)
+    path, query = await _get_path_from_request(request)
 
+    # anonymous requests trying to reach protected routes are redirected to /login/
     if user is None and path not in FRONTEND_MUST_BE_LOGGED_OUT_PATHS:
+        redirect_path = f"/login/?next={path}"
+        if query is not None:
+            redirect_path += f"&{query}"
         raise HTTPException(
             status_code=status.HTTP_307_TEMPORARY_REDIRECT,
-            # TODO: add `path` as `?next=<path>` and do post-auth redirect in router
-            headers={"Location": "/login/"},
+            headers={"Location": redirect_path},
         )
+
     if user is not None:
+        # logged-in users trying to reach anonymous-only paths are redirected
         if path in FRONTEND_MUST_BE_LOGGED_OUT_PATHS:
             raise HTTPException(
-                status_code=status.HTTP_307_TEMPORARY_REDIRECT, headers={"Location": "/"}
-            )
-        if user.completed_onboarding_at is None and path != ONBOARDING_PATH:
-            raise HTTPException(
                 status_code=status.HTTP_307_TEMPORARY_REDIRECT,
-                headers={"Location": ONBOARDING_PATH},
+                headers={"Location": "/"},
             )
+        if user.completed_onboarding_at is not None:
+            # users who have been onboarded are redirected away from the onboarding screen
+            if path == ONBOARDING_PATH:
+                raise HTTPException(
+                    status_code=status.HTTP_307_TEMPORARY_REDIRECT,
+                    headers={"Location": "/"},
+                )
+        else:
+            # users who are yet to be onboarded are redirected to the onboarding screen
+            if path != ONBOARDING_PATH:
+                raise HTTPException(
+                    status_code=status.HTTP_307_TEMPORARY_REDIRECT,
+                    headers={"Location": ONBOARDING_PATH},
+                )
 
 
 async def operations_auth_middleware(
@@ -73,7 +97,7 @@ async def operations_auth_middleware(
     with the request (if any). Define an allowlist of which routes may be
     accessed without auth. Assume all others require a logged-in user.
     """
-    path = await _get_path_from_request(request)
+    path, query = await _get_path_from_request(request)
 
     if user is not None and path in OPERATIONS_MUST_BE_LOGGED_OUT_PATHS:
         raise HTTPException(

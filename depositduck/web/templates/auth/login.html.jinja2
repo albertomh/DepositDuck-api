@@ -121,7 +121,7 @@
 
             <form
                 id="loginForm"
-                hx-post="/auth/authenticate/"
+                hx-post="/auth/authenticate/?next={{ next_path }}"
                 hx-target="#login-form">
                 <div class="mb-3">
                     <label for="username" class="form-label fw-bold">
