@@ -20,7 +20,6 @@ async def test_navbar_logged_out(browser_page: Page) -> None:
 
 # TODO: test navbar logged-in
 
-# TODO: test log in with existing user (must first add e2e db fixtures)
 
 # TODO: add Faker
 
@@ -44,7 +43,7 @@ async def test_sign_up_happy_path(browser_page: Page) -> None:
     # await browser_page.wait_for_url("**/login/?prev=/auth/signup/")
     # await expect(browser_page.locator("//h1")).to_contain_text("Log in")
     # # check user prompted to find verification email
-    # card = browser_page.get_by_test_id("card-please-verify")
+    # card = browser_page.get_by_test_id("cardPleaseVerify")
     # await expect(card.get_by_role("heading")).to_contain_text("Pleaseverifyyour email")
     # await expect(
     #     card.get_by_text(
@@ -76,3 +75,18 @@ async def test_sign_up_happy_path(browser_page: Page) -> None:
 
 
 # TODO: test unhappy path: following expired / invalid verification link
+
+
+@pytest.mark.asyncio
+async def test_log_in_happy_path(browser_page: Page) -> None:
+    await browser_page.goto("http://0.0.0.0:8000/login/")
+    await browser_page.get_by_label("Email:").fill("active_verified_user@example.com")
+    await browser_page.get_by_label("Password:", exact=True).fill("password")
+    log_in_form = browser_page.locator("#loginForm")
+    await log_in_form.get_by_role("button", name="Log in").click()
+    await browser_page.wait_for_url("**/")
+    await expect(browser_page.get_by_test_id("navbarAccountDropdown")).to_be_visible()
+    await expect(
+        browser_page.locator("#navbar").get_by_role("button", name="Log in")
+    ).not_to_be_visible()
+    await expect(browser_page.get_by_role("button", name="Sign up")).not_to_be_visible()

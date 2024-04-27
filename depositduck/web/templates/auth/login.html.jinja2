@@ -14,7 +14,7 @@
             {% if prev_url == "/auth/signup/" or "LOGIN_USER_NOT_VERIFIED" in errors %}
                 <div
                     class="card border-warning my-3"
-                    data-testid="card-please-verify">
+                    data-testid="cardPleaseVerify">
                     <div class="card-body">
                         <div class="row">
                             <div class="col">
@@ -96,7 +96,7 @@
             {% if prev_url == "existingUser" %}
                 <div
                     class="card border-info my-3"
-                    data-testid="card-please-verify">
+                    data-testid="cardPleaseVerify">
                     <div class="card-body">
                         <div class="row">
                             <div class="col">
@@ -177,7 +177,6 @@
                     <div class="col-12">
                         <button
                             type="submit"
-                            id="submit"
                             class="btn btn-primary float-end"
                             {% if prompt_to_reverify %}disabled{% endif %}>
                             Log in
