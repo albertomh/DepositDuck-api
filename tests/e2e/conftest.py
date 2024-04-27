@@ -1,4 +1,6 @@
 """
+Playwright assertions API: https://playwright.dev/python/docs/test-assertions
+
 (c) 2024 Alberto Morón Hernández
 """
 

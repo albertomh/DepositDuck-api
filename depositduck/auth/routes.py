@@ -266,10 +266,10 @@ async def request_verification(
     user_manager: Annotated[UserManager, Depends(get_user_manager)],
     encrypted_email: str | None = Query(default=None, alias="email"),
 ):
-    redirect_url = "/login/"
+    redirect_path = "/login/"
 
     if encrypted_email:
-        redirect_url += "?prev=/auth/signup/"
+        redirect_path += "?prev=/auth/signup/"
 
         email = decrypt(settings.app_secret, encrypted_email)
         LOG.debug(f"re-verify request for [email={email}]")
@@ -285,7 +285,7 @@ async def request_verification(
         except (UserNotExists, UserInactive, UserAlreadyVerified) as e:
             LOG.warn(f"exception when initiating verification for {user}: {e}")
 
-    return RedirectResponse(redirect_url, status_code=status.HTTP_302_FOUND)
+    return RedirectResponse(redirect_path, status_code=status.HTTP_307_TEMPORARY_REDIRECT)
 
 
 @auth_operations_router.get("/verify/")
@@ -295,19 +295,19 @@ async def verify(
     token: str,
     encrypted_email: str = Query(alias="email"),
 ):
-    redirect_url = "/login/?prev=/auth/verify/"
+    redirect_path = "/login/?prev=/auth/verify/"
     try:
         await user_manager.verify(token)
-        redirect_url += f"&email={encrypted_email}"
+        redirect_path += f"&email={encrypted_email}"
     except (InvalidVerifyToken, UserAlreadyVerified) as e:
-        redirect_url += f"&email={encrypted_email}"
+        redirect_path += f"&email={encrypted_email}"
         email = decrypt(settings.app_secret, encrypted_email)
         if isinstance(e, InvalidVerifyToken):
             LOG.error(f"verify error - invalid token for [email={email}]")
         else:
             LOG.warn(f"verify error - already verified [email={email}]")
 
-    return RedirectResponse(redirect_url, status_code=status.HTTP_302_FOUND)
+    return RedirectResponse(redirect_path, status_code=status.HTTP_307_TEMPORARY_REDIRECT)
 
 
 @auth_frontend_router.get(
@@ -321,7 +321,7 @@ async def login(
     templates: Annotated[AuthenticatedJinjaBlocks, Depends(get_templates)],
     request: Request,
     prev: str | None = None,
-    next: str | None = None,
+    next: str = "/",
     encrypted_email: str | None = Query(default=None, alias="email"),
 ):
     prompt_to_reverify = False
@@ -345,8 +345,8 @@ async def login(
         request=request,
         # avoid showing authenticated navbar to users following verification links
         user=None,
-        prev_url=prev,
-        next_url=next,
+        prev_path=prev,
+        next_path=next,
         prompt_to_reverify=prompt_to_reverify,
         encrypted_email=encrypted_email,
         user_email=user_email,
@@ -361,6 +361,7 @@ async def authenticate(
     templates: Annotated[AuthenticatedJinjaBlocks, Depends(get_templates)],
     user_manager: Annotated[UserManager, Depends(get_user_manager)],
     request: Request,
+    next: str = "/",
 ):
     errors: list[str] = []
 
@@ -373,7 +374,7 @@ async def authenticate(
         errors.append(ErrorCode.LOGIN_USER_NOT_VERIFIED.value)
 
     if user and not errors:
-        redirect_response = await htmx_redirect_to("/")
+        redirect_response = await htmx_redirect_to(next)
         redirect_response = await log_user_in(auth_db_strategy, user, redirect_response)
         return redirect_response
 

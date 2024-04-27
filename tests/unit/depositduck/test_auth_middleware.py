@@ -81,13 +81,12 @@ async def test_protected_routes_redirect_logged_out_user(web_client_factory):
     "completed_onboarding_at, http_status, redirect_to",
     [
         (None, status.HTTP_307_TEMPORARY_REDIRECT, "/welcome/"),
-        (datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f"), status.HTTP_200_OK, None),
+        (datetime.now(), status.HTTP_200_OK, None),
     ],
 )
 async def test_protected_routes_redirects_user_to_onboarding(
-    web_client_factory, completed_onboarding_at, http_status, redirect_to
+    web_client_factory, mock_user, completed_onboarding_at, http_status, redirect_to
 ):
-    mock_user = Mock(spec=User)
     mock_user.completed_onboarding_at = completed_onboarding_at
     dependency_overrides = {current_active_user: lambda: mock_user}
     web_client = await web_client_factory(
