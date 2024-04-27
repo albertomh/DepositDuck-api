@@ -12,10 +12,12 @@ to create a new release.
 
 ### Added
 
-- Add router-level middlewares that redirect users based on their authentication status as
+- Router-level middlewares that redirect users based on their authentication status as
   appropriate.
-- Apply a fixture to the database after running migrations for local development and e2e
-  tests.
+- Onboarding flow & middleware redirect to onboarding page for users where `completed_onboarding_at`
+  is not set.
+- Apply a fixture to the database after running migrations for local development or e2e
+  tests as appropriate.
 
 ### Changed
 
