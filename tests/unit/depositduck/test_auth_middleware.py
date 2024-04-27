@@ -2,6 +2,7 @@
 (c) 2024 Alberto Morón Hernández
 """
 
+from datetime import datetime
 from unittest.mock import Mock
 
 import pytest
@@ -73,3 +74,34 @@ async def test_protected_routes_redirect_logged_out_user(web_client_factory):
 
     assert response.status_code == status.HTTP_307_TEMPORARY_REDIRECT
     assert response.next_request.url.path == "/login/"
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    "completed_onboarding_at, http_status, redirect_to",
+    [
+        (None, status.HTTP_307_TEMPORARY_REDIRECT, "/welcome/"),
+        (datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f"), status.HTTP_200_OK, None),
+    ],
+)
+async def test_protected_routes_redirects_user_to_onboarding(
+    web_client_factory, completed_onboarding_at, http_status, redirect_to
+):
+    mock_user = Mock(spec=User)
+    mock_user.completed_onboarding_at = completed_onboarding_at
+    dependency_overrides = {current_active_user: lambda: mock_user}
+    web_client = await web_client_factory(
+        settings=None, dependency_overrides=dependency_overrides
+    )
+
+    async with web_client as client:
+        response = await client.get("/")
+
+    assert response.status_code == http_status
+    if redirect_to is None:
+        assert response.next_request is None
+    else:
+        assert response.next_request.url.path == redirect_to
+
+
+# TODO: add coverage for `OPERATIONS_MUST_BE_LOGGED_OUT_PATHS` and check 401 returned
