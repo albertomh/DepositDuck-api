@@ -21,6 +21,8 @@ from depositduck.settings import Settings
 
 VALID_FERNET_KEY = "ie6_e7cxZjIs_SAXsZzYLARaQTnhF16DYTCUUTdKgTQ="
 
+# TODO: add Faker
+
 
 def get_valid_settings() -> Settings:
     return Settings(

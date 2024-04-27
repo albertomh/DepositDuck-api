@@ -39,6 +39,7 @@ async def page() -> AsyncGenerator[Page, None]:
 
 E2E_USER_PASSWORD: str = "password"
 
+
 class E2EUser(StrEnum):
     ACTIVE_VERIFIED = "active_verified_user@example.com"
 
