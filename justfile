@@ -116,7 +116,6 @@ migrate up="head": venv
   python -m alembic upgrade {{up}}
 
   # run data fixtures for local development or e2e testing
-  echo "running fixture"
   if [ -z ${E2E:-} ]; then
     FIXTURE_PATH="/docker-entrypoint-initdb.d/dev_fixture.sql"
   else
