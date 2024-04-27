@@ -41,7 +41,7 @@ E2E_USER_PASSWORD: str = "password"
 
 
 class E2EUser(StrEnum):
-    ACTIVE_VERIFIED = "active_verified_user@example.com"
+    ACTIVE_VERIFIED = "active_verified@example.com"
 
 
 async def log_in_user(page: Page, user: E2EUser, wait_for_path: str = "/") -> None:
