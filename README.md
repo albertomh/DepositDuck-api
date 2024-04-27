@@ -214,10 +214,11 @@ Fixtures with data needed during development and e2e tests can be found in `loca
 These are applied as part of the `just migrate` script.  
 The development fixture creates the following users:
 
-| email                        | is_superuser | is_active | is_verified | completed_onboarding_at |
-|------------------------------|--------------|-----------|-------------|-------------------------|
+| email                          | is_superuser | is_active | is_verified | completed_onboarding_at |
+|--------------------------------|--------------|-----------|-------------|-------------------------|
 | <admin@example.com>            |       ✔️      |     ✔️     |      ✔️      |           N/A           |
-| <needs_onboarding@example.com> |              |     ✔️     |      ✔️      |           null          |
+| <active_verified@example.com>  |              |     ✔️     |      ✔️      |           now()         |
+| <needs_onboarding@example.com> |              |     ✔️     |      ✔️      |           NULL          |
 
 All users have the password `password`.
 
@@ -292,6 +293,13 @@ The `e2e_fixture.sql` generates the following users, which are available to test
 an enum in `e2e/conftest` and can be used with the utility methods to eg. log in as a
 specific user in an e2e scenario. All e2e users should use the `E2E_USER_PASSWORD`, also
 defined in `conftest`.
+
+The e2e fixture creates the following users:
+
+| email                          | is_superuser | is_active | is_verified | completed_onboarding_at |
+|--------------------------------|--------------|-----------|-------------|-------------------------|
+| <active_verified@example.com>  |              |     ✔️     |      ✔️      |           now()         |
+| <needs_onboarding@example.com> |              |     ✔️     |      ✔️      |           NULL          |
 
 ## Continuous Integration
 
