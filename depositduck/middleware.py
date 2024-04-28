@@ -20,7 +20,7 @@ FRONTEND_MUST_BE_LOGGED_OUT_PATHS = [
 OPERATIONS_MUST_BE_LOGGED_OUT_PATHS = [
     "/auth/filterProspect/",
     "/auth/unsuitableProspectFunnel/",
-    "/auth/request-verification/",
+    "/auth/requestVerification/",
     "/auth/verify/",
     "/auth/authenticate/",
 ]
@@ -101,9 +101,5 @@ async def operations_auth_middleware(
 
     if user is not None and path in OPERATIONS_MUST_BE_LOGGED_OUT_PATHS:
         raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-        )
-    if user is not None and path in OPERATIONS_MUST_BE_LOGGED_OUT_PATHS:
-        raise HTTPException(
-            status_code=status.HTTP_307_TEMPORARY_REDIRECT, headers={"Location": "/"}
+            status_code=status.HTTP_403_FORBIDDEN,
         )
