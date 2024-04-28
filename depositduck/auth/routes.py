@@ -3,7 +3,7 @@
 """
 
 from collections import defaultdict
-from datetime import datetime
+from datetime import date
 
 from cryptography.fernet import InvalidToken
 from fastapi import APIRouter, Depends, Form, Query, Request, status
@@ -182,7 +182,7 @@ async def unsuitable_prospect_funnel(
 
 @auth_operations_router.post("/register/")
 async def register(
-    tenancy_end_date: Annotated[datetime, Form(alias="tenancyEndDate")],
+    tenancy_end_date: Annotated[date, Form(alias="tenancyEndDate")],
     email: Annotated[EmailStr, Form()],
     password: Annotated[str, Form()],
     confirm_password: Annotated[str, Form(alias="confirmPassword")],
