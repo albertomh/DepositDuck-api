@@ -3,7 +3,6 @@
 """
 
 from collections import defaultdict
-from contextlib import suppress
 from datetime import datetime
 
 from cryptography.fernet import InvalidToken
@@ -303,12 +302,14 @@ async def verify(
         redirect_path += f"&email={encrypted_email}"
     except (InvalidVerifyToken, UserAlreadyVerified) as e:
         redirect_path += f"&email={encrypted_email}"
-        with suppress(InvalidToken):
+        try:
             email = decrypt(settings.app_secret, encrypted_email)
             if isinstance(e, InvalidVerifyToken):
-                LOG.error(f"verify error - invalid token for [email={email}]")
+                LOG.error(f"verify error - invalid token for [{email=}]")
             else:
-                LOG.warn(f"verify error - already verified [email={email}]")
+                LOG.warn(f"verify error - already verified [{email=}]")
+        except InvalidToken:
+            LOG.error(f"verify error - encrypted email [{encrypted_email=}]")
 
     return RedirectResponse(redirect_path, status_code=status.HTTP_307_TEMPORARY_REDIRECT)
 
