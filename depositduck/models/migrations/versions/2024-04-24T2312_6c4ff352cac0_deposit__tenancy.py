@@ -34,8 +34,8 @@ def upgrade() -> None:
         ),
         sa.Column("deleted_at", sa.DateTime(), nullable=True),
         sa.Column("deposit_in_p", sa.Integer(), nullable=False),
-        sa.Column("start_date", sa.DateTime(), nullable=True),
-        sa.Column("end_date", sa.DateTime(), nullable=False),
+        sa.Column("start_date", sa.Date(), nullable=True),
+        sa.Column("end_date", sa.Date(), nullable=False),
         sa.Column("user_id", sqlmodel.sql.sqltypes.GUID(), nullable=False),
         sa.ForeignKeyConstraint(
             ["user_id"],

@@ -20,7 +20,7 @@ INSERT INTO public.auth__user (
     family_name
 )
 VALUES (
-    '95e72f5e-bb75-48ca-94e0-7b485d23f0c3',
+    '95e72f5e-bb75-48ca-94e0-7b485d23f0c3'::uuid,
     now(),
     NULL,
     true,
@@ -33,7 +33,7 @@ VALUES (
     'User',
     'Admin'
 ), (
-    '8c9356f7-3fb3-486a-8481-346b7ffe62f0',
+    '8c9356f7-3fb3-486a-8481-346b7ffe62f0'::uuid,
     now(),
     NULL,
     false,
@@ -46,7 +46,7 @@ VALUES (
     'User',
     'ActiveVerified'
 ), (
-    '63d3c89c-c699-4c29-944b-01e506e58fea',
+    '63d3c89c-c699-4c29-944b-01e506e58fea'::uuid,
     now(),
     NULL,
     false,
@@ -58,4 +58,23 @@ VALUES (
     NULL,
     'User',
     'NeedsOnboarding'
+);
+
+INSERT INTO public.deposit__tenancy (
+    id,
+    created_at,
+    deleted_at,
+    deposit_in_p,
+    start_date,
+    end_date,
+    user_id
+)
+VALUES(
+    'b99643d3-f0ff-40b5-a0b5-c07af587f382'::uuid,
+    now(),
+    NULL,
+    0,
+    NULL,
+    '2024-04-28',
+    '63d3c89c-c699-4c29-944b-01e506e58fea'::uuid -- needs_onboarding@example.com
 );
