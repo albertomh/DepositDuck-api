@@ -1,0 +1,79 @@
+{#
+ # (c) 2024 Alberto Morón Hernández
+ #}
+
+{% block onboarding_form %}
+    <form id="onboardingForm" hx-post="/dashboard/completeOnboarding/">
+        {# Q1/4: question - name #}
+        <div class="row mt-2">
+            <div class="col-2 position-relative">
+                <div class="row h-50"></div>
+                <div class="row h-50">
+                    <div class="col border-end border-1 border-black"></div>
+                    <div class="col border-start border-1 border-black"></div>
+                </div>
+                <span
+                    class="position-absolute top-50 start-50 translate-middle bg-white">
+                    <i class="bi bi-1-circle-fill fs-3"></i>
+                </span>
+            </div>
+
+            <div class="col-10">
+                <p class="fs-5 mb-0">How should we address you?</p>
+            </div>
+        </div>
+
+        {# Q1/4: answer input #}
+        <div class="row">
+            <div class="col-1 border-end border-1 border-black"></div>
+            <div class="col-1 border-start border-1 border-black"></div>
+            <div class="col-10 pt-3 pb-5 ps-4">
+                <div class="row">
+                    <div class="col-10 col-md-6 ps-4">
+                        <input
+                            type="hidden"
+                            name="tenancyEndDate"
+                            value="{{ tenancy_end_date }}" />
+                        <div class="mb-3">
+                            <label for="name" class="form-label fw-bold">
+                                Your name:
+                            </label>
+                            <input
+                                type="text"
+                                id="name"
+                                name="name"
+                                class="form-control {{ classes_by_id['name'] }}"
+                                required />
+                            {% if "INVALID_NAME" in errors %}
+                                <div class="invalid-feedback">
+                                    Your name must only include letters.
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {# form submission #}
+        <div class="row">
+            <div class="col-2 position-relative">
+                <div class="row h-50">
+                    <div class="col border-end border-1 border-black"></div>
+                    <div class="col border-start border-1 border-black"></div>
+                </div>
+                <div class="row h-50"></div>
+                <span
+                    class="position-absolute top-50 start-50 translate-middle bg-white">
+                    <i class="bi bi-arrow-right-circle fs-3"></i>
+                </span>
+            </div>
+
+            <div class="col-10 col-md-6">
+                <button type="submit" class="btn btn-primary float-end">
+                    Next
+                </button>
+            </div>
+        </div>
+    </form>
+{% endblock onboarding_form %}
