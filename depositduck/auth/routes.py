@@ -3,8 +3,10 @@
 """
 
 from collections import defaultdict
+from contextlib import suppress
 from datetime import datetime
 
+from cryptography.fernet import InvalidToken
 from fastapi import APIRouter, Depends, Form, Query, Request, status
 from fastapi.responses import RedirectResponse, Response
 from fastapi.security import OAuth2PasswordRequestForm
@@ -259,7 +261,7 @@ async def register(
 
 
 @auth_operations_router.get(
-    "/request-verification/",
+    "/requestVerification/",
 )
 async def request_verification(
     settings: Annotated[Settings, Depends(get_settings)],
@@ -301,11 +303,12 @@ async def verify(
         redirect_path += f"&email={encrypted_email}"
     except (InvalidVerifyToken, UserAlreadyVerified) as e:
         redirect_path += f"&email={encrypted_email}"
-        email = decrypt(settings.app_secret, encrypted_email)
-        if isinstance(e, InvalidVerifyToken):
-            LOG.error(f"verify error - invalid token for [email={email}]")
-        else:
-            LOG.warn(f"verify error - already verified [email={email}]")
+        with suppress(InvalidToken):
+            email = decrypt(settings.app_secret, encrypted_email)
+            if isinstance(e, InvalidVerifyToken):
+                LOG.error(f"verify error - invalid token for [email={email}]")
+            else:
+                LOG.warn(f"verify error - already verified [email={email}]")
 
     return RedirectResponse(redirect_path, status_code=status.HTTP_307_TEMPORARY_REDIRECT)
 

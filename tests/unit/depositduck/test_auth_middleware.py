@@ -8,8 +8,12 @@ from unittest.mock import Mock
 import pytest
 from fastapi import status
 
-from depositduck.middleware import FRONTEND_MUST_BE_LOGGED_OUT_PATHS, current_active_user
+from depositduck.middleware import (
+    FRONTEND_MUST_BE_LOGGED_OUT_PATHS,
+    current_active_user,
+)
 from depositduck.models.sql.auth import User
+from tests.unit.conftest import mock_user
 
 
 @pytest.mark.asyncio
@@ -103,7 +107,39 @@ async def test_protected_routes_redirects_user_to_onboarding(
         assert response.next_request.url.path == redirect_to
 
 
-# TODO: add coverage for `OPERATIONS_MUST_BE_LOGGED_OUT_PATHS` and check 401 returned
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    "user, http_status, redirect_to",
+    [
+        (None, status.HTTP_307_TEMPORARY_REDIRECT, "/login/"),
+        (mock_user, status.HTTP_403_FORBIDDEN, None),
+    ],
+)
+async def test_must_be_logged_out_routes_forbid_authenticated_user(
+    web_client_factory, user, http_status, redirect_to
+):
+    """
+    NB. this could be more unit-test-like by focusing just on the middleware behaviour,
+    and ends up testing some of /auth/verify/'s logic to ensure the middleware does not
+    interfere with query params for successful responses to anonymous requests.
+    """
+    dependency_overrides = {current_active_user: lambda: user}
+    web_client = await web_client_factory(
+        settings=None, dependency_overrides=dependency_overrides
+    )
+    email = "neitherdoes@email.com"
+    query = f"?token=tokenDoesntMatterInThisTest&email={email}"
+    target_path = "/auth/verify/"
+
+    async with web_client as client:
+        response = await client.get(f"{target_path}{query}")
+
+    assert response.status_code == http_status
+    if redirect_to is None:
+        assert response.next_request is None
+    else:
+        next_path = response.next_request.url.raw_path.decode()
+        assert next_path == f"/login/?prev={target_path}&email={email}"
 
 
 @pytest.mark.asyncio

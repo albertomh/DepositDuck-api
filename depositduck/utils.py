@@ -28,6 +28,10 @@ def encrypt(secret_key: str, data: str) -> str:
 
 
 def decrypt(secret_key: str, encrypted_token: str) -> str:
+    """
+    Raises:
+        cryptography.fernet.InvalidToken
+    """
     token_bytes: bytes = encrypted_token.encode()
     decrypted_bytes: bytes = _get_fernet(secret_key).decrypt(token_bytes)
     return decrypted_bytes.decode()
