@@ -127,7 +127,7 @@ async def test_must_be_logged_out_routes_forbid_authenticated_user(
     web_client = await web_client_factory(
         settings=None, dependency_overrides=dependency_overrides
     )
-    email = "neitherdoes@email.com"
+    email = "gAAAAABmLhGjRcgFvP9TIzi9kDUDqjLsM8amV-mCQY0XWOCaLZ6HHxlJeV36WSPFLYaWIZzpVhY9kTU2oZNnm1oVL87lTpVTPKSSC1hOyP_ajp-0G6KyYls="  # noqa: E501
     query = f"?token=tokenDoesntMatterInThisTest&email={email}"
     target_path = "/auth/verify/"
 
