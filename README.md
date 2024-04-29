@@ -112,8 +112,8 @@ Dependabot is configured to run weekly and update Python packages & GitHub Actio
 
 ## Project structure
 
-DepositDuck is a monolithic webapp with server-side rendering of the frontend via Jinja2
-templates augmented with `htmx`.
+DepositDuck is a monolithic FastAPI webapp with a `htmx` frontend generated server-side
+via Jinja2 templates.
 
 The project is split into the following packages:
 

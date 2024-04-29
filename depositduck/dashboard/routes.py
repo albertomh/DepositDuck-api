@@ -3,6 +3,7 @@
 """
 
 from collections import defaultdict
+from datetime import date
 
 from fastapi import APIRouter, Depends, Form, Request
 from sqlalchemy.exc import MultipleResultsFound, NoResultFound
@@ -46,12 +47,15 @@ async def onboarding(
     user: Annotated[User, Depends(current_active_user)],
     request: Request,
 ):
+    tenancy_end_is_in_past = False
     session: AsyncSession
     async with db_session_factory.begin() as session:
         try:
             statement = select(Tenancy).filter_by(user_id=user.id)
             result = await session.execute(statement)
             tenancy: Tenancy = result.scalar_one()
+            tenancy_end_date = tenancy.end_date
+            tenancy_end_is_in_past = tenancy_end_date < date.today()
 
         except (NoResultFound, MultipleResultsFound) as e:
             LOG.warn(f"error when looking for Tenancy for {user}: {e}")
@@ -59,10 +63,21 @@ async def onboarding(
     context = AuthenticatedJinjaBlocks.TemplateContext(
         request=request,
         user=user,
-        tenancy_end_date=tenancy.end_date,
+        tenancy_end_date=tenancy_end_date,
+        tenancy_end_is_in_past=tenancy_end_is_in_past,
         classes_by_id={},
     )
     return templates.TemplateResponse("dashboard/onboarding.html.jinja2", context)
+
+
+@dashboard_operations_router.post("/tenancy/endDate/")
+async def update_tenancy_end_date(
+    db_session_factory: Annotated[async_sessionmaker, Depends(db_session_factory)],
+    templates: Annotated[AuthenticatedJinjaBlocks, Depends(get_templates)],
+    user: Annotated[User, Depends(current_active_user)],
+    request: Request,
+):
+    pass  # TODO:
 
 
 @dashboard_operations_router.post("/completeOnboarding/")
