@@ -176,15 +176,18 @@
             <div class="col-1 border-end border-1 border-black"></div>
             <div class="col-1 border-start border-1 border-black"></div>
             <div class="col-10 pt-3 pb-5 ps-4">
-                <p>You previously told us... TODO: {{ tenancy_end_date }}</p>
-                <label class="form-label fw-bold">
-                    End date:
-                    <input
-                        type="date"
-                        value="{{ tenancy_end_date }}"
-                        name="tenancyEndDate"
-                        class="form-control mt-1" />
-                </label>
+                {% if tenancy_end_is_in_past %}
+                    <p>
+                        You told us your tenancy ended on
+                        {{ tenancy_end_date }}.
+                    </p>
+                {% else %}
+                    <p>
+                        You told us your tenancy ends on {{ tenancy_end_date }}.
+                    </p>
+                {% endif %}
+                {% from "fragments/macros.html.jinja2" import editable_datepicker %}
+                {{ editable_datepicker("End date:", tenancy_end_date, disabled=True) }}
             </div>
         </div>
 
