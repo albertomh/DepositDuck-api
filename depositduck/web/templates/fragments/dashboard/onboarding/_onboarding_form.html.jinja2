@@ -30,10 +30,6 @@
             <div class="col-10 pt-3 pb-5 ps-4">
                 <div class="row">
                     <div class="col-10 col-md-6 ps-4">
-                        <input
-                            type="hidden"
-                            name="tenancyEndDate"
-                            value="{{ tenancy_end_date }}" />
                         <div>
                             <label for="name" class="form-label fw-bold">
                                 Your name:
@@ -42,6 +38,7 @@
                                 type="text"
                                 id="name"
                                 name="name"
+                                value="{{ name }}"
                                 class="form-control {{ classes_by_id['name'] }}"
                                 required />
                             {% if "INVALID_NAME" in errors %}
@@ -105,6 +102,7 @@
                             <span class="input-group-text">£</span>
                             <input
                                 type="number"
+                                name="depositAmount"
                                 min="10"
                                 class="form-control"
                                 aria-label="Deposit (to the nearest pound)" />
@@ -141,11 +139,51 @@
             <div class="col-1 border-end border-1 border-black"></div>
             <div class="col-1 border-start border-1 border-black"></div>
             <div class="col-10 pt-3 pb-5 ps-4">
-                <label>
+                <label class="form-label fw-bold">
+                    Start date:
                     <input
                         type="date"
+                        name="tenancyStartDate"
+                        class="form-control mt-1" />
+                </label>
+            </div>
+        </div>
+
+        {# Q4/4: question - end date #}
+        <div class="row">
+            <div class="col-2 position-relative">
+                <div class="row h-50">
+                    <div class="col border-end border-1 border-black"></div>
+                    <div class="col border-start border-1 border-black"></div>
+                </div>
+                <div class="row h-50">
+                    <div class="col border-end border-1 border-black"></div>
+                    <div class="col border-start border-1 border-black"></div>
+                </div>
+                <span
+                    class="position-absolute top-50 start-50 translate-middle bg-white">
+                    <i class="bi bi-4-circle-fill fs-3"></i>
+                </span>
+            </div>
+
+            <div class="col-10">
+                <p class="fs-5 mb-0">When did your tenancy end?</p>
+            </div>
+        </div>
+
+        {# Q4/4: answer input #}
+        <div class="row">
+            <div class="col-1 border-end border-1 border-black"></div>
+            <div class="col-1 border-start border-1 border-black"></div>
+            <div class="col-10 pt-3 pb-5 ps-4">
+                <p>You previously told us... TODO: {{ tenancy_end_date }}</p>
+                <label class="form-label fw-bold">
+                    End date:
+                    <input
+                        type="date"
+                        value="{{ tenancy_end_date }}"
                         name="tenancyEndDate"
-                        class="form-control" />
+                        class="form-control mt-1" />
                 </label>
             </div>
         </div>
