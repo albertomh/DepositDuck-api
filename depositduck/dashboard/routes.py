@@ -5,7 +5,9 @@
 from collections import defaultdict
 
 from fastapi import APIRouter, Depends, Form, Request
-from sqlalchemy.ext.asyncio import async_sessionmaker
+from sqlalchemy.exc import MultipleResultsFound, NoResultFound
+from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
+from sqlmodel import select
 from typing_extensions import Annotated
 
 from depositduck.auth.dependables import (
@@ -20,7 +22,9 @@ from depositduck.dependables import (
     get_templates,
 )
 from depositduck.middleware import frontend_auth_middleware
+from depositduck.models.auth import UserUpdate
 from depositduck.models.sql.auth import User
+from depositduck.models.sql.deposit import Tenancy
 from depositduck.web.templates import BootstrapClasses
 
 dashboard_frontend_router = APIRouter(
@@ -37,13 +41,25 @@ LOG = get_logger()
     summary="[htmx]",
 )
 async def onboarding(
+    db_session_factory: Annotated[async_sessionmaker, Depends(db_session_factory)],
     templates: Annotated[AuthenticatedJinjaBlocks, Depends(get_templates)],
     user: Annotated[User, Depends(current_active_user)],
     request: Request,
 ):
+    session: AsyncSession
+    async with db_session_factory.begin() as session:
+        try:
+            statement = select(Tenancy).filter_by(user_id=user.id)
+            result = await session.execute(statement)
+            tenancy: Tenancy = result.scalar_one()
+
+        except (NoResultFound, MultipleResultsFound) as e:
+            LOG.warn(f"error when looking for Tenancy for {user}: {e}")
+
     context = AuthenticatedJinjaBlocks.TemplateContext(
         request=request,
         user=user,
+        tenancy_end_date=tenancy.end_date,
         classes_by_id={},
     )
     return templates.TemplateResponse("dashboard/onboarding.html.jinja2", context)
@@ -64,8 +80,12 @@ async def complete_onboarding(
     errors: list[str] = []
     classes_by_id: dict[str, str] = defaultdict(str)
 
-    # TODO: validate `name`
-    #    errors.append("INVALID_NAME")
+    # name
+    name_has_numbers = any(char.isdigit() for char in name)
+    if name_has_numbers:
+        errors.append("INVALID_NAME")
+    user_update = UserUpdate(first_name=name)
+    await user_manager.update(user_update, user)
 
     # TODO: validate `end_date` is after `start_date`
 
