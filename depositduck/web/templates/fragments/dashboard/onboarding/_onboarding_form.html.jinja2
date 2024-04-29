@@ -3,7 +3,10 @@
  #}
 
 {% block onboarding_form %}
-    <form id="onboardingForm" hx-post="/dashboard/completeOnboarding/">
+    <form
+        id="onboardingForm"
+        hx-post="/dashboard/completeOnboarding/"
+        x-data="onboardingState('{{ tenancy_end_date }}')">
         {# Q1/4: question - name #}
         <div class="row mt-2">
             <div class="col-2 position-relative">
@@ -29,7 +32,7 @@
             <div class="col-1 border-start border-1 border-black"></div>
             <div class="col-10 pt-3 pb-5 ps-4">
                 <div class="row">
-                    <div class="col-10 col-md-6 ps-4">
+                    <div class="col-10 col-md-7 col-lg-5 ps-4">
                         <div>
                             <label for="name" class="form-label fw-bold">
                                 Your name:
@@ -38,16 +41,17 @@
                                 type="text"
                                 id="name"
                                 name="name"
-                                value="{{ name }}"
-                                class="form-control {{ classes_by_id['name'] }}"
+                                x-model.lazy="name"
+                                @change="validateForm()"
+                                class="form-control"
                                 required />
-                            {% if "INVALID_NAME" in errors %}
-                                <div class="invalid-feedback">
-                                    Your name must only include letters.
-                                </div>
-                            {% endif %}
                         </div>
                     </div>
+                </div>
+                <div class="row">
+                    <p class="text-danger" x-show="errors.nameIsInvalid">
+                        Your name must only include letters.
+                    </p>
                 </div>
             </div>
         </div>
@@ -97,7 +101,7 @@
             <div class="col-1 border-start border-1 border-black"></div>
             <div class="col-10 pt-3 pb-5 ps-4">
                 <div class="row">
-                    <div class="col-6 col-md-4">
+                    <div class="col-6 col-md-4 col-lg-4">
                         <div class="input-group">
                             <span class="input-group-text">£</span>
                             <input
@@ -105,9 +109,20 @@
                                 name="depositAmount"
                                 min="10"
                                 class="form-control"
-                                aria-label="Deposit (to the nearest pound)" />
+                                aria-label="Deposit (to the nearest pound)"
+                                x-model.lazy="depositAmount"
+                                @change="validateForm()"
+                                @keydown="if ($event.key === '.'){ $event.preventDefault(); }"
+                                @input="$event.target.value = $event.target.value.replace(/[^0-9]*/g,'');" />
                         </div>
                     </div>
+                </div>
+                <div class="row">
+                    <p
+                        class="text-danger"
+                        x-show="errors.depositAmountTooSmall">
+                        Please enter an amount over £10.
+                    </p>
                 </div>
             </div>
         </div>
@@ -139,13 +154,23 @@
             <div class="col-1 border-end border-1 border-black"></div>
             <div class="col-1 border-start border-1 border-black"></div>
             <div class="col-10 pt-3 pb-5 ps-4">
-                <label class="form-label fw-bold">
-                    Start date:
-                    <input
-                        type="date"
-                        name="tenancyStartDate"
-                        class="form-control mt-1" />
-                </label>
+                <label class="form-label fw-bold">Start date:</label>
+                <div class="row">
+                    <div class="col-8 col-md-5 col-lg-4 col-xl-3">
+                        <input
+                            type="date"
+                            name="tenancyStartDate"
+                            x-model.lazy="tenancyStartDate"
+                            @change="validateForm()"
+                            class="form-control mt-1"
+                            :class="errors.datesInWrongOrder ? 'is-invalid' : ''" />
+                    </div>
+                </div>
+                <div class="row" x-show="errors.datesInWrongOrder">
+                    <p class="text-danger">
+                        Start date must be before end date.
+                    </p>
+                </div>
             </div>
         </div>
 
@@ -167,29 +192,66 @@
             </div>
 
             <div class="col-10">
-                <p class="fs-5 mb-0">When did your tenancy end?</p>
+                {% if tenancy_end_is_in_past %}
+                    <p class="fs-5 mb-0">When did your tenancy end?</p>
+                {% else %}
+                    <p class="fs-5 mb-0">When does your tenancy end?</p>
+                {% endif %}
             </div>
         </div>
 
         {# Q4/4: answer input #}
-        <div class="row">
-            <div class="col-1 border-end border-1 border-black"></div>
-            <div class="col-1 border-start border-1 border-black"></div>
-            <div class="col-10 pt-3 pb-5 ps-4">
-                {% if tenancy_end_is_in_past %}
-                    <p>
-                        You told us your tenancy ended on
-                        {{ tenancy_end_date }}.
+        {% block tenancy_end_input %}
+            <div class="row">
+                <div class="col-1 border-end border-1 border-black"></div>
+                <div class="col-1 border-start border-1 border-black"></div>
+                <div class="col-10 pt-3 pb-5 ps-4">
+                    <p class="mb-0">
+                        {% if tenancy_end_is_in_past %}
+                            You told us your tenancy
+                            <span class="fw-bold">ended on:</span>
+                        {% else %}
+                            You told us your tenancy
+                            <span class="fw-bold">ends on:</span>
+                        {% endif %}
                     </p>
-                {% else %}
-                    <p>
-                        You told us your tenancy ends on {{ tenancy_end_date }}.
-                    </p>
-                {% endif %}
-                {% from "fragments/macros.html.jinja2" import editable_datepicker %}
-                {{ editable_datepicker("End date:", tenancy_end_date, disabled=True) }}
+
+                    <div
+                        class="row"
+                        x-data="{ locked: true, toggle() { this.locked = ! this.locked } }">
+                        <div class="col-8 col-md-5 col-lg-4 col-xl-3">
+                            <input
+                                type="date"
+                                name="tenancyEndDate"
+                                x-model.lazy="tenancyEndDate"
+                                @change="validateForm()"
+                                class="form-control mt-1"
+                                :class="errors.datesInWrongOrder || errors.tenancyIsTooShort ? 'is-invalid' : ''"
+                                :disabled="locked" />
+                        </div>
+                        <div class="col-4">
+                            <button
+                                type="button"
+                                class="btn btn-link mt-1 px-0"
+                                @click="toggle()"
+                                x-text="locked ? 'Edit' : 'Save'"></button>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <p
+                            class="text-danger"
+                            x-show="errors.datesInWrongOrder">
+                            End date must be after start date.
+                        </p>
+                        <p
+                            class="text-danger"
+                            x-show="errors.tenancyIsTooShort">
+                            Your tenancy must be at least 30 days long.
+                        </p>
+                    </div>
+                </div>
             </div>
-        </div>
+        {% endblock tenancy_end_input %}
 
         {# form submission #}
         <div class="row">
@@ -206,7 +268,10 @@
             </div>
 
             <div class="col-10 col-md-6">
-                <button type="submit" class="btn btn-primary float-end">
+                <button
+                    type="submit"
+                    class="btn btn-primary float-end"
+                    :disabled="hasErrors()">
                     Next
                 </button>
             </div>

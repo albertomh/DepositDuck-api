@@ -11,6 +11,7 @@ Usage: point a compatible ASGI server (eg. uvicorn) to `webapp` in this module.
 
 from fastapi import FastAPI
 from fastapi.responses import HTMLResponse
+from fastapi.staticfiles import StaticFiles
 
 from depositduck import (
     ROUTE_TAGS_METADATA,
@@ -78,6 +79,9 @@ def get_webapp(settings: Settings) -> FastAPI:
     webapp.include_router(dashboard_operations_router)
     if settings.debug:
         webapp.include_router(kitchensink_router)
+
+    static_dir_by_package = [("depositduck.web", "static")]
+    webapp.mount("/static", StaticFiles(packages=static_dir_by_package), name="static")  # type: ignore[arg-type]
 
     apiapp = get_apiapp(settings)
     webapp.mount("/api", apiapp)
