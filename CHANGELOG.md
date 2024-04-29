@@ -16,6 +16,7 @@ to create a new release.
   appropriate.
 - Onboarding flow & middleware redirect to onboarding page for users where `completed_onboarding_at`
   is not set.
+- Alpine.js to the frontend for light-touch interactivity and client-side validation.
 - Apply a fixture to the database after running migrations for local development or e2e
   tests as appropriate.
 
