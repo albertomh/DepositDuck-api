@@ -8,7 +8,7 @@ _Get what's yours_ <!-- markdownlint-disable-line MD036 -->
 |              |   |
 |--------------|---|
 | stack        | [![python: 3.12](https://img.shields.io/badge/3.12-4584b6?logo=python&logoColor=ffde57)](https://docs.python.org/3.12/whatsnew/3.12.html) [![fastapi](https://img.shields.io/badge/FastAPI-009688?logo=fastapi&logoColor=white)](https://github.com/tiangolo/fastapi) [![postgres](https://img.shields.io/badge/Postgres-4169E1?logo=postgresql&logoColor=white)](https://github.com/tiangolo/fastapi) [![htmx](https://img.shields.io/badge/htmx-white?logo=htmx&logoColor=3366CC)](https://github.com/bigskysoftware/htmx) [![Alpine.js](https://img.shields.io/badge/Alpine.js-2D3442?logo=alpinedotjs&logoColor=#8BC0D0)](https://alpinejs.dev/) [![speculum](https://img.shields.io/badge/speculum-9f71ff?logo=apache&logoColor=ffffff)](https://github.com/albertomh/speculum/) <tr></tr> |
-| dev tooling  | [![justfile](https://img.shields.io/badge/🤖_justfile-EFF1F3)](https://github.com/casey/just) [![uv](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/uv/main/assets/badge/v0.json&labelColor=261230&color=de60e9)](https://github.com/astral-sh/uv) [![MailHog](https://img.shields.io/badge/🐽_MailHog-952225)](https://github.com/mailhog/MailHog) [![pre-commit](https://img.shields.io/badge/pre--commit-FAB040?logo=pre-commit&logoColor=1f2d23)](https://github.com/pre-commit/pre-commit) [![ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json&labelColor=261230&color=d8ff64)](https://github.com/astral-sh/ruff) <tr></tr> |
+| dev tooling  | [![justfile](https://img.shields.io/badge/🤖_justfile-EFF1F3)](https://github.com/casey/just) [![uv](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/uv/main/assets/badge/v0.json&labelColor=261230&color=de60e9)](https://github.com/astral-sh/uv) [![MailHog](https://img.shields.io/badge/🐽_MailHog-952225)](https://github.com/mailhog/MailHog) [![pre-commit](https://img.shields.io/badge/pre--commit-FAB040?logo=pre-commit&logoColor=1f2d23)](https://github.com/pre-commit/pre-commit) [![ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json&labelColor=261230&color=d8ff64)](https://github.com/astral-sh/ruff) [![esbuild](https://img.shields.io/badge/esbuild-FFCF00?logo=esbuild&logoColor=000000)](https://esbuild.github.io/) <tr></tr> |
 | tests        | [![pytest](https://img.shields.io/badge/pytest-0A9EDC?logo=pytest&logoColor=white)](https://github.com/pytest-dev/pytest) [![playwright](https://img.shields.io/badge/playwright-2ead34?logo=playwright&logoColor=e2584c)](https://playwright.dev/docs/intro) ![coverage](https://img.shields.io/badge/coverage-76%25-EADF6C?labelColor=2b3036) [![CI](https://github.com/albertomh/DepositDuck/actions/workflows/ci.yaml/badge.svg)](https://github.com/albertomh/DepositDuck/actions/workflows/ci.yaml) <tr></tr> |
 
 ### Prerequisites
@@ -18,6 +18,7 @@ To develop DepositDuck the following must be available locally:
 - [just](https://github.com/casey/just)
 - [uv](https://github.com/astral-sh/uv)
 - [pre-commit](https://pre-commit.com/)
+- [esbuild](https://formulae.brew.sh/formula/esbuild)
 - [Docker](https://docs.docker.com/)
 - [Python 3.12](https://docs.python.org/3/whatsnew/3.12.html)
 
@@ -232,10 +233,17 @@ and how to use these.
 
 DepositDuck uses the `speculum` frontend toolkit. This is a distribution of Bootstrap 5
 customised to use the project's palette which lives at [albertomh/speculum](https://github.com/albertomh/speculum).
-`speculum` also includes ready-to-use minified versions of Bootstrap Icons and htmx.
+`speculum` also includes ready-to-use minified versions of Bootstrap Icons, htmx and Alpine.js.
 
 `speculum` static assets are hosted in a public Cloudflare R2 bucket with CORS enabled to
 allow GET from `localhost:8000`.
+
+#### JavaScript
+
+Pages should be built in a HTML-first way, progressively enhanced with CSS and JavaScript.
+Small scripts are defined in `depositduck/web/static/src/js/`. Run the `just build_js`
+recipe to have `esbuild` bundle all files into `depositduck/web/static/dist/js/main.min.js`.
+Namespace custom functionality under the `window.depositduck` object, eg. `window.depositduck.dashboard.welcome`
 
 ## Test
 
