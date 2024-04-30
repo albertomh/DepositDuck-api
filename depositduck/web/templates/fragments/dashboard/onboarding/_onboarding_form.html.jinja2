@@ -6,7 +6,12 @@
     <form
         id="onboardingForm"
         hx-post="/dashboard/completeOnboarding/"
-        x-data="onboardingFormState('{{ tenancy_end_date }}')">
+        x-data="onboardingFormState(
+            '{{ name }}',
+            '{{ deposit_amount }}',
+            '{{ tenancy_start_date }}',
+            '{{ tenancy_end_date }}',
+        )">
         {# Q1/4: question - name #}
         <div class="row mt-2">
             <div class="col-2 position-relative">
@@ -32,7 +37,7 @@
             <div class="col-1 border-start border-1 border-black"></div>
             <div class="col-10 pt-3 pb-5 ps-4">
                 <div class="row">
-                    <div class="col-10 col-md-7 col-lg-5 ps-4">
+                    <div class="col-10 col-md-7 col-lg-5">
                         <div>
                             <label for="name" class="form-label fw-bold">
                                 Your name:
@@ -45,14 +50,14 @@
                                 x-model.lazy="fields.name"
                                 @change="validateForm()"
                                 class="form-control"
-                                :class="errors.nameIsInvalid && 'is-invalid'"
+                                :class="validationClassForField('name')"
                                 required />
                         </div>
                     </div>
                 </div>
                 <div
                     class="row d-none"
-                    :class="{ 'd-none': !errors.nameIsInvalid }">
+                    :class="{ 'd-none': !errors.name.isInvalid }">
                     <p class="text-danger">
                         Your name must only include letters, spaces, hyphens (-)
                         or apostrophes (').
@@ -106,7 +111,7 @@
             <div class="col-1 border-start border-1 border-black"></div>
             <div class="col-10 pt-3 pb-5 ps-4">
                 <div class="row">
-                    <div class="col-6 col-md-4 col-lg-4">
+                    <div class="col-7 col-md-4">
                         <div class="input-group">
                             <span class="input-group-text">£</span>
                             <input
@@ -114,18 +119,19 @@
                                 name="depositAmount"
                                 min="100"
                                 class="form-control"
-                                :class="errors.depositAmountTooSmall && 'is-invalid'"
+                                :class="validationClassForField('depositAmount')"
                                 aria-label="Deposit (to the nearest pound)"
                                 x-model.lazy="fields.depositAmount"
                                 @change="validateForm()"
                                 @keydown="if ($event.key === '.'){ $event.preventDefault(); }"
-                                @input="$event.target.value = $event.target.value.replace(/[^0-9]*/g,'');" />
+                                @input="$event.target.value = $event.target.value.replace(/[^0-9]*/g,'');"
+                                required />
                         </div>
                     </div>
                 </div>
                 <div
                     class="row d-none"
-                    :class="{ 'd-none': !errors.depositAmountTooSmall }">
+                    :class="{ 'd-none': !errors.depositAmount.tooSmall }">
                     <p class="text-danger">Please enter an amount over £100.</p>
                 </div>
             </div>
@@ -160,19 +166,20 @@
             <div class="col-10 pt-3 pb-5 ps-4">
                 <label class="form-label fw-bold">Start date:</label>
                 <div class="row">
-                    <div class="col-8 col-md-5 col-lg-4 col-xl-3">
+                    <div class="col-9 col-md-5 col-lg-4 col-xl-3">
                         <input
                             type="date"
                             name="tenancyStartDate"
                             x-model.lazy="fields.tenancyStartDate"
                             @change="validateForm()"
                             class="form-control mt-1"
-                            :class="errors.datesInWrongOrder && 'is-invalid'" />
+                            :class="validationClassForField('tenancyStartDate')"
+                            required />
                     </div>
                 </div>
                 <div
                     class="row d-none"
-                    :class="{ 'd-none': !errors.datesInWrongOrder }">
+                    :class="{ 'd-none': !errors.tenancyStartDate.datesInWrongOrder }">
                     <p class="text-danger">
                         Start date must be before end date.
                     </p>
@@ -198,11 +205,12 @@
             </div>
 
             <div class="col-10">
-                {% if tenancy_end_is_in_past %}
-                    <p class="fs-5 mb-0">When did your tenancy end?</p>
-                {% else %}
-                    <p class="fs-5 mb-0">When does your tenancy end?</p>
-                {% endif %}
+                <p class="fs-5 mb-0" x-show="endDateIsInPast()">
+                    When did your tenancy end?
+                </p>
+                <p class="fs-5 mb-0" x-show="!endDateIsInPast()">
+                    When does your tenancy end?
+                </p>
             </div>
         </div>
 
@@ -213,29 +221,30 @@
                 <div class="col-1 border-start border-1 border-black"></div>
                 <div class="col-10 pt-3 pb-5 ps-4">
                     <p class="mb-0">
-                        {% if tenancy_end_is_in_past %}
-                            You told us your tenancy
-                            <span class="fw-bold">ended on:</span>
-                        {% else %}
-                            You told us your tenancy
-                            <span class="fw-bold">ends on:</span>
-                        {% endif %}
+                        You told us your tenancy
+                        <span class="fw-bold" x-show="endDateIsInPast()">
+                            ended on:
+                        </span>
+                        <span class="fw-bold" x-show="!endDateIsInPast()">
+                            ends on:
+                        </span>
                     </p>
 
                     <div
                         class="row"
                         x-data="{ locked: true, toggle() { this.locked = ! this.locked } }">
-                        <div class="col-8 col-md-5 col-lg-4 col-xl-3">
+                        <div class="col-9 col-md-5 col-lg-4 col-xl-3">
                             <input
                                 type="date"
                                 name="tenancyEndDate"
                                 x-model.lazy="fields.tenancyEndDate"
                                 @change="validateForm()"
                                 class="form-control mt-1"
-                                :class="(errors.datesInWrongOrder || errors.tenancyIsTooShort) && 'is-invalid'"
-                                :disabled="locked" />
+                                :class="validationClassForField('tenancyEndDate')"
+                                :disabled="locked"
+                                required />
                         </div>
-                        <div class="col-4">
+                        <div class="col-3">
                             <button
                                 type="button"
                                 class="btn btn-link mt-1 px-0"
@@ -246,12 +255,12 @@
                     <div class="row">
                         <p
                             class="text-danger d-none"
-                            :class="{ 'd-none': !errors.datesInWrongOrder }">
+                            :class="{ 'd-none': !errors.tenancyEndDate.datesInWrongOrder }">
                             End date must be after start date.
                         </p>
                         <p
                             class="text-danger d-none"
-                            :class="{ 'd-none': !errors.tenancyIsTooShort }">
+                            :class="{ 'd-none': !errors.tenancyEndDate.isTooShort }">
                             Your tenancy must be at least 30 days long.
                         </p>
                     </div>

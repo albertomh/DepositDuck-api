@@ -2,8 +2,6 @@
 (c) 2024 Alberto Morón Hernández
 """
 
-from datetime import date
-
 from fastapi import APIRouter, Depends, Form, Request
 from sqlalchemy.exc import MultipleResultsFound, NoResultFound
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
@@ -45,7 +43,6 @@ async def onboarding(
     user: Annotated[User, Depends(current_active_user)],
     request: Request,
 ):
-    tenancy_end_is_in_past = False
     session: AsyncSession
     async with db_session_factory.begin() as session:
         try:
@@ -53,7 +50,6 @@ async def onboarding(
             result = await session.execute(statement)
             tenancy: Tenancy = result.scalar_one()
             tenancy_end_date = tenancy.end_date
-            tenancy_end_is_in_past = tenancy_end_date < date.today()
 
         except (NoResultFound, MultipleResultsFound) as e:
             LOG.warn(f"error when looking for Tenancy for {user}: {e}")
@@ -62,7 +58,6 @@ async def onboarding(
         request=request,
         user=user,
         tenancy_end_date=tenancy_end_date,
-        tenancy_end_is_in_past=tenancy_end_is_in_past,
         js_filename="auth/welcome.js",
         classes_by_id={},
     )
