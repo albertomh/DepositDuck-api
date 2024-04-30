@@ -36,7 +36,7 @@ def get_valid_settings() -> Settings:
         smtp_sender_address="sender@depositduck-test.tld",
         smtp_password="smtp_password",
         static_origin="https://bucket.provider.cloud",
-        speculum_release="1.0.0",
+        speculum_release="1.5.0",
     )
 
 

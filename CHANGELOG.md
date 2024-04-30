@@ -24,6 +24,7 @@ to create a new release.
 
 - Abstract parts of the e2e tests for greater code re-use.
 - Authentication redirects set 'next' query parameter post-login navigation.
+- Use speculum@1.5.0 as the frontend toolkit, pulling in Alpine.js.
 
 ## [0.4.0] - 2024-04-25
 
