@@ -2,6 +2,8 @@
 (c) 2024 Alberto Morón Hernández
 """
 
+from datetime import datetime, timezone
+
 from fastapi import APIRouter, Depends, Form, Request
 from sqlalchemy.exc import MultipleResultsFound, NoResultFound
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
@@ -75,18 +77,32 @@ async def complete_onboarding(
     user: Annotated[User, Depends(current_active_user)],
     request: Request,
 ):
-    # name
     # TODO: enforce name char limit by truncating to 40
-    user_update = UserUpdate(first_name=name)
+    user_update = UserUpdate(
+        first_name=name, completed_onboarding_at=datetime.now(timezone.utc)
+    )
     await user_manager.update(user_update, user)
 
     # TODO: validate `end_date` is after `start_date`
 
     # TODO: validate `end_date` using `is_prospect_suitable()`
 
+    session: AsyncSession
+    async with db_session_factory.begin() as session:
+        try:
+            statement = select(Tenancy).filter_by(user_id=user.id)
+            result = await session.execute(statement)
+            tenancy: Tenancy = result.scalar_one()
+            tenancy.deposit_in_p = deposit_amount * 100
+            tenancy.start_date = datetime.strptime(tenancy_start_date, "%Y-%m-%d").date()
+
+        except (NoResultFound, MultipleResultsFound) as e:
+            LOG.warn(f"error when looking for Tenancy for {user}: {e}")
+
     context = AuthenticatedJinjaBlocks.TemplateContext(
         request=request,
         user=user,
+        name=name,
         deposit_amount=deposit_amount,
         tenancy_start_date=tenancy_start_date,
         tenancy_end_date=tenancy_end_date,

@@ -7,6 +7,7 @@ Database tables to keep track of which LLMs are in use and store embeddings.
 from datetime import datetime
 from uuid import UUID
 
+import sqlalchemy as sa
 from sqlmodel import Field, Relationship
 
 from depositduck.models.common import TableBase
@@ -17,8 +18,10 @@ from depositduck.models.sql.auth import User
 class Email(EmailBase, TableBase, table=True):
     __tablename__ = "email__email"
 
-    recipient_id: UUID = Field(nullable=True, default=None, foreign_key="auth__user.id")
-    sent_at: datetime = Field(nullable=True, default=None)
+    recipient_id: UUID = Field(nullable=True, foreign_key="auth__user.id")
+    sent_at: datetime | None = Field(
+        sa_column=sa.Column(sa.DateTime(timezone=True), nullable=True)
+    )
 
     user: User = Relationship(back_populates="emails")
 

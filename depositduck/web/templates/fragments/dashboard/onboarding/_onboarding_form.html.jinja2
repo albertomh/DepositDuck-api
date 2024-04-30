@@ -253,7 +253,9 @@
                                 type="button"
                                 class="btn btn-link mt-1 px-0"
                                 @click="toggleEditingEndDate()"
-                                x-text="editingEndDate ? 'Save' : 'Edit'"></button>
+                                x-show="!editingEndDate">
+                                Edit
+                            </button>
                         </div>
                     </div>
                     <div class="row">

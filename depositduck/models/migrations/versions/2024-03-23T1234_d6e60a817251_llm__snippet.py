@@ -30,9 +30,12 @@ def upgrade() -> None:
             nullable=False,
         ),
         sa.Column(
-            "created_at", sa.DateTime(), server_default=sa.text("now()"), nullable=False
+            "created_at",
+            sa.DateTime(timezone=True),
+            server_default=sa.text("now()"),
+            nullable=False,
         ),
-        sa.Column("deleted_at", sa.DateTime(), nullable=True),
+        sa.Column("deleted_at", sa.DateTime(timezone=True), nullable=True),
         sa.Column("content", sqlmodel.sql.sqltypes.AutoString(), nullable=False),
         sa.Column("source_text_id", sqlmodel.sql.sqltypes.GUID(), nullable=False),
         sa.ForeignKeyConstraint(

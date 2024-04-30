@@ -8,6 +8,7 @@ modules (auth, LLM, etc.) in this package.
 from datetime import datetime
 from uuid import UUID
 
+import sqlalchemy as sa
 from pydantic import BaseModel
 from sqlalchemy import func
 from sqlmodel import Field, SQLModel
@@ -23,7 +24,10 @@ class IdMixin:
 
 
 class CreatedAtMixin:
-    created_at: datetime = Field(sa_column_kwargs=dict(server_default=func.now()))
+    created_at: datetime = Field(  # type: ignore
+        sa_type=sa.DateTime(timezone=True),
+        sa_column_kwargs=dict(server_default=func.now()),
+    )
 
 
 # TODO: created_by
@@ -34,7 +38,7 @@ class CreatedAtMixin:
 
 
 class DeletedAtMixin:
-    deleted_at: datetime | None = Field()
+    deleted_at: datetime | None = Field(sa_type=sa.DateTime(timezone=True), nullable=True)  # type: ignore
 
 
 class TableBase(SQLModel, DeletedAtMixin, CreatedAtMixin, IdMixin):

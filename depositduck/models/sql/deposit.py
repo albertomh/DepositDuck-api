@@ -17,7 +17,7 @@ if TYPE_CHECKING:
 class Tenancy(TenancyBase, TableBase, table=True):
     __tablename__ = "deposit__tenancy"
 
-    user_id: UUID = Field(default=None, foreign_key="auth__user.id")
+    user_id: UUID = Field(foreign_key="auth__user.id")
 
     user: "User" = Relationship(back_populates="tenancy")
 
