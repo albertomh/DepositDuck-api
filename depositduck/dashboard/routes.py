@@ -82,6 +82,7 @@ async def complete_onboarding(
     request: Request,
 ):
     # name
+    # TODO: enforce name char limit by truncating to 40
     user_update = UserUpdate(first_name=name)
     await user_manager.update(user_update, user)
 
