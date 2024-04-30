@@ -84,6 +84,7 @@ export function onboardingFormState(
         },
         validateTenancyDates() {
             // returns: null
+            // TODO: only accept end dates within the next year
             if (!this.fields.tenancyStartDate || !this.fields.tenancyEndDate) {
                 return;
             }

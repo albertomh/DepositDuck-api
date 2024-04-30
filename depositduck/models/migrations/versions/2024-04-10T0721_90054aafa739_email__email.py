@@ -30,9 +30,12 @@ def upgrade() -> None:
             nullable=False,
         ),
         sa.Column(
-            "created_at", sa.DateTime(), server_default=sa.text("now()"), nullable=False
+            "created_at",
+            sa.DateTime(timezone=True),
+            server_default=sa.text("now()"),
+            nullable=False,
         ),
-        sa.Column("deleted_at", sa.DateTime(), nullable=True),
+        sa.Column("deleted_at", sa.DateTime(timezone=True), nullable=True),
         sa.Column("sender_address", sqlmodel.sql.sqltypes.AutoString(), nullable=False),
         sa.Column(
             "recipient_address", sqlmodel.sql.sqltypes.AutoString(), nullable=False
@@ -40,7 +43,7 @@ def upgrade() -> None:
         sa.Column("subject", sqlmodel.sql.sqltypes.AutoString(), nullable=False),
         sa.Column("body", sqlmodel.sql.sqltypes.AutoString(), nullable=False),
         sa.Column("recipient_id", sqlmodel.sql.sqltypes.GUID(), nullable=True),
-        sa.Column("sent_at", sa.DateTime(), nullable=True),
+        sa.Column("sent_at", sa.DateTime(timezone=True), nullable=True),
         sa.ForeignKeyConstraint(
             ["recipient_id"],
             ["auth__user.id"],

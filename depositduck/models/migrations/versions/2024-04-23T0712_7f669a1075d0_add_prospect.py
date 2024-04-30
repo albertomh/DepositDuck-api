@@ -30,15 +30,18 @@ def upgrade() -> None:
             nullable=False,
         ),
         sa.Column(
-            "created_at", sa.DateTime(), server_default=sa.text("now()"), nullable=False
+            "created_at",
+            sa.DateTime(timezone=True),
+            server_default=sa.text("now()"),
+            nullable=False,
         ),
-        sa.Column("deleted_at", sa.DateTime(), nullable=True),
+        sa.Column("deleted_at", sa.DateTime(timezone=True), nullable=True),
         sa.Column("email", sqlmodel.sql.sqltypes.AutoString(), nullable=False),
         sa.Column(
             "deposit_provider_name", sqlmodel.sql.sqltypes.AutoString(), nullable=False
         ),
-        sa.Column("converted_at", sa.DateTime(), nullable=True),
-        sa.Column("user_id", sqlmodel.sql.sqltypes.GUID(), nullable=False),
+        sa.Column("converted_at", sa.DateTime(timezone=True), nullable=True),
+        sa.Column("user_id", sqlmodel.sql.sqltypes.GUID(), nullable=True),
         sa.ForeignKeyConstraint(
             ["user_id"],
             ["auth__user.id"],
@@ -53,4 +56,5 @@ def upgrade() -> None:
 
 def downgrade() -> None:
     op.drop_index(op.f("ix_people__prospect_email"), table_name="people__prospect")
+    op.drop_constraint("uq_email", "people__prospect", type_="unique")
     op.drop_table("people__prospect")

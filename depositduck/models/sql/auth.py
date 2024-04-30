@@ -2,8 +2,10 @@
 (c) 2024 Alberto Morón Hernández
 """
 
+from datetime import datetime
 from typing import TYPE_CHECKING
 
+import sqlalchemy as sa
 from fastapi_users_db_sqlmodel import SQLModelBaseUserDB
 from fastapi_users_db_sqlmodel.access_token import SQLModelBaseAccessToken
 from pydantic import UUID4, EmailStr
@@ -25,6 +27,12 @@ class User(DeletedAtMixin, CreatedAtMixin, SQLModelBaseUserDB, UserBase, table=T
     __tablename__ = "auth__user"
 
     email: EmailStr = Field(unique=True, index=True, sa_type=AutoString)
+    verified_at: datetime | None = Field(
+        sa_column=sa.Column(sa.DateTime(timezone=True), nullable=True)
+    )
+    completed_onboarding_at: datetime | None = Field(
+        sa_column=sa.Column(sa.DateTime(timezone=True), nullable=True)
+    )
 
     emails: list["Email"] = Relationship(back_populates="user")
     access_tokens: list["AccessToken"] = Relationship(back_populates="user")

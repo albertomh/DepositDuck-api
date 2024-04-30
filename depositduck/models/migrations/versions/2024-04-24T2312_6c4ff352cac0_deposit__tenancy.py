@@ -30,9 +30,12 @@ def upgrade() -> None:
             nullable=False,
         ),
         sa.Column(
-            "created_at", sa.DateTime(), server_default=sa.text("now()"), nullable=False
+            "created_at",
+            sa.DateTime(timezone=True),
+            server_default=sa.text("now()"),
+            nullable=False,
         ),
-        sa.Column("deleted_at", sa.DateTime(), nullable=True),
+        sa.Column("deleted_at", sa.DateTime(timezone=True), nullable=True),
         sa.Column("deposit_in_p", sa.Integer(), nullable=False),
         sa.Column("start_date", sa.Date(), nullable=True),
         sa.Column("end_date", sa.Date(), nullable=False),
@@ -43,8 +46,6 @@ def upgrade() -> None:
         ),
         sa.PrimaryKeyConstraint("id"),
     )
-    op.alter_column("people__prospect", "user_id", existing_type=sa.UUID(), nullable=True)
-    op.drop_constraint("uq_email", "people__prospect", type_="unique")
 
 
 def downgrade() -> None:
