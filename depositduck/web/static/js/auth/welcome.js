@@ -3,12 +3,14 @@
  */
 
 // `/welcome/` - onboarding flow
-function onboardingState(tenancyEndDate) {
+function onboardingFormState(tenancyEndDate) {
     return {
-        name: "",
-        depositAmount: null,
-        tenancyStartDate: "",
-        tenancyEndDate: tenancyEndDate || "",
+        fields: {
+            name: "",
+            depositAmount: null,
+            tenancyStartDate: "",
+            tenancyEndDate: tenancyEndDate || "",
+        },
         errors: {
             nameIsInvalid: false,
             depositAmountTooSmall: false,
@@ -22,17 +24,27 @@ function onboardingState(tenancyEndDate) {
         },
         allRequiredFieldsHaveValues() {
             // returns: bool
-            const requiredFields = [
-                this.name, this.depositAmount, this.tenancyStartDate, this.tenancyEndDate
-            ];
+            const requiredFields = Object.keys(this.fields);
             return !! requiredFields.some(field => field === '' || field === null);
         },
         validateName() {
             // returns: null
+            if (!this.fields.name) {
+                return;
+            }
+            // normalise & trim spaces
+            this.fields.name = this.fields.name.replace(/\s+/g, ' ').trim()
+            // match Unicode letters (\p{L}), spaces (\s), apostrophe (') or dash (-)
+            const pattern = /^[\p{L}\s'-]+$/u;
+            this.errors.nameIsInvalid = !pattern.test(this.fields.name);
+            console.log(this.fields.name, this.errors.nameIsInvalid)
         },
         validateDepositAmount() {
             // returns: null
-            this.errors.depositAmountTooSmall = this.depositAmount < 10;
+            if (!this.fields.depositAmount) {
+                return;
+            }
+            this.errors.depositAmountTooSmall = this.fields.depositAmount < 100;
         },
         daysBetweenDates(date1, date2) {
             // returns: number
@@ -43,23 +55,25 @@ function onboardingState(tenancyEndDate) {
         },
         validateTenancyDates() {
             // returns: null
-            if (!this.tenancyStartDate) {
+            if (!this.fields.tenancyStartDate) {
                 return;
             }
 
             const gap = this.daysBetweenDates(
-                new Date(this.tenancyStartDate),
-                new Date(this.tenancyEndDate)
+                new Date(this.fields.tenancyStartDate),
+                new Date(this.fields.tenancyEndDate)
             );
             this.errors.datesInWrongOrder = gap < 0;
-            this.errors.tenancyIsTooShort = (0 < gap < 30);
+            this.errors.tenancyIsTooShort = (0 > gap && gap < 30);
         },
         validateForm() {
             // returns: null
+            console.log("validateForm")
             this.validateName()
             this.validateDepositAmount();
             this.validateTenancyDates();
             this.canSubmitForm = this.allRequiredFieldsHaveValues() && !this.hasErrors();
+            console.log(this.errors)
         }
     }
 }
