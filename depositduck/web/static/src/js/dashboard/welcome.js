@@ -3,7 +3,7 @@
  */
 
 // `/welcome/` - onboarding flow
-function onboardingFormState(
+export function onboardingFormState(
     name,
     depositAmount,
     tenancyStartDate,

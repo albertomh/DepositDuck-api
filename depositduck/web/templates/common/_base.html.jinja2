@@ -58,11 +58,9 @@
 
         <script src="{{ speculum_source }}/js/htmx.min.js"></script>
 
-        {% if js_filename is not none %}
-            <script
-                defer
-                src="{{ url_for('static', path=js_filename) }}"></script>
-        {% endif %}
+        <script
+            defer
+            src="{{ url_for('static', path='/dist/js/main.min.js') }}"></script>
 
         <!-- Alpine.js MUST be loaded after custom, per-page JS. -->
         <script defer src="{{ speculum_source }}/js/alpine.min.js"></script>

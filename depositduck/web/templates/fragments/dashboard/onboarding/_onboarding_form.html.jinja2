@@ -6,7 +6,7 @@
     <form
         id="onboardingForm"
         hx-post="/dashboard/completeOnboarding/"
-        x-data="onboardingFormState(
+        x-data="window.depositduck.dashboard.welcome.onboardingFormState(
             '{{ name }}',
             '{{ deposit_amount }}',
             '{{ tenancy_start_date }}',
@@ -232,7 +232,7 @@
 
                     <div
                         class="row"
-                        x-data="{ locked: true, toggle() { this.locked = ! this.locked } }">
+                        x-data="{ editingEndDate: false, toggleEditingEndDate() { this.editingEndDate = ! this.editingEndDate } }">
                         <div class="col-9 col-md-5 col-lg-4 col-xl-3">
                             <input
                                 type="date"
@@ -241,15 +241,19 @@
                                 @change="validateForm()"
                                 class="form-control mt-1"
                                 :class="validationClassForField('tenancyEndDate')"
-                                :disabled="locked"
+                                x-show="editingEndDate"
                                 required />
+                            <p
+                                class="mt-1 pt-2 mb-0"
+                                x-text="fields.tenancyEndDate"
+                                x-show="!editingEndDate"></p>
                         </div>
-                        <div class="col-3">
+                        <div class="col-3 ps-0">
                             <button
                                 type="button"
                                 class="btn btn-link mt-1 px-0"
-                                @click="toggle()"
-                                x-text="locked ? 'Edit' : 'Save'"></button>
+                                @click="toggleEditingEndDate()"
+                                x-text="editingEndDate ? 'Save' : 'Edit'"></button>
                         </div>
                     </div>
                     <div class="row">

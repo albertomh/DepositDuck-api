@@ -14,7 +14,7 @@ import httpx
 from fastapi import Depends, HTTPException, Request, status
 from jinja2 import select_autoescape
 from jinja2_fragments.fastapi import Jinja2Blocks
-from pydantic import BaseModel, ConfigDict, field_validator
+from pydantic import BaseModel, ConfigDict
 from sqlalchemy.ext.asyncio import (
     AsyncSession,
     async_sessionmaker,
@@ -68,15 +68,9 @@ class AuthenticatedJinjaBlocks(Jinja2Blocks):
         speculum_source: str = f"{settings.static_origin}/{settings.speculum_release}"
         request: Request
         user: User | None
-        js_filename: str | None = None
         # TODO: add other sensible defaults that I may want to set based on context
         #       eg. `show_footer_links` should default to True but may want to set
         #       to False to reduce distractions on eg. /signup/ page.
-
-        @field_validator("js_filename", mode="before")
-        @classmethod
-        def prefix_js_filename(cls, v: str) -> str:
-            return f"js/{v}"
 
         model_config = ConfigDict(extra="allow", arbitrary_types_allowed=True)
 

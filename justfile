@@ -134,6 +134,16 @@ downgrade down="-1": venv
   if [ -z ${CI:-} ]; then . ./local/read_dotenv.sh {{dotenv}}; fi
   python -m alembic downgrade {{down}}
 
+# build & bundle JavaScript into a single file
+build_js:
+  esbuild depositduck/web/static/src/js/main.js \
+  --bundle \
+  --minify \
+  --tree-shaking=false \
+  --format=iife \
+  --platform=browser \
+  --outfile='depositduck/web/static/dist/js/main.min.js'
+
 # stop anything already running on :1025
 _stop_mailhog:
   docker stop mailhog || true
@@ -171,6 +181,12 @@ run: stop && stop
   if [ -z ${CI:-} ]; then . ./local/read_dotenv.sh {{dotenv}}; fi
   uvicorn depositduck.main:webapp --reload
 
+# stop all running services
+stop:
+  docker stop depositduck_db || true
+  docker stop drallam || true
+  just dotenv={{dotenv}} _stop_mailhog
+  just dotenv={{dotenv}} _stop_server
 
 # Setting env vars from a dotenv in GitHub Actions is handled in a step of the action
 # separate from the one that invokes the recipe. This is because environment variables are
@@ -218,13 +234,6 @@ e2e: venv _wipe_db && stop
   # TODO: remove/improve
   sleep 1
   python -m pytest tests/e2e/ -s -vvv -W always
-
-# stop all running services
-stop:
-  docker stop depositduck_db || true
-  docker stop drallam || true
-  just dotenv={{dotenv}} _stop_mailhog
-  just dotenv={{dotenv}} _stop_server
 
 # cut a release and raise a pull request for it
 release semver:

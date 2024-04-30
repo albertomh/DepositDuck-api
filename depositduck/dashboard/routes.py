@@ -58,7 +58,6 @@ async def onboarding(
         request=request,
         user=user,
         tenancy_end_date=tenancy_end_date,
-        js_filename="auth/welcome.js",
         classes_by_id={},
     )
     return templates.TemplateResponse("dashboard/onboarding.html.jinja2", context)
