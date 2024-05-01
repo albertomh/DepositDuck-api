@@ -2,54 +2,52 @@
 (c) 2024 Alberto Morón Hernández
 """
 
-from datetime import datetime
+from typing import Any, Iterator
+from unittest.mock import AsyncMock, Mock, patch
 
 import pytest
 from fastapi import status
 
-from depositduck.dashboard.routes import current_active_user
+from depositduck.dashboard.routes import (
+    AsyncSession,
+    current_active_user,
+    db_session_factory,
+)
+from depositduck.models.sql.deposit import Tenancy
+
+
+class AwaitableMock(AsyncMock):
+    def __await__(self) -> Iterator[Any]:
+        self.await_count += 1
+        return iter([])
 
 
 @pytest.mark.asyncio
-async def test_user_pending_onboarding_is_redirected_to_onboarding_screen(
+async def test_onboarding_route_allows_user_with_null_completed_onboarding_at(
     web_client_factory,
     mock_user,
+    mock_async_sessionmaker,
 ):
     mock_user.completed_onboarding_at = None
-    dependency_overrides = {current_active_user: lambda: mock_user}
+    dependency_overrides = {
+        current_active_user: lambda: mock_user,
+        db_session_factory: lambda: mock_async_sessionmaker,
+    }
     web_client = await web_client_factory(
         settings=None, dependency_overrides=dependency_overrides
     )
 
-    async with web_client as client:
-        response = await client.get("/")
+    with patch.object(AsyncSession, "execute", AsyncMock) as mock_execute:
+        mock_tenancy = Mock(spec=Tenancy)
+        mock_scalar_one = Mock(return_value=mock_tenancy)
+        mock_result = AsyncMock()
+        mock_result.scalar_one = mock_scalar_one
+        mock_execute.return_value = mock_result
 
-    assert response.status_code == status.HTTP_307_TEMPORARY_REDIRECT
-    assert response.next_request.url.path == "/welcome/"
+        async with web_client as client:
+            response = await client.get("/welcome/")
 
-
-@pytest.mark.asyncio
-@pytest.mark.parametrize(
-    "completed_onboarding_at, http_status, redirect_to",
-    [
-        (None, status.HTTP_200_OK, None),
-        (datetime.now(), status.HTTP_307_TEMPORARY_REDIRECT, "/"),
-    ],
-)
-async def test_onboarding_route_reacts_to_onboarding_at_timestamp(
-    web_client_factory, mock_user, completed_onboarding_at, http_status, redirect_to
-):
-    mock_user.completed_onboarding_at = completed_onboarding_at
-    dependency_overrides = {current_active_user: lambda: mock_user}
-    web_client = await web_client_factory(
-        settings=None, dependency_overrides=dependency_overrides
-    )
-
-    async with web_client as client:
-        response = await client.get("/welcome/")
-
-    assert response.status_code == http_status
-    if redirect_to is None:
-        assert response.next_request is None
-    else:
-        assert response.next_request.url.path == redirect_to
+    assert response.status_code == status.HTTP_200_OK
+    assert response.next_request is None
+    mock_async_sessionmaker.begin.assert_called_once()
+    mock_result.scalar_one.assert_called_once()

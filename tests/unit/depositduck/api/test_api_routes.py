@@ -8,13 +8,12 @@ import httpx
 import pytest
 from fastapi import status
 
+from depositduck.api.routes import AsyncSession
 from depositduck.dependables import db_session_factory, get_speculum_client
 
 
 @pytest.mark.asyncio
-async def test_healthz_endpoint(
-    api_client_factory, mock_async_sessionmaker, mock_async_session
-):
+async def test_healthz_endpoint(api_client_factory, mock_async_sessionmaker):
     # arrange
     mock_speculum_client = AsyncMock(spec=httpx.AsyncClient)
     mock_speculum_response = Mock()
@@ -28,7 +27,7 @@ async def test_healthz_endpoint(
     api_client = await api_client_factory(
         settings=None, dependency_overrides=dependency_overrides
     )
-    with patch.object(mock_async_session, "execute", AsyncMock) as mock_execute:
+    with patch.object(AsyncSession, "execute", AsyncMock) as mock_execute:
         mock_scalar_one = Mock(return_value=1)
         mock_result = AsyncMock()
         mock_result.scalar_one = mock_scalar_one
