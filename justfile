@@ -218,6 +218,7 @@ coverage: venv
   echo "$report"
   percentage=$(echo "$report" | tail -n 1 | awk '{ print $NF }' | sed 's/\%//')
   ./local/update_coverage_badge.sh $percentage
+  python -m coverage html
 
 
 # run e2e Playwright tests

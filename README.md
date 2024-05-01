@@ -263,6 +263,7 @@ order to run tests.
 # !important: remember to specify `dotenv=.env.test` when running the test recipe.
 
 # run unit tests and show coverage report
+# writes HTML report to `htmlcov/index.html`
 just dotenv=.env.test test coverage
 ```
 
@@ -277,7 +278,7 @@ debugger at the first failure.
 # run end-to-end Playwright tests
 # will wipe test database, then restart the smtp
 # service & app server in the background
-just dotenv=.env.e2e e2e coverage
+just dotenv=.env.e2e e2e
 ```
 
 Playwright tests run in headless mode by default. To run them in a visible browser window
