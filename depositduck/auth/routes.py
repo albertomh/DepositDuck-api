@@ -208,8 +208,8 @@ async def register(
         )
         new_user = await user_manager.create(user_create, safe=True, request=request)
     except UserAlreadyExists:
-        redirect_response = await htmx_redirect_to("/login/?prev=existingUser")
-        return redirect_response
+        redirect_to_login = await htmx_redirect_to("/login/?prev=existingUser")
+        return redirect_to_login
     except InvalidPasswordException as e:
         errors.append(e.reason.value)
     except ValidationError:
@@ -228,8 +228,8 @@ async def register(
 
         try:
             await user_manager.request_verify(new_user)
-            redirect_response = await htmx_redirect_to("/login/?prev=/auth/signup/")
-            return redirect_response
+            redirect_to_login = await htmx_redirect_to("/login/?prev=/auth/signup/")
+            return redirect_to_login
         except (UserNotExists, UserInactive, UserAlreadyVerified) as e:
             LOG.warn(f"exception when initiating verification for {new_user}: {e}")
 
@@ -378,9 +378,9 @@ async def authenticate(
         errors.append(ErrorCode.LOGIN_USER_NOT_VERIFIED.value)
 
     if user and not errors:
-        redirect_response = await htmx_redirect_to(next)
-        redirect_response = await log_user_in(auth_db_strategy, user, redirect_response)
-        return redirect_response
+        redirect_to_next = await htmx_redirect_to(next)
+        redirect_to_next = await log_user_in(auth_db_strategy, user, redirect_to_next)
+        return redirect_to_next
 
     context = AuthenticatedJinjaBlocks.TemplateContext(
         request=request,

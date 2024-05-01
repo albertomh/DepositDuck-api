@@ -25,6 +25,7 @@ from depositduck.middleware import frontend_auth_middleware
 from depositduck.models.auth import UserUpdate
 from depositduck.models.sql.auth import User
 from depositduck.models.sql.deposit import Tenancy
+from depositduck.utils import htmx_redirect_to
 
 dashboard_frontend_router = APIRouter(
     dependencies=[Depends(frontend_auth_middleware)],
@@ -77,6 +78,11 @@ async def complete_onboarding(
     user: Annotated[User, Depends(current_active_user)],
     request: Request,
 ):
+    # context = AuthenticatedJinjaBlocks.TemplateContext(
+    #     request=request,
+    #     user=user,
+    # )
+
     # TODO: enforce name char limit by truncating to 40
     user_update = UserUpdate(
         first_name=name, completed_onboarding_at=datetime.now(timezone.utc)
@@ -86,6 +92,17 @@ async def complete_onboarding(
     # TODO: validate `end_date` is after `start_date`
 
     # TODO: validate `end_date` using `is_prospect_suitable()`
+    # context = context.model_copy(update=dict(
+    #     name=name,
+    #     deposit_amount=deposit_amount,
+    #     tenancy_start_date=tenancy_start_date,
+    #     tenancy_end_date=tenancy_end_date,
+    # ))
+    # return templates.TemplateResponse(
+    #     "fragments/dashboard/onboarding/_onboarding_form.html.jinja2",
+    #     context=context,
+    #     block_name="onboarding_form",
+    # )
 
     session: AsyncSession
     async with db_session_factory.begin() as session:
@@ -99,16 +116,5 @@ async def complete_onboarding(
         except (NoResultFound, MultipleResultsFound) as e:
             LOG.warn(f"error when looking for Tenancy for {user}: {e}")
 
-    context = AuthenticatedJinjaBlocks.TemplateContext(
-        request=request,
-        user=user,
-        name=name,
-        deposit_amount=deposit_amount,
-        tenancy_start_date=tenancy_start_date,
-        tenancy_end_date=tenancy_end_date,
-    )
-    return templates.TemplateResponse(
-        "fragments/dashboard/onboarding/_onboarding_form.html.jinja2",
-        context=context,
-        block_name="onboarding_form",
-    )
+    redirect_to_dashboard = await htmx_redirect_to("/?prev=/welcome/")
+    return redirect_to_dashboard
