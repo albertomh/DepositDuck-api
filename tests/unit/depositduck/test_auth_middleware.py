@@ -8,6 +8,7 @@ from unittest.mock import Mock
 import pytest
 from fastapi import status
 
+from depositduck.dashboard.routes import db_session_factory
 from depositduck.middleware import (
     FRONTEND_MUST_BE_LOGGED_OUT_PATHS,
     current_active_user,
@@ -156,3 +157,42 @@ async def test_protected_routes_next_path_is_present_in_redirect(web_client_fact
         assert response.status_code == status.HTTP_307_TEMPORARY_REDIRECT
         next_path = response.next_request.url.raw_path.decode()
         assert next_path == f"/login/?next={target_path}"
+
+
+@pytest.mark.asyncio
+async def test_user_pending_onboarding_is_redirected_to_onboarding_screen(
+    web_client_factory,
+    mock_user,
+):
+    mock_user.completed_onboarding_at = None
+    dependency_overrides = {current_active_user: lambda: mock_user}
+    web_client = await web_client_factory(
+        settings=None, dependency_overrides=dependency_overrides
+    )
+
+    async with web_client as client:
+        response = await client.get("/")
+
+    assert response.status_code == status.HTTP_307_TEMPORARY_REDIRECT
+    assert response.next_request.url.path == "/welcome/"
+
+
+@pytest.mark.asyncio
+async def test_onboarding_route_redirects_already_onboarded_user(
+    web_client_factory, mock_user, mock_async_sessionmaker, mock_async_session
+):
+    mock_user.completed_onboarding_at = datetime.now()
+    dependency_overrides = {
+        current_active_user: lambda: mock_user,
+        db_session_factory: lambda: mock_async_sessionmaker,
+    }
+    web_client = await web_client_factory(
+        settings=None, dependency_overrides=dependency_overrides
+    )
+
+    async with web_client as client:
+        response = await client.get("/welcome/")
+
+    assert response.status_code == status.HTTP_307_TEMPORARY_REDIRECT
+    assert response.next_request.url.path == "/"
+    mock_async_sessionmaker.begin.assert_not_called()
