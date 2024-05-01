@@ -51,7 +51,8 @@ async def test_is_prospect_suitable_not_accepted_due_to_provider():
 @pytest.mark.asyncio
 async def test_is_prospect_suitable_not_accepted_due_to_date_limit():
     """
-    Invalid prospect due to suitable provider, unsuitable date.
+    Invalid prospect due to suitable provider, today falling outside
+    (tenancy end date + date limit).
     """
     days_since_end_date = TDS_TIME_LIMIT_IN_DAYS + 1
 
@@ -62,6 +63,14 @@ async def test_is_prospect_suitable_not_accepted_due_to_date_limit():
         str(exc_info.value)
         == f"prospect unsuitable due to end date being {days_since_end_date} days ago"
     )
+
+
+async def test_is_prospect_suitable_not_accepted_due_to_over_a_year_away():
+    """
+    Invalid prospect due to suitable provider, unsuitable tenancy end date due to being
+    over a year away.
+    """
+    assert False  # TODO:
 
 
 @pytest.mark.asyncio

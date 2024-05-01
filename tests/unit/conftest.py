@@ -130,7 +130,7 @@ def llm_client_factory():
 
 class AsyncContextManagerMock(Mock):
     async def __aenter__(self):
-        pass
+        return self
 
     async def __aexit__(self, exc_type, exc_value, traceback):
         pass
