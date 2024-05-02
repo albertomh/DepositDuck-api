@@ -6,16 +6,46 @@ from datetime import datetime
 from unittest.mock import AsyncMock, Mock
 
 import pytest
-from fastapi import Request, status
+from fastapi import HTTPException, Request, status
 
 from depositduck.dashboard.routes import db_session_factory
 from depositduck.middleware import (
     FRONTEND_MUST_BE_LOGGED_OUT_PATHS,
     _get_path_from_request,
+    _redirect,
     current_active_user,
 )
 from depositduck.models.sql.auth import User
 from tests.unit.conftest import mock_user
+
+
+def test_redirect_no_query_string():
+    redirect_path = "/some/path"
+    query_str = None
+
+    with pytest.raises(HTTPException) as exc_info:
+        _redirect(redirect_path, query_str)
+
+    assert exc_info.value.status_code == status.HTTP_307_TEMPORARY_REDIRECT
+    assert exc_info.value.headers["Location"] == redirect_path
+
+
+@pytest.mark.parametrize(
+    "redirect_path, query_str",
+    [
+        ("/some/path/", "param1=value1&param2=value2"),
+        ("/some/path/?existing_param=123", "param1=value1&param2=value2"),
+        ("/some/path/?another=param", "?foo=bar"),
+    ],
+)
+def test_redirect_with_query_string(redirect_path, query_str):
+    with pytest.raises(HTTPException) as exc_info:
+        _redirect(redirect_path, query_str)
+
+    query_str = query_str[1:] if query_str.startswith("?") else query_str
+    expected_location = f"{redirect_path}?{query_str}"
+    assert exc_info.value.status_code == status.HTTP_307_TEMPORARY_REDIRECT
+    assert exc_info.value.headers["Location"] == expected_location
 
 
 @pytest.mark.asyncio
