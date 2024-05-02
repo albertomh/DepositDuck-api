@@ -21,7 +21,8 @@ class DepositProvider(str, Enum):
     TDS = "tds"
 
 
-TDS_TIME_LIMIT_IN_DAYS = 90  # 3 months
+TDS_MAX_DAYS_SINCE = 90  # 3 months
+MAX_DAYS_IN_ADVANCE = -180  # 6 months
 
 AUTH_COOKIE_NAME = "dd_auth"
 AUTH_COOKIE_MAX_AGE = 3600
@@ -44,11 +45,13 @@ async def is_prospect_suitable(deposit_provider: str, days_since_end_date: int) 
     """
     Determine whether a prospect can be accepted as a DepositDuck user or not, based on:
       - their deposit being held by TDS
+      - the tenancy end date is within the next 180 days
       - today falling between their tenancy end date and TDS' time limit
 
     Args:
         deposit_provider (str): A string representation of their deposit provider.
-        days_since_end_date (int): Number of days since the tenancy ended.
+        days_since_end_date (int): Number of days since the tenancy ended. +ve for past,
+          -ve for future, 0 for today.
 
     Returns:
         bool: True if the prospect is suitable to become a user
@@ -57,20 +60,26 @@ async def is_prospect_suitable(deposit_provider: str, days_since_end_date: int) 
         UnsuitableProvider: Provider is other than TDS.
         TenancyEndDateOutOfRange: Too many days have passed since the end of the tenancy.
     """
-    # TODO: only accept end dates within the next year
     provider_is_accepted = deposit_provider.lower() == DepositProvider.TDS.value
     if not provider_is_accepted:
         raise UnsuitableProvider(
             f"prospect unsuitable due to provider '{deposit_provider}'"
         )
 
-    end_date_is_within_limit = days_since_end_date < TDS_TIME_LIMIT_IN_DAYS
-    if not end_date_is_within_limit:
+    end_date_is_within_range = days_since_end_date < TDS_MAX_DAYS_SINCE
+    if not end_date_is_within_range:
         raise TenancyEndDateOutOfRange(
             f"prospect unsuitable due to end date being {days_since_end_date} days ago"
         )
 
-    return provider_is_accepted and end_date_is_within_limit
+    end_date_is_within_next_six_months = days_since_end_date > MAX_DAYS_IN_ADVANCE
+    if not end_date_is_within_next_six_months:
+        raise TenancyEndDateOutOfRange(
+            f"prospect unsuitable due to end date being {days_since_end_date * -1} "
+            "days from now"
+        )
+
+    return provider_is_accepted and end_date_is_within_range
 
 
 async def send_verification_email(user: User, token: str) -> None:

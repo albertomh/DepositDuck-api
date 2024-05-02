@@ -23,9 +23,10 @@ to create a new release.
 
 ### Changed
 
-- Abstract parts of the e2e tests for greater code re-use.
 - Authentication redirects set 'next' query parameter post-login navigation.
+- Prospects are rejected if their tenancy end date is longer than six months away.
 - Use speculum@1.5.0 as the frontend toolkit, pulling in Alpine.js.
+- Abstract parts of the e2e tests for greater code re-use.
 
 ## [0.4.0] - 2024-04-25
 
