@@ -10,6 +10,8 @@ to create a new release.
 
 ## [Unreleased]
 
+## [0.5.0] - 2024-05-02
+
 ### Added
 
 - Router-level middlewares that redirect users based on their authentication status as
