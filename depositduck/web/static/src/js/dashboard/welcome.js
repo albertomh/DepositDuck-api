@@ -20,7 +20,12 @@ export function onboardingFormState(
             name: { isInvalid: false },
             depositAmount: { tooSmall: false },
             tenancyStartDate: { datesInWrongOrder: false },
-            tenancyEndDate: { datesInWrongOrder: false, isTooShort: false },
+            tenancyEndDate: {
+                datesInWrongOrder: false,
+                isTooShort: false,
+                overSixMonthsAway: false,
+                outsideDisputeWindow: false,
+            },
         },
         canSubmitForm: false,
         fieldHasErrors(fieldName) {
@@ -28,7 +33,7 @@ export function onboardingFormState(
             const fieldErrors = this.errors[fieldName];
             return Object.values(fieldErrors).some((value) => value === true);
         },
-        hasErrors() {
+        formHasErrors() {
             // returns: boolean
             for (const field in this.errors) {
                 const hasErrors = this.fieldHasErrors(field);
@@ -84,19 +89,27 @@ export function onboardingFormState(
         },
         validateTenancyDates() {
             // returns: null
-            // TODO: only accept end dates within the next year
+            if (!!this.fields.tenancyEndDate) {
+                const tenancyEndDate = new Date(this.fields.tenancyEndDate);
+                const today = new Date();
+                const daysUntilEnd = this.daysBetweenDates(today, tenancyEndDate);
+                this.errors.tenancyEndDate.overSixMonthsAway = daysUntilEnd > 180;
+                this.errors.tenancyEndDate.outsideDisputeWindow = daysUntilEnd < -90;
+                // TODO: reject if fewer than 5 days until dispute window closes
+            }
+
             if (!this.fields.tenancyStartDate || !this.fields.tenancyEndDate) {
                 return;
             }
 
-            const gap = this.daysBetweenDates(
+            const tenancyLength = this.daysBetweenDates(
                 new Date(this.fields.tenancyStartDate),
-                new Date(this.fields.tenancyEndDate)
+                tenancyEndDate
             );
-            const isWrongOrder = gap < 0;
+            const isWrongOrder = tenancyLength < 0;
             this.errors.tenancyStartDate.datesInWrongOrder = isWrongOrder;
             this.errors.tenancyEndDate.datesInWrongOrder = isWrongOrder;
-            const isTooShort = (0 < gap && gap < 30);
+            const isTooShort = (0 < tenancyLength && tenancyLength < 30);
             this.errors.tenancyStartDate.isTooShort = isTooShort;
             this.errors.tenancyEndDate.isTooShort = isTooShort;
         },
@@ -105,7 +118,8 @@ export function onboardingFormState(
             this.validateName()
             this.validateDepositAmount();
             this.validateTenancyDates();
-            this.canSubmitForm = this.allRequiredFieldsHaveValues() && !this.hasErrors();
+            console.log(this.errors)
+            this.canSubmitForm = this.allRequiredFieldsHaveValues() && !this.formHasErrors();
         }
     }
 }

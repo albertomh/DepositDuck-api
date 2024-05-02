@@ -11,7 +11,8 @@
             '{{ deposit_amount }}',
             '{{ tenancy_start_date }}',
             '{{ tenancy_end_date }}',
-        )">
+        )"
+        x-init="validateForm()">
         {# Q1/4: question - name #}
         <div class="row mt-2">
             <div class="col-2 position-relative">
@@ -268,6 +269,18 @@
                             class="text-danger d-none"
                             :class="{ 'd-none': !errors.tenancyEndDate.isTooShort }">
                             Your tenancy must be at least 30 days long.
+                        </p>
+                        <p
+                            class="text-danger d-none"
+                            :class="{ 'd-none': !errors.tenancyEndDate.overSixMonthsAway }">
+                            Unfortunately we only accept tenancies ending in the
+                            next six months.
+                        </p>
+                        <p
+                            class="text-danger d-none"
+                            :class="{ 'd-none': !errors.tenancyEndDate.outsideDisputeWindow }">
+                            Unfortunately your tenancy is outside the 90 day
+                            dispute window.
                         </p>
                     </div>
                 </div>
