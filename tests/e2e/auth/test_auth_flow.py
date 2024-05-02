@@ -78,7 +78,10 @@ async def test_sign_up_happy_path(page: Page) -> None:
     # await expect(page.locator("//h1")).to_contain_text("Home")
 
 
-# TODO: test unhappy paths: test validation of sign up fields
+# TODO: test unhappy paths: test validation of sign up fields:
+#         - non-TDS prospect
+#         - out-of-range end date: longer than 3 months ago, over 6 months in the future,
+#           within 5 days of TDS dispute limit.
 
 
 # TODO: test unhappy path: following expired / invalid verification link

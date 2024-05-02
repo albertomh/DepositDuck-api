@@ -8,7 +8,8 @@ from unittest.mock import patch
 import pytest
 
 from depositduck.auth import (
-    TDS_TIME_LIMIT_IN_DAYS,
+    MAX_DAYS_IN_ADVANCE,
+    TDS_MAX_DAYS_SINCE,
     DepositProvider,
     TenancyEndDateOutOfRange,
     UnsuitableProvider,
@@ -23,9 +24,9 @@ TODAY_DATE = datetime.today().date()
 @pytest.mark.parametrize(
     "days_since_end_date",
     [
-        TDS_TIME_LIMIT_IN_DAYS - 1,
-        TDS_TIME_LIMIT_IN_DAYS - (TDS_TIME_LIMIT_IN_DAYS // 2),
-        0 - (TDS_TIME_LIMIT_IN_DAYS * 3),
+        TDS_MAX_DAYS_SINCE - 1,
+        TDS_MAX_DAYS_SINCE - (TDS_MAX_DAYS_SINCE // 2),
+        0 - TDS_MAX_DAYS_SINCE,
     ],
 )
 async def test_is_prospect_suitable_happy_path(days_since_end_date):
@@ -40,7 +41,7 @@ async def test_is_prospect_suitable_not_accepted_due_to_provider():
     Invalid prospect due to unsuitable provider, suitable date.
     """
     provider = "invalid_provider"
-    days_since_end_date = TDS_TIME_LIMIT_IN_DAYS // 2
+    days_since_end_date = TDS_MAX_DAYS_SINCE // 2
 
     with pytest.raises(UnsuitableProvider) as exc_info:
         await is_prospect_suitable(provider, days_since_end_date)
@@ -54,7 +55,7 @@ async def test_is_prospect_suitable_not_accepted_due_to_date_limit():
     Invalid prospect due to suitable provider, today falling outside
     (tenancy end date + date limit).
     """
-    days_since_end_date = TDS_TIME_LIMIT_IN_DAYS + 1
+    days_since_end_date = TDS_MAX_DAYS_SINCE + 1
 
     with pytest.raises(TenancyEndDateOutOfRange) as exc_info:
         await is_prospect_suitable(DepositProvider.TDS.value, days_since_end_date)
@@ -65,12 +66,22 @@ async def test_is_prospect_suitable_not_accepted_due_to_date_limit():
     )
 
 
-async def test_is_prospect_suitable_not_accepted_due_to_over_a_year_away():
+@pytest.mark.asyncio
+async def test_is_prospect_suitable_not_accepted_due_to_over_six_months_away():
     """
     Invalid prospect due to suitable provider, unsuitable tenancy end date due to being
-    over a year away.
+    over six_months away.
     """
-    assert False  # TODO:
+    days_until_end_date = MAX_DAYS_IN_ADVANCE - 20
+
+    with pytest.raises(TenancyEndDateOutOfRange) as exc_info:
+        await is_prospect_suitable(DepositProvider.TDS.value, days_until_end_date)
+
+    exc_msg = (
+        f"prospect unsuitable due to end date being {days_until_end_date * -1} "
+        "days from now"
+    )
+    assert str(exc_info.value) == exc_msg
 
 
 @pytest.mark.asyncio
