@@ -72,19 +72,19 @@ async def frontend_auth_middleware(
                 status_code=status.HTTP_307_TEMPORARY_REDIRECT,
                 headers={"Location": "/"},
             )
-        if user.completed_onboarding_at is not None:
-            # users who have been onboarded are redirected away from the onboarding screen
-            if path == ONBOARDING_PATH:
-                raise HTTPException(
-                    status_code=status.HTTP_307_TEMPORARY_REDIRECT,
-                    headers={"Location": "/"},
-                )
-        else:
+        if user.completed_onboarding_at is None:
             # users who are yet to be onboarded are redirected to the onboarding screen
             if path != ONBOARDING_PATH:
                 raise HTTPException(
                     status_code=status.HTTP_307_TEMPORARY_REDIRECT,
                     headers={"Location": ONBOARDING_PATH},
+                )
+        else:
+            # users who have been onboarded are redirected away from the onboarding screen
+            if path == ONBOARDING_PATH:
+                raise HTTPException(
+                    status_code=status.HTTP_307_TEMPORARY_REDIRECT,
+                    headers={"Location": "/"},
                 )
 
 
