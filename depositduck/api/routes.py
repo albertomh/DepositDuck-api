@@ -36,7 +36,7 @@ class ServicesSummary(BaseModel):
 async def healthz(
     request: Request,
     settings: Annotated[Settings, Depends(get_settings)],
-    get_speculum_client: Annotated[httpx.AsyncClient, Depends(get_speculum_client)],
+    speculum_client: Annotated[httpx.AsyncClient, Depends(get_speculum_client)],
     db_session_factory: Annotated[async_sessionmaker, Depends(db_session_factory)],
 ):
     status_summary = ServicesSummary(
@@ -45,7 +45,7 @@ async def healthz(
     )
 
     try:
-        res = await get_speculum_client.head("/css/main.min.css")
+        res = await speculum_client.head("/css/main.min.css")
         res.raise_for_status()
         status_summary.static_assets.message = (
             f"'{res.url}' returned HTTP {res.status_code}"

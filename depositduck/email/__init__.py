@@ -77,10 +77,10 @@ async def send_email(
     message["To"] = recipient
     message["Subject"] = subject
     html_part = MIMEText(html_body, "html")
-    # email clients render last part first, so html must be last
     if plain_body:
         text_part = MIMEText(plain_body, "plain")
         message.attach(text_part)
+    # email clients render last part first, so html must be last
     message.attach(html_part)
 
     smtp_cm: SMTP
