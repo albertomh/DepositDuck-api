@@ -39,7 +39,7 @@ def test_invalid_app_secret():
     with pytest.raises(ValueError) as exc_info:
         Settings(**settings_data)
 
-    assert "Fernet key must be 32 url-safe base64-encoded bytes" in str(exc_info.value)
+    assert "setting APP_SECRET is not valid Fernet key" in str(exc_info.value)
 
 
 def test_invalid_app_secret_type():
