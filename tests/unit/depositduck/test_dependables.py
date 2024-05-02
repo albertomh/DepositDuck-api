@@ -2,14 +2,15 @@
 (c) 2024 Alberto Morón Hernández
 """
 
+import httpx
 import pytest
 from fastapi import HTTPException, Request
-from jinja2.loaders import FileSystemLoader
 from starlette.templating import _TemplateResponse
 
 from depositduck.dependables import (
     AuthenticatedJinjaBlocks,
     get_db_connection_string,
+    get_drallam_client,
     get_settings,
     get_templates,
 )
@@ -64,9 +65,13 @@ def test_TemplateContext_default_speculum_source(mock_request: Request):
     )
 
 
-def test_get_templates() -> None:
-    templates = get_templates()
+@pytest.mark.asyncio
+async def test_get_drallam_client(mock_settings):
+    drallam_origin = "https://example.com"
+    mock_settings.drallam_origin = drallam_origin
 
-    assert isinstance(templates, AuthenticatedJinjaBlocks)
-    loader: FileSystemLoader = templates.env.loader
-    assert loader.searchpath[0].endswith("/web/templates")
+    dependency = get_drallam_client(settings=mock_settings)
+    client = await dependency.__anext__()
+
+    assert isinstance(client, httpx.AsyncClient)
+    assert client.base_url == drallam_origin
