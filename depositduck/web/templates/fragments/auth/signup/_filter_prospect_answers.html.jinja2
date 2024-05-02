@@ -56,4 +56,4 @@
 {% else %}
     {% set date_answer_label = "Tenancy will end on " ~ tenancy_end_date %}
 {% endif %}
-{{ previous_answer(end_date_is_within_limit, date_answer_label, False, True) }}
+{{ previous_answer(end_date_is_within_range, date_answer_label, False, True) }}

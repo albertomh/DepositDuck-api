@@ -127,7 +127,7 @@ async def filter_prospect_for_signup(
         suitable_provider=True,
         tenancy_end_date=tenancy_end_date,
         days_since_end_date=days_since_end_date,
-        end_date_is_within_limit=True,
+        end_date_is_within_range=True,
         classes_by_id={},
     )
 
@@ -140,8 +140,10 @@ async def filter_prospect_for_signup(
         LOG.info(str(e))
         if isinstance(e, UnsuitableProvider):
             context.suitable_provider = False
+            context
         elif isinstance(e, TenancyEndDateOutOfRange):
-            context.end_date_is_within_limit = False
+            context.end_date_is_within_range = False
+
         return templates.TemplateResponse(
             "fragments/auth/signup/_filter_prospect_reject.html.jinja2", context
         )

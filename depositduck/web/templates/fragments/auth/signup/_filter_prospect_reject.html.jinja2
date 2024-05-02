@@ -16,14 +16,21 @@
             <ul>
                 <li class="pb-2">
                     People with deposits protected by
-                    <strong>TDS</strong>
-                    .
+                    <strong>TDS.</strong>
                 </li>
-                <li>
-                    Deposit disputes within the
-                    <strong>three-month deadline</strong>
-                    set by TDS.
-                </li>
+                {% if days_since_end_date > -180 %}
+                    <li>
+                        Deposit disputes within the
+                        <strong>three-month deadline</strong>
+                        set by TDS.
+                    </li>
+                {% endif %}
+                {% if days_since_end_date < -180 %}
+                    <li>
+                        Tenancies ending within the next
+                        <strong>6 months.</strong>
+                    </li>
+                {% endif %}
             </ul>
             <p>
                 If the above applies to friends &amp; family, please let them
