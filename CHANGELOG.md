@@ -27,6 +27,7 @@ to create a new release.
 - Prospects are rejected if their tenancy end date is longer than six months away.
 - Use speculum@1.5.0 as the frontend toolkit, pulling in Alpine.js.
 - Abstract parts of the e2e tests for greater code re-use.
+- Routine dependency updates.
 
 ## [0.4.0] - 2024-04-25
 

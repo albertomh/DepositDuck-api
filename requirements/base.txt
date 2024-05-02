@@ -31,7 +31,7 @@ dnspython==2.6.1
     # via email-validator
 email-validator==2.1.1
     # via fastapi-users
-fastapi==0.110.2
+fastapi==0.110.3
     # via fastapi-users
 fastapi-users==13.0.0
     # via
@@ -103,7 +103,7 @@ sqlalchemy==2.0.29
     #   alembic
     #   fastapi-users-db-sqlalchemy
     #   sqlmodel
-sqlmodel==0.0.16
+sqlmodel==0.0.18
     # via fastapi-users-db-sqlmodel
 starlette==0.37.2
     # via fastapi
