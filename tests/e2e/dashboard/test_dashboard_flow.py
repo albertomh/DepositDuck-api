@@ -21,3 +21,6 @@ async def test_redirect_to_onboarding_when_needed(
 ) -> None:
     await log_in_user(page, user, expected_path)
     await expect(page).to_have_url(f"{APP_ORIGIN}{expected_path}")
+
+
+# TODO: onboarding flow happy path
