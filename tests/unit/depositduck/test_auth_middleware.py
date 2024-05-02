@@ -3,18 +3,94 @@
 """
 
 from datetime import datetime
-from unittest.mock import Mock
+from unittest.mock import AsyncMock, Mock
 
 import pytest
-from fastapi import status
+from fastapi import Request, status
 
 from depositduck.dashboard.routes import db_session_factory
 from depositduck.middleware import (
     FRONTEND_MUST_BE_LOGGED_OUT_PATHS,
+    _get_path_from_request,
     current_active_user,
 )
 from depositduck.models.sql.auth import User
 from tests.unit.conftest import mock_user
+
+
+@pytest.mark.asyncio
+async def test_get_path_from_request_no_query():
+    mock_request = AsyncMock(spec=Request)
+    mock_request.base_url = "http://example.com"
+    path = "/login/"
+    mock_request.url = f"http://example.com{path}"
+
+    result = await _get_path_from_request(mock_request)
+
+    expected_result = (path, None)
+    assert result == expected_result
+
+
+@pytest.mark.asyncio
+async def test_get_path_from_request_with_query():
+    mock_request = AsyncMock(spec=Request)
+    mock_request.base_url = "http://example.com"
+    path = "/user/"
+    query = "id=123&next=/path/"
+    mock_request.url = f"http://example.com{path}?{query}"
+
+    result = await _get_path_from_request(mock_request)
+
+    expected_result = (path, query)
+    assert result == expected_result
+
+
+# ---- if user is None and path not in FRONTEND_MUST_BE_LOGGED_OUT_PATHS:
+
+
+@pytest.mark.asyncio
+async def test_protected_routes_redirect_logged_out_user(web_client_factory):
+    dependency_overrides = {current_active_user: lambda: None}
+    web_client = await web_client_factory(
+        settings=None, dependency_overrides=dependency_overrides
+    )
+
+    async with web_client as client:
+        response = await client.get("/")
+
+    assert response.status_code == status.HTTP_307_TEMPORARY_REDIRECT
+    assert response.next_request.url.path == "/login/"
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    "target_path, query_params",
+    [
+        ("/welcome/", ""),
+        ("/", "query=param"),
+    ],
+)
+async def test_protected_routes_next_path_and_params_are_in_redirect(
+    web_client_factory, target_path, query_params
+):
+    dependency_overrides = {current_active_user: lambda: None}
+    web_client = await web_client_factory(
+        settings=None, dependency_overrides=dependency_overrides
+    )
+    expected_next_path = f"/login/?next={target_path}"
+    if query_params:
+        target_path += f"?{query_params}"
+        expected_next_path += f"&{query_params}"
+
+    async with web_client as client:
+        response = await client.get(target_path)
+
+        assert response.status_code == status.HTTP_307_TEMPORARY_REDIRECT
+        next_path = response.next_request.url.raw_path.decode()
+        assert next_path == expected_next_path
+
+
+# ---- if user is not None and path in FRONTEND_MUST_BE_LOGGED_OUT_PATHS
 
 
 @pytest.mark.asyncio
@@ -54,61 +130,6 @@ async def test_unprotected_routes_redirect_logged_in_user(web_client_factory, pa
 
 
 @pytest.mark.asyncio
-async def test_protected_routes_accept_logged_out_user(web_client_factory):
-    dependency_overrides = {current_active_user: lambda: Mock(spec=User)}
-    web_client = await web_client_factory(
-        settings=None, dependency_overrides=dependency_overrides
-    )
-
-    async with web_client as client:
-        response = await client.get("/")
-
-    assert response.status_code == status.HTTP_200_OK
-    assert response.next_request is None
-
-
-@pytest.mark.asyncio
-async def test_protected_routes_redirect_logged_out_user(web_client_factory):
-    dependency_overrides = {current_active_user: lambda: None}
-    web_client = await web_client_factory(
-        settings=None, dependency_overrides=dependency_overrides
-    )
-
-    async with web_client as client:
-        response = await client.get("/")
-
-    assert response.status_code == status.HTTP_307_TEMPORARY_REDIRECT
-    assert response.next_request.url.path == "/login/"
-
-
-@pytest.mark.asyncio
-@pytest.mark.parametrize(
-    "completed_onboarding_at, http_status, redirect_to",
-    [
-        (None, status.HTTP_307_TEMPORARY_REDIRECT, "/welcome/"),
-        (datetime.now(), status.HTTP_200_OK, None),
-    ],
-)
-async def test_protected_routes_redirects_user_to_onboarding(
-    web_client_factory, mock_user, completed_onboarding_at, http_status, redirect_to
-):
-    mock_user.completed_onboarding_at = completed_onboarding_at
-    dependency_overrides = {current_active_user: lambda: mock_user}
-    web_client = await web_client_factory(
-        settings=None, dependency_overrides=dependency_overrides
-    )
-
-    async with web_client as client:
-        response = await client.get("/")
-
-    assert response.status_code == http_status
-    if redirect_to is None:
-        assert response.next_request is None
-    else:
-        assert response.next_request.url.path == redirect_to
-
-
-@pytest.mark.asyncio
 @pytest.mark.parametrize(
     "user, http_status, redirect_to",
     [
@@ -143,20 +164,34 @@ async def test_must_be_logged_out_routes_forbid_authenticated_user(
         assert next_path == f"/login/?prev={target_path}&email={email}"
 
 
+# ---- if user is not None and user.completed_onboarding_at is ...
+
+
 @pytest.mark.asyncio
-async def test_protected_routes_next_path_is_present_in_redirect(web_client_factory):
-    dependency_overrides = {current_active_user: lambda: None}
+@pytest.mark.parametrize(
+    "completed_onboarding_at, http_status, redirect_to",
+    [
+        (None, status.HTTP_307_TEMPORARY_REDIRECT, "/welcome/"),
+        (datetime.now(), status.HTTP_200_OK, None),
+    ],
+)
+async def test_protected_routes_redirects_user_to_onboarding(
+    web_client_factory, mock_user, completed_onboarding_at, http_status, redirect_to
+):
+    mock_user.completed_onboarding_at = completed_onboarding_at
+    dependency_overrides = {current_active_user: lambda: mock_user}
     web_client = await web_client_factory(
         settings=None, dependency_overrides=dependency_overrides
     )
 
-    target_path = "/welcome/"
     async with web_client as client:
-        response = await client.get(target_path)
+        response = await client.get("/")
 
-        assert response.status_code == status.HTTP_307_TEMPORARY_REDIRECT
-        next_path = response.next_request.url.raw_path.decode()
-        assert next_path == f"/login/?next={target_path}"
+    assert response.status_code == http_status
+    if redirect_to is None:
+        assert response.next_request is None
+    else:
+        assert response.next_request.url.path == redirect_to
 
 
 @pytest.mark.asyncio
@@ -196,3 +231,23 @@ async def test_onboarding_route_redirects_already_onboarded_user(
     assert response.status_code == status.HTTP_307_TEMPORARY_REDIRECT
     assert response.next_request.url.path == "/"
     mock_async_sessionmaker.begin.assert_not_called()
+
+
+# ----- not caught by the conditionals in the middleware
+
+# All routes are protected by default, with exceptions made for those in
+# FRONTEND_MUST_BE_LOGGED_OUT_PATHS.
+
+
+@pytest.mark.asyncio
+async def test_protected_routes_accept_user(web_client_factory):
+    dependency_overrides = {current_active_user: lambda: Mock(spec=User)}
+    web_client = await web_client_factory(
+        settings=None, dependency_overrides=dependency_overrides
+    )
+
+    async with web_client as client:
+        response = await client.get("/")
+
+    assert response.status_code == status.HTTP_200_OK
+    assert response.next_request is None
