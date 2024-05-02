@@ -51,11 +51,9 @@ class Settings(BaseSettings):
     @classmethod
     def app_secret_is_valid_fernet_key(cls, value: str) -> str:
         try:
-            is_valid = is_valid_fernet_key(value)
-        except (ValueError, TypeError):
-            raise
-        if not is_valid:
-            raise ValueError("setting APP_SECRET is not valid Fernet key")
+            is_valid_fernet_key(value)
+        except (ValueError, TypeError) as e:
+            raise e.__class__("setting APP_SECRET is not valid Fernet key") from e
         return value
 
     @field_validator("app_origin", "static_origin")
