@@ -6,15 +6,15 @@
 export function onboardingFormState(
     name,
     depositAmount,
-    tenancyStartDate,
-    tenancyEndDate,
+    tenancyStartDateStr,
+    tenancyEndDateStr,
 ) {
     return {
         fields: {
             name: name, // string
             depositAmount: depositAmount, // number
-            tenancyStartDate: tenancyStartDate, // string
-            tenancyEndDate: tenancyEndDate, // string
+            tenancyStartDate: tenancyStartDateStr, // string
+            tenancyEndDate: tenancyEndDateStr, // string
         },
         errors: {
             name: { isInvalid: false },
@@ -25,6 +25,7 @@ export function onboardingFormState(
                 isTooShort: false,
                 overSixMonthsAway: false,
                 outsideDisputeWindow: false,
+                tooCloseToWindowEnd: false,
             },
         },
         canSubmitForm: false,
@@ -92,10 +93,10 @@ export function onboardingFormState(
             if (!!this.fields.tenancyEndDate) {
                 const tenancyEndDate = new Date(this.fields.tenancyEndDate);
                 const today = new Date();
-                const daysUntilEnd = this.daysBetweenDates(today, tenancyEndDate);
-                this.errors.tenancyEndDate.overSixMonthsAway = daysUntilEnd > 180;
-                this.errors.tenancyEndDate.outsideDisputeWindow = daysUntilEnd < -90;
-                // TODO: reject if fewer than 5 days until dispute window closes
+                const daysSinceEnd = this.daysBetweenDates(tenancyEndDate, today);
+                this.errors.tenancyEndDate.overSixMonthsAway = daysSinceEnd < -180;
+                this.errors.tenancyEndDate.outsideDisputeWindow = daysSinceEnd > 90;
+                this.errors.tenancyEndDate.tooCloseToWindowEnd = daysSinceEnd > 85 && daysSinceEnd < 90;
             }
 
             if (!this.fields.tenancyStartDate || !this.fields.tenancyEndDate) {
@@ -104,7 +105,7 @@ export function onboardingFormState(
 
             const tenancyLength = this.daysBetweenDates(
                 new Date(this.fields.tenancyStartDate),
-                tenancyEndDate
+                new Date(this.fields.tenancyEndDate),
             );
             const isWrongOrder = tenancyLength < 0;
             this.errors.tenancyStartDate.datesInWrongOrder = isWrongOrder;
@@ -118,7 +119,6 @@ export function onboardingFormState(
             this.validateName()
             this.validateDepositAmount();
             this.validateTenancyDates();
-            console.log(this.errors)
             this.canSubmitForm = this.allRequiredFieldsHaveValues() && !this.formHasErrors();
         }
     }

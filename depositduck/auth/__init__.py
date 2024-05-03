@@ -21,8 +21,8 @@ class DepositProvider(str, Enum):
     TDS = "tds"
 
 
-TDS_MAX_DAYS_SINCE = 90  # 3 months
-MAX_DAYS_IN_ADVANCE = -180  # 6 months
+TDS_DISPUTE_WINDOW_IN_DAYS = 90  # 3 months
+MAX_DAYS_IN_ADVANCE = 180  # 6 months
 
 AUTH_COOKIE_NAME = "dd_auth"
 AUTH_COOKIE_MAX_AGE = 3600
@@ -67,20 +67,23 @@ async def is_prospect_suitable(deposit_provider: str, days_since_end_date: int) 
             f"prospect unsuitable due to provider '{deposit_provider}'"
         )
 
-    end_date_is_within_range = days_since_end_date < TDS_MAX_DAYS_SINCE
-    if not end_date_is_within_range:
+    end_date_is_within_dispute_window = days_since_end_date < TDS_DISPUTE_WINDOW_IN_DAYS
+    end_date_too_close_to_dispute_window_end = days_since_end_date > (
+        TDS_DISPUTE_WINDOW_IN_DAYS - 5
+    )
+    if not end_date_is_within_dispute_window or end_date_too_close_to_dispute_window_end:
         raise TenancyEndDateOutOfRange(
             f"prospect unsuitable due to end date being {days_since_end_date} days ago"
         )
 
-    end_date_is_within_next_six_months = days_since_end_date > MAX_DAYS_IN_ADVANCE
+    end_date_is_within_next_six_months = days_since_end_date > (-1 * MAX_DAYS_IN_ADVANCE)
     if not end_date_is_within_next_six_months:
         raise TenancyEndDateOutOfRange(
             f"prospect unsuitable due to end date being {days_since_end_date * -1} "
             "days from now"
         )
 
-    return provider_is_accepted and end_date_is_within_range
+    return provider_is_accepted and end_date_is_within_dispute_window
 
 
 async def send_verification_email(user: User, token: str) -> None:
