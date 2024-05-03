@@ -19,11 +19,25 @@
                     <strong>TDS.</strong>
                 </li>
                 {% if days_since_end_date > -180 %}
-                    <li>
-                        Deposit disputes within the
-                        <strong>three-month deadline</strong>
-                        set by TDS.
-                    </li>
+                    {% if days_since_end_date > 85 and days_since_end_date < 90 %}
+                        <li>
+                            Deposit disputes that have
+                            <strong>at least five days</strong>
+                            before the dispute window closes.
+                            <br />
+                            {% set days_left = ["zero", "one", "two", "three", "four", "five"][90 - days_since_end_date] %}
+                            Unfortunately, the dispute window for your deposit
+                            closes in
+                            <strong>{{ days_left }}</strong>
+                            days.
+                        </li>
+                    {% else %}
+                        <li>
+                            Deposit disputes within the
+                            <strong>three-month deadline</strong>
+                            set by TDS.
+                        </li>
+                    {% endif %}
                 {% endif %}
                 {% if days_since_end_date < -180 %}
                     <li>

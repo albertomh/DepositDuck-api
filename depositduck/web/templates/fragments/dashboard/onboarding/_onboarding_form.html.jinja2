@@ -282,6 +282,12 @@
                             Unfortunately your tenancy is outside the 90 day
                             dispute window.
                         </p>
+                        <p
+                            class="text-danger d-none"
+                            :class="{ 'd-none': !errors.tenancyEndDate.tooCloseToWindowEnd }">
+                            Unfortunately your tenancy is too close to the end
+                            of the 90 day dispute window.
+                        </p>
                     </div>
                 </div>
             </div>

@@ -10,6 +10,10 @@ to create a new release.
 
 ## [Unreleased]
 
+### Changed
+
+- Reject prospect if today is too close to the end of their dispute window.
+
 ## [0.5.0] - 2024-05-02
 
 ### Added
