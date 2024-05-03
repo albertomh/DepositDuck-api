@@ -9,7 +9,7 @@ import pytest
 
 from depositduck.auth import (
     MAX_DAYS_IN_ADVANCE,
-    TDS_MAX_DAYS_SINCE,
+    TDS_DISPUTE_WINDOW_IN_DAYS,
     DepositProvider,
     TenancyEndDateOutOfRange,
     UnsuitableProvider,
@@ -24,9 +24,9 @@ TODAY_DATE = datetime.today().date()
 @pytest.mark.parametrize(
     "days_since_end_date",
     [
-        TDS_MAX_DAYS_SINCE - 1,
-        TDS_MAX_DAYS_SINCE - (TDS_MAX_DAYS_SINCE // 2),
-        0 - TDS_MAX_DAYS_SINCE,
+        TDS_DISPUTE_WINDOW_IN_DAYS - 10,
+        TDS_DISPUTE_WINDOW_IN_DAYS - (TDS_DISPUTE_WINDOW_IN_DAYS // 2),
+        0 - TDS_DISPUTE_WINDOW_IN_DAYS,
     ],
 )
 async def test_is_prospect_suitable_happy_path(days_since_end_date):
@@ -41,7 +41,7 @@ async def test_is_prospect_suitable_not_accepted_due_to_provider():
     Invalid prospect due to unsuitable provider, suitable date.
     """
     provider = "invalid_provider"
-    days_since_end_date = TDS_MAX_DAYS_SINCE // 2
+    days_since_end_date = TDS_DISPUTE_WINDOW_IN_DAYS // 2
 
     with pytest.raises(UnsuitableProvider) as exc_info:
         await is_prospect_suitable(provider, days_since_end_date)
@@ -50,13 +50,21 @@ async def test_is_prospect_suitable_not_accepted_due_to_provider():
 
 
 @pytest.mark.asyncio
-async def test_is_prospect_suitable_not_accepted_due_to_date_limit():
+@pytest.mark.parametrize(
+    "days_since_end_date",
+    [
+        TDS_DISPUTE_WINDOW_IN_DAYS + 1,
+        TDS_DISPUTE_WINDOW_IN_DAYS - 3,
+    ],
+)
+async def test_is_prospect_suitable_not_accepted_due_to_outside_dispute_window(
+    days_since_end_date,
+):
     """
-    Invalid prospect due to suitable provider, today falling outside
-    (tenancy end date + date limit).
+    Invalid prospect due to suitable provider, today falling either:
+      - outside (tenancy end date + dispute window).
+      - between (dispute_window_end - 5) and dispute_window_end
     """
-    days_since_end_date = TDS_MAX_DAYS_SINCE + 1
-
     with pytest.raises(TenancyEndDateOutOfRange) as exc_info:
         await is_prospect_suitable(DepositProvider.TDS.value, days_since_end_date)
 
@@ -72,7 +80,7 @@ async def test_is_prospect_suitable_not_accepted_due_to_over_six_months_away():
     Invalid prospect due to suitable provider, unsuitable tenancy end date due to being
     over six_months away.
     """
-    days_until_end_date = MAX_DAYS_IN_ADVANCE - 20
+    days_until_end_date = (-1 * MAX_DAYS_IN_ADVANCE) - 20
 
     with pytest.raises(TenancyEndDateOutOfRange) as exc_info:
         await is_prospect_suitable(DepositProvider.TDS.value, days_until_end_date)
