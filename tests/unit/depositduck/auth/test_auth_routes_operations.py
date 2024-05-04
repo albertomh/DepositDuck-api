@@ -7,6 +7,7 @@ from unittest.mock import Mock, patch
 
 import pytest
 from fastapi import status
+from fastapi.security import OAuth2PasswordRequestForm
 
 from depositduck.auth import AUTH_COOKIE_NAME
 from depositduck.auth.dependables import get_database_strategy, get_user_manager
@@ -15,7 +16,8 @@ from depositduck.dashboard.routes import (
     current_active_user,
     db_session_factory,
 )
-from depositduck.dependables import get_settings
+from depositduck.dependables import get_settings, get_templates
+from depositduck.models.sql.auth import User
 from depositduck.models.sql.people import Prospect
 from tests.unit.conftest import get_valid_settings
 
@@ -142,23 +144,58 @@ async def test_request_verification(
 
 
 @pytest.mark.asyncio
+async def test_authenticate_happy_path(
+    web_client_factory,
+    mock_auth_db_strategy,
+    mock_authenticated_jinja_blocks,
+    mock_user_manager,
+):
+    username = "user@example.com"
+    password = "password"
+    mock_oauth2_form = OAuth2PasswordRequestForm(username=username, password=password)
+    mock_user = Mock(spec=User)
+    mock_user_manager.authenticate.return_value.__aenter__.return_value = mock_user
+
+    dependency_overrides = {
+        OAuth2PasswordRequestForm: lambda: mock_oauth2_form,
+        get_database_strategy: lambda: mock_auth_db_strategy,
+        get_templates: lambda: mock_authenticated_jinja_blocks,
+        get_user_manager: lambda: mock_user_manager,
+    }
+    web_client = await web_client_factory(dependency_overrides=dependency_overrides)
+    # mock_log_user_in = AsyncMock(return_value=mock_response)
+
+    # with patch("depositduck.auth.routes.log_user_in", mock_log_user_in):
+    async with web_client as client:
+        form_data = dict(username=username, password=password)
+        response = await client.post(
+            "/auth/authenticate/",
+            data=form_data,
+            headers={"Content-Type": "application/x-www-form-urlencoded"},
+        )
+
+    mock_user_manager.authenticate.assert_awaited_once_with(mock_oauth2_form)
+    assert response.status_code == status.HTTP_303_SEE_OTHER
+    assert response.headers["hx-redirect"] == "/"
+
+
+@pytest.mark.asyncio
 async def test_logout(web_client_factory, mock_user, mock_auth_db_strategy, mock_request):
     dependency_overrides = {
         current_active_user: lambda: mock_user,
         get_database_strategy: lambda: mock_auth_db_strategy,
     }
     web_client = await web_client_factory(dependency_overrides=dependency_overrides)
-    mock_auth_cookie_token = "mock_token"
-    # mock_request.cookies.get.return_value = mock_auth_cookie_token
+    auth_cookie_token = "mock_token"
 
     async with web_client as client:
-        client.cookies.update({AUTH_COOKIE_NAME: mock_auth_cookie_token})
+        client.cookies.update({AUTH_COOKIE_NAME: auth_cookie_token})
         response = await client.post(
             "/auth/logout/",
         )
 
     mock_auth_db_strategy.destroy_token.assert_awaited_once_with(
-        mock_auth_cookie_token, mock_user
+        auth_cookie_token, mock_user
     )
     assert response.status_code == status.HTTP_303_SEE_OTHER
     assert response.headers["hx-redirect"] == "/"
