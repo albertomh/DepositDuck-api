@@ -56,6 +56,7 @@ omit = [
 omit = [
   "./depositduck/kitchensink/*",
   "./depositduck/models/sql/*",
+  "./depositduck/models/dto/*",
 ]
 exclude_lines = [
     "pragma: no cover",
