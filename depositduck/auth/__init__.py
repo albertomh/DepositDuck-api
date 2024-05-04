@@ -58,7 +58,8 @@ async def is_prospect_suitable(deposit_provider: str, days_since_end_date: int) 
 
     Raises:
         UnsuitableProvider: Provider is other than TDS.
-        TenancyEndDateOutOfRange: Too many days have passed since the end of the tenancy.
+        TenancyEndDateOutOfRange: Too many days have passed since the end of the tenancy
+          or today is too close (less than five days) to the end of the dispute window.
     """
     acceptable_providers = [DepositProvider.TDS.value]
     provider_is_accepted = deposit_provider.lower() in acceptable_providers
