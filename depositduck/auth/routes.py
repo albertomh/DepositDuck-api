@@ -272,20 +272,18 @@ async def request_verification(
 
     if encrypted_email:
         redirect_path += "?prev=/auth/signup/"
-
         email = decrypt(settings.app_secret, encrypted_email)
-        LOG.debug(f"re-verify request for [email={email}]")
-        try:
-            user = await user_manager.get_by_email(email)
-        except UserNotExists:
-            LOG.warn(f"re-verify request for inexistent user [email={email}]")
+        LOG.debug(f"re-verify request for [{email=}]")
 
         try:
             user = await user_manager.get_by_email(email)
             # TODO: implement email rate-limiting / cool-off !
             await user_manager.request_verify(user)
         except (UserNotExists, UserInactive, UserAlreadyVerified) as e:
-            LOG.warn(f"exception when initiating verification for {user}: {e}")
+            if isinstance(e, UserNotExists):
+                LOG.warn(f"re-verify request for inexistent user [{email=}]")
+            else:
+                LOG.warn(f"exception when requesting verification for {user}: {e}")
 
     return RedirectResponse(redirect_path, status_code=status.HTTP_307_TEMPORARY_REDIRECT)
 
