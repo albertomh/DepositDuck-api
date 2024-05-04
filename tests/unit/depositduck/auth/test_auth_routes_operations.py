@@ -3,17 +3,20 @@
 """
 
 from datetime import datetime
-from unittest.mock import Mock
+from unittest.mock import Mock, patch
 
 import pytest
 from fastapi import status
 
+from depositduck.auth.dependables import get_user_manager
 from depositduck.auth.routes import register
 from depositduck.dashboard.routes import (
     current_active_user,
     db_session_factory,
 )
+from depositduck.dependables import get_settings
 from depositduck.models.sql.people import Prospect
+from tests.unit.conftest import get_valid_settings
 
 
 @pytest.mark.asyncio
@@ -105,3 +108,33 @@ async def test_register_happy_path(
     mock_user_manager.request_verify.assert_awaited_once()
     assert response.status_code == status.HTTP_303_SEE_OTHER
     assert response.headers["hx-redirect"] == "/login/?prev=/auth/signup/"
+
+
+@pytest.mark.asyncio
+async def test_request_verification(
+    web_client_factory,
+    mock_user_manager,
+):
+    mock_settings = get_valid_settings()
+    dependency_overrides = {
+        get_settings: lambda: mock_settings,
+        get_user_manager: lambda: mock_user_manager,
+    }
+    web_client = await web_client_factory(dependency_overrides=dependency_overrides)
+    encrypted_email = "encrypted_email"
+    decrypted_email = "user@example.com"
+    mock_decrypt = Mock(return_value=decrypted_email)
+
+    with patch("depositduck.auth.routes.decrypt", mock_decrypt):
+        async with web_client as client:
+            response = await client.get(
+                f"/auth/requestVerification/?email={encrypted_email}",
+            )
+
+        mock_decrypt.assert_called_once_with(mock_settings.app_secret, "encrypted_email")
+        mock_user_manager.get_by_email.assert_awaited_once_with(decrypted_email)
+        mock_user_manager.request_verify.assert_awaited_once_with(
+            mock_user_manager.get_by_email.return_value
+        )
+        assert response.status_code == status.HTTP_307_TEMPORARY_REDIRECT
+        assert response.headers["location"] == "/login/?prev=/auth/signup/"
