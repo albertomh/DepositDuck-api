@@ -1,7 +1,7 @@
-import * as dashboardWelcome from './dashboard/welcome';
+import * as dashboardWelcome from "./dashboard/welcome";
 
-window.depositduck = {}
+window.depositduck = {};
 
 // dashboard
-window.depositduck.dashboard = {}
+window.depositduck.dashboard = {};
 window.depositduck.dashboard.welcome = dashboardWelcome;
