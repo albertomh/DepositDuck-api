@@ -10,6 +10,7 @@ from unittest.mock import AsyncMock, Mock
 import pytest
 import pytest_asyncio
 from fastapi import FastAPI, Request
+from fastapi_users.authentication.strategy.db import DatabaseStrategy
 from httpx import ASGITransport, AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
@@ -164,6 +165,11 @@ def mock_request():
 @pytest.fixture
 def mock_user():
     return Mock(spec=User)
+
+
+@pytest.fixture
+def mock_auth_db_strategy():
+    return Mock(spec=DatabaseStrategy)
 
 
 @pytest.fixture

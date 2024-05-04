@@ -8,7 +8,8 @@ from unittest.mock import Mock, patch
 import pytest
 from fastapi import status
 
-from depositduck.auth.dependables import get_user_manager
+from depositduck.auth import AUTH_COOKIE_NAME
+from depositduck.auth.dependables import get_database_strategy, get_user_manager
 from depositduck.auth.routes import register
 from depositduck.dashboard.routes import (
     current_active_user,
@@ -138,3 +139,26 @@ async def test_request_verification(
         )
         assert response.status_code == status.HTTP_307_TEMPORARY_REDIRECT
         assert response.headers["location"] == "/login/?prev=/auth/signup/"
+
+
+@pytest.mark.asyncio
+async def test_logout(web_client_factory, mock_user, mock_auth_db_strategy, mock_request):
+    dependency_overrides = {
+        current_active_user: lambda: mock_user,
+        get_database_strategy: lambda: mock_auth_db_strategy,
+    }
+    web_client = await web_client_factory(dependency_overrides=dependency_overrides)
+    mock_auth_cookie_token = "mock_token"
+    # mock_request.cookies.get.return_value = mock_auth_cookie_token
+
+    async with web_client as client:
+        client.cookies.update({AUTH_COOKIE_NAME: mock_auth_cookie_token})
+        response = await client.post(
+            "/auth/logout/",
+        )
+
+    mock_auth_db_strategy.destroy_token.assert_awaited_once_with(
+        mock_auth_cookie_token, mock_user
+    )
+    assert response.status_code == status.HTTP_303_SEE_OTHER
+    assert response.headers["hx-redirect"] == "/"
