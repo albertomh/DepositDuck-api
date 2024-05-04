@@ -47,15 +47,17 @@ export function onboardingFormState(
         validationClassForField(fieldName) {
             // returns: string
             if (!!this.fields[fieldName]) {
-                return this.fieldHasErrors(fieldName) ? 'is-invalid' : 'is-valid';
+                return this.fieldHasErrors(fieldName)
+                    ? "is-invalid"
+                    : "is-valid";
             }
-            return '';
+            return "";
         },
         allRequiredFieldsHaveValues() {
             // returns: boolean
             const requiredFieldsValues = Object.values(this.fields);
             const someValueIsEmpty = requiredFieldsValues.some(
-                field => field === '' || field === null
+                (field) => field === "" || field === null,
             );
             return !someValueIsEmpty;
         },
@@ -65,7 +67,7 @@ export function onboardingFormState(
                 return;
             }
             // normalise & trim spaces
-            this.fields.name = this.fields.name.replace(/\s+/g, ' ').trim()
+            this.fields.name = this.fields.name.replace(/\s+/g, " ").trim();
             // match Unicode letters (\p{L}), spaces (\s), apostrophe (') or dash (-)
             const pattern = /^[\p{L}\s'-]+$/u;
             this.errors.name.isInvalid = !pattern.test(this.fields.name);
@@ -75,7 +77,8 @@ export function onboardingFormState(
             if (!this.fields.depositAmount) {
                 return;
             }
-            this.errors.depositAmount.tooSmall = this.fields.depositAmount < 100;
+            this.errors.depositAmount.tooSmall =
+                this.fields.depositAmount < 100;
         },
         daysBetweenDates(date1, date2) {
             // returns: number
@@ -86,17 +89,23 @@ export function onboardingFormState(
         },
         endDateIsInPast() {
             // returns: boolean
-            return (new Date(this.fields.tenancyEndDate) - new Date()) < 0;
+            return new Date(this.fields.tenancyEndDate) - new Date() < 0;
         },
         validateTenancyDates() {
             // returns: null
             if (!!this.fields.tenancyEndDate) {
                 const tenancyEndDate = new Date(this.fields.tenancyEndDate);
                 const today = new Date();
-                const daysSinceEnd = this.daysBetweenDates(tenancyEndDate, today);
-                this.errors.tenancyEndDate.overSixMonthsAway = daysSinceEnd < -180;
-                this.errors.tenancyEndDate.outsideDisputeWindow = daysSinceEnd > 90;
-                this.errors.tenancyEndDate.tooCloseToWindowEnd = daysSinceEnd > 85 && daysSinceEnd < 90;
+                const daysSinceEnd = this.daysBetweenDates(
+                    tenancyEndDate,
+                    today,
+                );
+                this.errors.tenancyEndDate.overSixMonthsAway =
+                    daysSinceEnd < -180;
+                this.errors.tenancyEndDate.outsideDisputeWindow =
+                    daysSinceEnd > 90;
+                this.errors.tenancyEndDate.tooCloseToWindowEnd =
+                    daysSinceEnd > 85 && daysSinceEnd < 90;
             }
 
             if (!this.fields.tenancyStartDate || !this.fields.tenancyEndDate) {
@@ -110,16 +119,17 @@ export function onboardingFormState(
             const isWrongOrder = tenancyLength < 0;
             this.errors.tenancyStartDate.datesInWrongOrder = isWrongOrder;
             this.errors.tenancyEndDate.datesInWrongOrder = isWrongOrder;
-            const isTooShort = (0 < tenancyLength && tenancyLength < 30);
+            const isTooShort = 0 < tenancyLength && tenancyLength < 30;
             this.errors.tenancyStartDate.isTooShort = isTooShort;
             this.errors.tenancyEndDate.isTooShort = isTooShort;
         },
         validateForm() {
             // returns: null
-            this.validateName()
+            this.validateName();
             this.validateDepositAmount();
             this.validateTenancyDates();
-            this.canSubmitForm = this.allRequiredFieldsHaveValues() && !this.formHasErrors();
-        }
-    }
+            this.canSubmitForm =
+                this.allRequiredFieldsHaveValues() && !this.formHasErrors();
+        },
+    };
 }
