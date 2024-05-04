@@ -3,11 +3,53 @@
 """
 
 from datetime import datetime
+from unittest.mock import Mock
 
 import pytest
 from fastapi import status
 
 from depositduck.auth.routes import register
+from depositduck.dashboard.routes import (
+    current_active_user,
+    db_session_factory,
+)
+from depositduck.models.sql.people import Prospect
+
+
+@pytest.mark.asyncio
+async def test_unsuitable_prospect_funnel(
+    web_client_factory,
+    mock_async_sessionmaker,
+    mock_async_session,
+):
+    prospect_email = "user@example.com"
+    prospect_provider = "TestProvider"
+    mock_add = Mock()
+    mock_async_session.add = mock_add
+    dependency_overrides = {
+        current_active_user: lambda: None,
+        db_session_factory: lambda: mock_async_sessionmaker,
+    }
+    web_client = await web_client_factory(
+        settings=None, dependency_overrides=dependency_overrides
+    )
+
+    async with web_client as client:
+        form_data = dict(email=prospect_email, providerName=prospect_provider)
+        response = await client.post(
+            "/auth/unsuitableProspectFunnel/",
+            data=form_data,
+            headers={"Content-Type": "application/x-www-form-urlencoded"},
+        )
+
+    mock_async_sessionmaker.begin.assert_called_once()
+    mock_add.assert_called_once()
+    mock_add_arg = mock_add.call_args[0][0]
+    assert isinstance(mock_add_arg, Prospect)
+    assert mock_add_arg.email == prospect_email
+    assert mock_add_arg.deposit_provider_name == prospect_provider
+    assert response.status_code == status.HTTP_200_OK
+    assert response.next_request is None
 
 
 @pytest.mark.asyncio

@@ -140,7 +140,6 @@ async def filter_prospect_for_signup(
         LOG.info(str(e))
         if isinstance(e, UnsuitableProvider):
             context.suitable_provider = False
-            context
         elif isinstance(e, TenancyEndDateOutOfRange):
             context.end_date_is_within_range = False
 
