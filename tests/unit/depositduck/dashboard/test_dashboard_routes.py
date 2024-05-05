@@ -43,6 +43,8 @@ async def test_onboarding_route_allows_user_with_null_completed_onboarding_at(
 
     with patch.object(AsyncSession, "execute", AsyncMock) as mock_execute:
         mock_tenancy = Mock(spec=Tenancy)
+        mock_tenancy_end_date = datetime.today().date()
+        mock_tenancy.end_date = mock_tenancy_end_date
         mock_scalar_one = Mock(return_value=mock_tenancy)
         mock_result = AsyncMock()
         mock_result.scalar_one = mock_scalar_one

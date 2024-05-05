@@ -52,7 +52,6 @@ from depositduck.models.sql.people import Prospect
 from depositduck.settings import Settings
 from depositduck.utils import (
     date_from_iso8601_str,
-    days_since_date,
     decrypt,
     htmx_redirect_to,
 )
@@ -117,7 +116,8 @@ async def filter_prospect_for_signup(
     if end_date is None:
         return  # TODO: return form with validation message
 
-    days_since_end_date = await days_since_date(end_date)
+    # TODO: replace with Pydantic Form & use common methods to check prospect is suitable
+    # days_since_end_date = days_between_dates(end_date)
 
     context = AuthenticatedJinjaBlocks.TemplateContext(
         request=request,
@@ -126,15 +126,14 @@ async def filter_prospect_for_signup(
         provider_choice=provider_choice,
         suitable_provider=True,
         tenancy_end_date=tenancy_end_date,
-        days_since_end_date=days_since_end_date,
+        # days_since_end_date=days_since_end_date,
         end_date_is_within_range=True,
         classes_by_id={},
     )
 
     try:
         context.is_suitable_prospect = await is_prospect_suitable(
-            provider_choice,
-            days_since_end_date,
+            provider_choice, None, end_date
         )
     except (UnsuitableProvider, TenancyEndDateOutOfRange) as e:
         LOG.info(str(e))

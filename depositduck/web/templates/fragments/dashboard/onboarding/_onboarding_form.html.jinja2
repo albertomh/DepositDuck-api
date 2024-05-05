@@ -42,7 +42,7 @@
                                     name="name"
                                     maxlength="40"
                                     @input="$event.target.value = $event.target.value.replace(/\s+/g,' ');"
-                                    value="{{ onboarding_form["values"]["name"] if onboarding_form["values"]["name"] }}"
+                                    value="{{ onboarding_form["user_input"]["name"] if onboarding_form["user_input"]["name"] }}"
                                     hx-post="/dashboard/onboarding/form/validate/"
                                     hx-target="#onboardingForm"
                                     class="form-control {{ onboarding_form["field_classes"]["name"]|d('') }}"
@@ -60,7 +60,7 @@
                                             - or '
                                         </li>
                                     {% endif %}
-                                    {% if err_cls == "EmptyStringError" %}
+                                    {% if err_cls == "EmptyValueError" %}
                                         <li>Please enter your name</li>
                                     {% endif %}
                                 {% endfor %}
@@ -122,11 +122,8 @@
                             <input
                                 type="number"
                                 name="depositAmount"
-                                min="100"
                                 aria-label="Deposit (to the nearest pound)"
-                                @keydown="if ($event.key === '.'){ $event.preventDefault(); }"
-                                @input="$event.target.value = $event.target.value.replace(/[^0-9]*/g,'');"
-                                value="{{ onboarding_form["values"]["deposit_amount"] if onboarding_form["values"]["deposit_amount"] }}"
+                                value="{{ onboarding_form["user_input"]["deposit_amount"] if onboarding_form["user_input"]["deposit_amount"] }}"
                                 hx-post="/dashboard/onboarding/form/validate/"
                                 hx-target="#onboardingForm"
                                 class="form-control {{ onboarding_form["field_classes"]["deposit_amount"]|d('') }}"
@@ -181,16 +178,14 @@
                         <input
                             type="date"
                             name="tenancyStartDate"
-                            x-model.lazy="fields.tenancyStartDate"
-                            @change="validateForm()"
-                            class="form-control mt-1"
-                            :class="validationClassForField('tenancyStartDate')"
+                            value="{{ onboarding_form["user_input"]["tenancy_start_date"] }}"
+                            hx-post="/dashboard/onboarding/form/validate/"
+                            hx-target="#onboardingForm"
+                            class="form-control mt-1 {{ onboarding_form["field_classes"]["tenancy_start_date"]|d('') }}"
                             required />
                     </div>
                 </div>
-                <div
-                    class="row d-none"
-                    :class="{ 'd-none': !errors.tenancyStartDate.datesInWrongOrder }">
+                <div class="row d-none">
                     <p class="text-danger">
                         Start date must be before end date.
                     </p>
@@ -216,12 +211,7 @@
             </div>
 
             <div class="col-10">
-                <p class="fs-5 mb-0" x-show="endDateIsInPast()">
-                    When did your tenancy end?
-                </p>
-                <p class="fs-5 mb-0" x-show="!endDateIsInPast()">
-                    When does your tenancy end?
-                </p>
+                <p class="fs-5 mb-0">When does your tenancy end?</p>
             </div>
         </div>
 
@@ -233,72 +223,60 @@
                 <div class="col-10 pt-3 pb-5 ps-4">
                     <p class="mb-0">
                         You told us your tenancy
-                        <span class="fw-bold" x-show="endDateIsInPast()">
-                            ended on:
-                        </span>
-                        <span class="fw-bold" x-show="!endDateIsInPast()">
-                            ends on:
-                        </span>
+                        <span class="fw-bold">ends on:</span>
                     </p>
 
-                    <div
-                        class="row"
-                        x-data="{ editingEndDate: false, toggleEditingEndDate() { this.editingEndDate = ! this.editingEndDate } }">
+                    <div class="row">
                         <div class="col-9 col-md-5 col-lg-4 col-xl-3">
                             <input
                                 type="date"
                                 name="tenancyEndDate"
-                                x-model.lazy="fields.tenancyEndDate"
-                                @change="validateForm()"
-                                class="form-control mt-1"
-                                :class="validationClassForField('tenancyEndDate')"
-                                x-show="editingEndDate"
+                                value="{{ onboarding_form["user_input"]["tenancy_end_date"] }}"
+                                hx-post="/dashboard/onboarding/form/validate/"
+                                hx-target="#onboardingForm"
+                                class="form-control mt-1 {{ onboarding_form["field_classes"]["tenancy_end_date"]|d('') }}"
                                 required />
-                            <p
-                                class="mt-1 pt-2 mb-0"
-                                x-text="fields.tenancyEndDate"
-                                x-show="!editingEndDate"></p>
-                        </div>
-                        <div class="col-3 ps-0">
-                            <button
-                                type="button"
-                                class="btn btn-link mt-1 px-0"
-                                @click="toggleEditingEndDate()"
-                                x-show="!editingEndDate">
-                                Edit
-                            </button>
                         </div>
                     </div>
-                    <div class="row">
-                        <p
-                            class="text-danger d-none"
-                            :class="{ 'd-none': !errors.tenancyEndDate.datesInWrongOrder }">
-                            End date must be after start date.
-                        </p>
-                        <p
-                            class="text-danger d-none"
-                            :class="{ 'd-none': !errors.tenancyEndDate.isTooShort }">
-                            Your tenancy must be at least 30 days long.
-                        </p>
-                        <p
-                            class="text-danger d-none"
-                            :class="{ 'd-none': !errors.tenancyEndDate.overSixMonthsAway }">
-                            Unfortunately we only accept tenancies ending in the
-                            next six months.
-                        </p>
-                        <p
-                            class="text-danger d-none"
-                            :class="{ 'd-none': !errors.tenancyEndDate.outsideDisputeWindow }">
-                            Unfortunately your tenancy is outside the 90 day
-                            dispute window.
-                        </p>
-                        <p
-                            class="text-danger d-none"
-                            :class="{ 'd-none': !errors.tenancyEndDate.tooCloseToWindowEnd }">
-                            Unfortunately your tenancy is too close to the end
-                            of the 90 day dispute window.
-                        </p>
-                    </div>
+                    {% if onboarding_form["errors"]["tenancy_end_date"] %}
+                        <div class="row text-danger">
+                            <ul class="mb-0">
+                                {% for err_cls, input in onboarding_form["errors"]["tenancy_end_date"].items() %}
+                                    {% if err_cls == "DatesInWrongOrder" %}
+                                        <li>
+                                            End date must be after start date.
+                                        </li>
+                                    {% endif %}
+                                    {% if err_cls == "TenancyIsTooShort" %}
+                                        <li>
+                                            Your tenancy must be at least 30
+                                            days long.
+                                        </li>
+                                    {% endif %}
+                                    {% if err_cls == "TooCloseToDisputeWindowEnd" %}
+                                        <li>
+                                            Unfortunately it is now too close to
+                                            the end of the 90 day dispute
+                                            window.
+                                        </li>
+                                    {% endif %}
+                                    {% if err_cls == "DisputeWindowHasClosed" %}
+                                        <li>
+                                            Unfortunately your tenancy is
+                                            outside the 90 day dispute window.
+                                        </li>
+                                    {% endif %}
+                                    {% if err_cls == "TenancyEndTooFarAway" %}
+                                        <li>
+                                            Unfortunately we only accept
+                                            tenancies ending in the next six
+                                            months.
+                                        </li>
+                                    {% endif %}
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    {% endif %}
                 </div>
             </div>
         {% endblock tenancy_end_input %}
