@@ -10,12 +10,6 @@ from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 from sqlmodel import select
 from typing_extensions import Annotated
 
-from depositduck.auth import (
-    DepositProvider,
-    TenancyEndDateOutOfRange,
-    UnsuitableProvider,
-    is_prospect_suitable,
-)
 from depositduck.auth.dependables import (
     UserManager,
     get_user_manager,
@@ -32,7 +26,7 @@ from depositduck.middleware import frontend_auth_middleware
 from depositduck.models.auth import UserUpdate
 from depositduck.models.sql.auth import User
 from depositduck.models.sql.deposit import Tenancy
-from depositduck.utils import date_from_iso8601_str, days_since_date, htmx_redirect_to
+from depositduck.utils import date_from_iso8601_str, htmx_redirect_to
 
 dashboard_frontend_router = APIRouter(
     dependencies=[Depends(frontend_auth_middleware)],
@@ -64,11 +58,16 @@ async def onboarding(
         except (NoResultFound, MultipleResultsFound) as e:
             LOG.warn(f"error when looking for Tenancy for {user}: {e}")
 
+    onboarding_form = OnboardingForm(
+        name=None,
+        deposit_amount=None,
+        tenancy_start_date=None,
+        tenancy_end_date=tenancy_end_date,
+    )
     context = AuthenticatedJinjaBlocks.TemplateContext(
         request=request,
         user=user,
-        tenancy_end_date=tenancy_end_date,
-        onboarding_form=OnboardingForm().for_template(),
+        onboarding_form=onboarding_form.for_template(),
     )
     return templates.TemplateResponse("dashboard/onboarding.html.jinja2", context)
 
@@ -83,8 +82,21 @@ async def validate_onboarding_form(
     request: Request,
     name: Annotated[str | None, Form()] = None,
     deposit_amount: Annotated[int | None, Form(alias="depositAmount")] = None,
+    tenancy_start_date_str: Annotated[str | None, Form(alias="tenancyStartDate")] = None,
+    tenancy_end_date_str: Annotated[str | None, Form(alias="tenancyEndDate")] = None,
 ):
-    onboarding_form = OnboardingForm(name=name, deposit_amount=deposit_amount)
+    tenancy_start_date = None
+    if tenancy_start_date_str:
+        tenancy_start_date = await date_from_iso8601_str(tenancy_start_date_str)
+    tenancy_end_date = None
+    if tenancy_end_date_str:
+        tenancy_end_date = await date_from_iso8601_str(tenancy_end_date_str)
+    onboarding_form = OnboardingForm(
+        name=name,
+        deposit_amount=deposit_amount,
+        tenancy_start_date=tenancy_start_date,
+        tenancy_end_date=tenancy_end_date,
+    )
 
     context = AuthenticatedJinjaBlocks.TemplateContext(
         request=request, user=user, onboarding_form=onboarding_form.for_template()
@@ -109,48 +121,25 @@ async def complete_onboarding(
     user: Annotated[User, Depends(current_active_user)],
     request: Request,
 ):
-    context = AuthenticatedJinjaBlocks.TemplateContext(
-        request=request,
-        user=user,
-    )
-
-    # sanitise
-    name = name[:40]
     tenancy_start_date = await date_from_iso8601_str(tenancy_start_date_str)
     tenancy_end_date = await date_from_iso8601_str(tenancy_end_date_str)
+    onboarding_form = OnboardingForm(
+        name=name,
+        deposit_amount=deposit_amount,
+        tenancy_start_date=tenancy_start_date,
+        tenancy_end_date=tenancy_end_date,
+    )
 
-    # validate
-    is_suitable_prospect = True
-    if tenancy_end_date is not None:
-        days_since_end_date = await days_since_date(tenancy_end_date)
-        try:
-            await is_prospect_suitable(DepositProvider.TDS.value, days_since_end_date)
-        except (UnsuitableProvider, TenancyEndDateOutOfRange):
-            is_suitable_prospect = False
-    if (
-        not is_suitable_prospect
-        or not name
-        or not deposit_amount
-        or deposit_amount < 100
-        or not tenancy_start_date
-        or not tenancy_end_date
-        or (tenancy_start_date > tenancy_end_date)
-    ):
-        context = context.model_copy(
-            update=dict(
-                name=name,
-                deposit_amount=deposit_amount,
-                tenancy_start_date=tenancy_start_date_str,
-                tenancy_end_date=tenancy_end_date_str,
-            )
+    if not onboarding_form.can_submit:
+        context = AuthenticatedJinjaBlocks.TemplateContext(
+            request=request, user=user, onboarding_form=onboarding_form.for_template()
         )
         return templates.TemplateResponse(
             "fragments/dashboard/onboarding/_onboarding_form.html.jinja2",
-            context=context,
+            context,
             block_name="onboarding_form",
         )
 
-    # update
     user_update = UserUpdate(
         first_name=name, completed_onboarding_at=datetime.now(timezone.utc)
     )
