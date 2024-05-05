@@ -3,69 +3,76 @@
  #}
 
 {% block onboarding_form %}
-    <form
-        id="onboardingForm"
-        hx-post="/dashboard/completeOnboarding/"
-        x-data="window.depositduck.dashboard.welcome.onboardingFormState(
-            '{{ name }}',
-            '{{ deposit_amount }}',
-            '{{ tenancy_start_date }}',
-            '{{ tenancy_end_date }}',
-        )"
-        x-init="validateForm()">
+    <form id="onboardingForm" hx-post="/dashboard/completeOnboarding/">
         {# Q1/4: question - name #}
-        <div class="row mt-2">
-            <div class="col-2 position-relative">
-                <div class="row h-50"></div>
-                <div class="row h-50">
-                    <div class="col border-end border-1 border-black"></div>
-                    <div class="col border-start border-1 border-black"></div>
-                </div>
-                <span
-                    class="position-absolute top-50 start-50 translate-middle bg-white">
-                    <i class="bi bi-1-circle-fill fs-3"></i>
-                </span>
-            </div>
-
-            <div class="col-10">
-                <p class="fs-5 mb-0">How should we address you?</p>
-            </div>
-        </div>
-
-        {# Q1/4: answer input #}
-        <div class="row">
-            <div class="col-1 border-end border-1 border-black"></div>
-            <div class="col-1 border-start border-1 border-black"></div>
-            <div class="col-10 pt-3 pb-5 ps-4">
-                <div class="row">
-                    <div class="col-10 col-md-7 col-lg-5">
-                        <div>
-                            <label for="name" class="form-label fw-bold">
-                                Your name:
-                            </label>
-                            <input
-                                type="text"
-                                id="name"
-                                name="name"
-                                maxlength="40"
-                                x-model.lazy="fields.name"
-                                @change="validateForm()"
-                                class="form-control"
-                                :class="validationClassForField('name')"
-                                required />
+        {% block field__name %}
+            <div hx-target="this" hx-swap="outerHTML">
+                <div class="row mt-2">
+                    <div class="col-2 position-relative">
+                        <div class="row h-50"></div>
+                        <div class="row h-50">
+                            <div
+                                class="col border-end border-1 border-black"></div>
+                            <div
+                                class="col border-start border-1 border-black"></div>
                         </div>
+                        <span
+                            class="position-absolute top-50 start-50 translate-middle bg-white">
+                            <i class="bi bi-1-circle-fill fs-3"></i>
+                        </span>
+                    </div>
+
+                    <div class="col-10">
+                        <p class="fs-5 mb-0">How should we address you?</p>
                     </div>
                 </div>
-                <div
-                    class="row d-none"
-                    :class="{ 'd-none': !errors.name.isInvalid }">
-                    <p class="text-danger">
-                        Your name must only include letters, spaces, hyphens (-)
-                        or apostrophes (').
-                    </p>
+
+                {# Q1/4: answer input #}
+                <div class="row">
+                    <div class="col-1 border-end border-1 border-black"></div>
+                    <div class="col-1 border-start border-1 border-black"></div>
+                    <div class="col-10 pt-3 pb-5 ps-4">
+                        <div class="row">
+                            <div class="col-10 col-md-7 col-lg-5">
+                                <div>
+                                    <label
+                                        for="name"
+                                        class="form-label fw-bold">
+                                        Your name:
+                                    </label>
+                                    <input
+                                        type="text"
+                                        id="name"
+                                        name="name"
+                                        maxlength="40"
+                                        value="{{ onboarding_form["values"]["name"] if onboarding_form["values"]["name"] }}"
+                                        hx-post="/dashboard/onboarding/form/validate/"
+                                        class="form-control {{ onboarding_form["field_classes"]["name"]|d('') }}"
+                                        required />
+                                </div>
+                            </div>
+                        </div>
+                        {% if onboarding_form["errors"]["name"] %}
+                            <div class="row text-danger">
+                                <ul class="mb-0">
+                                    {% for err_cls, input in onboarding_form["errors"]["name"].items() %}
+                                        {% if err_cls == "InvalidCharError" %}
+                                            <li>
+                                                Please include only letters,
+                                                spaces, - or '
+                                            </li>
+                                        {% endif %}
+                                        {% if err_cls == "EmptyStringError" %}
+                                            <li>Please enter your name</li>
+                                        {% endif %}
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                        {% endif %}
+                    </div>
                 </div>
             </div>
-        </div>
+        {% endblock field__name %}
 
         {# Q2/4: question - deposit amount #}
         <div class="row">

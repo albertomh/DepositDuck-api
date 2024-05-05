@@ -21,6 +21,7 @@ from depositduck.auth.dependables import (
     get_user_manager,
 )
 from depositduck.auth.users import current_active_user
+from depositduck.dashboard.forms import OnboardingForm
 from depositduck.dependables import (
     AuthenticatedJinjaBlocks,
     db_session_factory,
@@ -67,9 +68,33 @@ async def onboarding(
         request=request,
         user=user,
         tenancy_end_date=tenancy_end_date,
-        classes_by_id={},
+        onboarding_form=OnboardingForm().for_template(),
     )
     return templates.TemplateResponse("dashboard/onboarding.html.jinja2", context)
+
+
+@dashboard_operations_router.post(
+    "/onboarding/form/validate/",
+    summary="[htmx]",
+)
+async def validate_onboarding_form(
+    templates: Annotated[AuthenticatedJinjaBlocks, Depends(get_templates)],
+    user: Annotated[User, Depends(current_active_user)],
+    request: Request,
+    name: Annotated[str | None, Form()] = None,
+    deposit_amount: Annotated[int | None, Form(alias="depositAmount")] = None,
+):
+    onboarding_form = OnboardingForm(name=name)
+
+    context = AuthenticatedJinjaBlocks.TemplateContext(
+        request=request, user=user, onboarding_form=onboarding_form.for_template()
+    )
+
+    return templates.TemplateResponse(
+        "fragments/dashboard/onboarding/_onboarding_form.html.jinja2",
+        context,
+        block_name="field__name",
+    )
 
 
 @dashboard_operations_router.post("/completeOnboarding/")
