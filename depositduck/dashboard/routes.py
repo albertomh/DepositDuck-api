@@ -84,7 +84,7 @@ async def validate_onboarding_form(
     name: Annotated[str | None, Form()] = None,
     deposit_amount: Annotated[int | None, Form(alias="depositAmount")] = None,
 ):
-    onboarding_form = OnboardingForm(name=name)
+    onboarding_form = OnboardingForm(name=name, deposit_amount=deposit_amount)
 
     context = AuthenticatedJinjaBlocks.TemplateContext(
         request=request, user=user, onboarding_form=onboarding_form.for_template()
@@ -93,7 +93,7 @@ async def validate_onboarding_form(
     return templates.TemplateResponse(
         "fragments/dashboard/onboarding/_onboarding_form.html.jinja2",
         context,
-        block_name="field__name",
+        block_name="onboarding_form",
     )
 
 
