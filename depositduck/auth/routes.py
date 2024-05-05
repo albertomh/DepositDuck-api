@@ -18,7 +18,6 @@ from fastapi_users.exceptions import (
     UserInactive,
     UserNotExists,
 )
-from fastapi_users.router.common import ErrorCode
 from pydantic import EmailStr, ValidationError
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
@@ -35,6 +34,12 @@ from depositduck.auth.dependables import (
     UserManager,
     get_database_strategy,
     get_user_manager,
+)
+from depositduck.auth.forms.login import (
+    LoginBadCredentials,
+    LoginForm,
+    UserNotVerified,
+    VerificationLinkExpired,
 )
 from depositduck.auth.users import auth_backend, current_active_user
 from depositduck.dependables import (
@@ -326,22 +331,23 @@ async def login(
     next: str = "/",
     encrypted_email: str | None = Query(default=None, alias="email"),
 ):
-    prompt_to_reverify = False
-    # value to auto-fill in the 'email' input
-    user_email = ""
+    login_form = LoginForm(
+        username=None,
+        password=None,
+    )
+
     if encrypted_email:
         email = decrypt(settings.app_secret, encrypted_email)
         try:
             user = await user_manager.get_by_email(email)
         except UserNotExists:
-            # TODO:
-            pass
+            login_form.fields.add_error("username", UserNotExists, email)
         if not user.is_verified:
+            login_form.fields.add_error("username", VerificationLinkExpired, email)
             LOG.warn(f"invalid verify token for {user} - prompting to re-verify")
-            prompt_to_reverify = True
         else:
             if prev == "/auth/verify/":
-                user_email = user.email
+                login_form.user_input["username"] = user.email
 
     context = AuthenticatedJinjaBlocks.TemplateContext(
         request=request,
@@ -349,11 +355,14 @@ async def login(
         user=None,
         prev_path=prev,
         next_path=next,
-        prompt_to_reverify=prompt_to_reverify,
         encrypted_email=encrypted_email,
-        user_email=user_email,
+        login_form=login_form.for_template(),
     )
-    return templates.TemplateResponse("auth/login.html.jinja2", context)
+
+    return templates.TemplateResponse(
+        "auth/login.html.jinja2",
+        context,
+    )
 
 
 @auth_operations_router.post("/authenticate/")
@@ -365,17 +374,20 @@ async def authenticate(
     request: Request,
     next: str = "/",
 ):
-    errors: list[str] = []
+    login_form = LoginForm(
+        username=credentials.username,
+        password=credentials.password,
+    )
 
     user = await user_manager.authenticate(credentials)
 
     if user is None or not user.is_active:
-        errors.append(ErrorCode.LOGIN_BAD_CREDENTIALS.value)
-        credentials.username = ""
-    if user and not user.is_verified:
-        errors.append(ErrorCode.LOGIN_USER_NOT_VERIFIED.value)
+        login_form.fields.add_error("username", LoginBadCredentials, credentials.username)
+        login_form.user_input["username"] = ""
+    elif user and not user.is_verified:
+        login_form.fields.add_error("username", UserNotVerified, credentials.username)
 
-    if user and not errors:
+    if user and login_form.can_submit:
         redirect_to_next = await htmx_redirect_to(next)
         redirect_to_next = await log_user_in(auth_db_strategy, user, redirect_to_next)
         return redirect_to_next
@@ -383,8 +395,7 @@ async def authenticate(
     context = AuthenticatedJinjaBlocks.TemplateContext(
         request=request,
         user=user,
-        username=credentials.username,
-        errors=errors,
+        login_form=login_form.for_template(),
     )
     return templates.TemplateResponse(
         "auth/login.html.jinja2", context=context, block_name="main"

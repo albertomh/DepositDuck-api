@@ -4,6 +4,12 @@
 {% extends "common/_base.html.jinja2" %}
 
 {% block main %}
+    {% if "username" in login_form["errors"] and "VerificationLinkExpired" in login_form["errors"]["username"] %}
+        {% set prompt_to_reverify = true %}
+    {% else %}
+        {% set prompt_to_reverify = false %}
+    {% endif %}
+
     <div class="row" id="login-form">
         <div class="col-10 offset-1 col-md-4 offset-md-4">
             <h1>
@@ -11,7 +17,7 @@
                 Log in
             </h1>
 
-            {% if prev_path == "/auth/signup/" or "LOGIN_USER_NOT_VERIFIED" in errors %}
+            {% if prev_path == "/auth/signup/" or "UserNotVerified" in login_form["errors"]["username"] %}
                 <div
                     class="card border-warning my-3"
                     data-testid="cardPleaseVerify">
@@ -119,71 +125,72 @@
                 </div>
             {% endif %}
 
-            <form
-                id="loginForm"
-                hx-post="/auth/authenticate/?next={{ next_path }}"
-                hx-target="#login-form">
-                <div class="mb-3">
-                    <label for="username" class="form-label fw-bold">
-                        Email:
-                    </label>
-                    <input
-                        type="email"
-                        id="username"
-                        name="username"
-                        value="{{ user_email }}"
-                        class="form-control"
-                        required
-                        {% if prompt_to_reverify %}disabled{% endif %} />
-                </div>
-                <div class="mb-3">
-                    <label for="password" class="form-label fw-bold">
-                        Password:
-                    </label>
-                    <input
-                        type="password"
-                        id="password"
-                        name="password"
-                        class="form-control"
-                        required
-                        {% if prompt_to_reverify %}disabled{% endif %} />
-                </div>
+            {% block login_form %}
+                <form
+                    id="loginForm"
+                    hx-post="/auth/authenticate/?next={{ next_path }}"
+                    hx-target="#login-form">
+                    <div class="mb-3">
+                        <label for="username" class="form-label fw-bold">
+                            Email:
+                        </label>
+                        <input
+                            type="email"
+                            id="username"
+                            name="username"
+                            value="{{ login_form["user_input"]["username"] or '' }}"
+                            class="form-control"
+                            required
+                            {% if prompt_to_reverify %}disabled{% endif %} />
+                    </div>
+                    <div class="mb-3">
+                        <label for="password" class="form-label fw-bold">
+                            Password:
+                        </label>
+                        <input
+                            type="password"
+                            id="password"
+                            name="password"
+                            class="form-control"
+                            required
+                            {% if prompt_to_reverify %}disabled{% endif %} />
+                    </div>
+                    {% if "LoginBadCredentials" in login_form["errors"]["username"] %}
+                        <div class="card border-warning mb-3">
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col">
+                                        <i
+                                            class="bi bi-info-circle-fill text-warning fs-5"></i>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col">
+                                        <h5 class="card-title">
+                                            Unknown email or password
+                                        </h5>
+                                    </div>
+                                </div>
+                                <p class="card-text">
+                                    No user matching the provided email or
+                                    password. Please try again.
+                                </p>
+                            </div>
+                        </div>
+                    {% endif %}
 
-                {% if "LOGIN_BAD_CREDENTIALS" in errors %}
-                    <div class="card border-warning mb-3">
-                        <div class="card-body">
-                            <div class="row">
-                                <div class="col">
-                                    <i
-                                        class="bi bi-info-circle-fill text-warning fs-5"></i>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col">
-                                    <h5 class="card-title">
-                                        Unknown email or password
-                                    </h5>
-                                </div>
-                            </div>
-                            <p class="card-text">
-                                No user matching the provided email or password.
-                                Please try again.
-                            </p>
+                    <div class="row">
+                        <div class="col-12">
+                            <button
+                                type="submit"
+                                class="btn btn-primary float-end"
+                                {% if prompt_to_reverify %}disabled{% endif %}>
+                                Log in
+                            </button>
                         </div>
                     </div>
-                {% endif %}
-
-                <div class="row">
-                    <div class="col-12">
-                        <button
-                            type="submit"
-                            class="btn btn-primary float-end"
-                            {% if prompt_to_reverify %}disabled{% endif %}>
-                            Log in
-                        </button>
-                    </div>
-                </div>
-            </form>
+                </form>
+            {% endblock login_form %}
 
             <hr class="mt-5" />
 
