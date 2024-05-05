@@ -1,7 +1,7 @@
-import * as dashboardWelcome from "./dashboard/welcome";
+// import * as exampleModule from "./namespace/module";
 
 window.depositduck = {};
 
-// dashboard
-window.depositduck.dashboard = {};
-window.depositduck.dashboard.welcome = dashboardWelcome;
+// example
+// window.depositduck.somepackage = {};
+// window.depositduck.somepackage.module = exampleModule;
