@@ -8,7 +8,7 @@ import pytest
 
 from depositduck.utils import (
     date_from_iso8601_str,
-    days_since_date,
+    days_between_dates,
     decrypt,
     encrypt,
     is_valid_fernet_key,
@@ -60,37 +60,45 @@ async def test_date_from_iso8601_str_valid():
 
 @pytest.mark.asyncio
 async def test_date_from_iso8601_str_invalid():
-    result = await date_from_iso8601_str("2024/04/22")
+    date_str = "2024/04/22"
 
-    assert result is None
+    with pytest.raises(ValueError) as exc_info:
+        await date_from_iso8601_str(date_str)
+
+    assert (
+        str(exc_info.value) == f"time data '{date_str}' does not match format '%Y-%m-%d'"
+    )
 
 
 @pytest.mark.asyncio
-async def test_days_since_date_past():
+async def test_days_between_dates_past():
+    today = datetime.today().date()
     current_year = datetime.today().year
     last_year = current_year - 1
     input_date = date(last_year, 1, 1)
 
-    result = await days_since_date(input_date)
-
-    assert result >= 0
-
-
-@pytest.mark.asyncio
-async def test_days_since_date_future():
-    current_year = datetime.today().year
-    next_year = current_year + 1
-    input_date = date(next_year, 1, 1)
-
-    result = await days_since_date(input_date)
+    result = days_between_dates(today, input_date)
 
     assert result < 0
 
 
 @pytest.mark.asyncio
-async def test_days_since_date_today():
+async def test_days_between_dates_future():
+    today = datetime.today().date()
+    current_year = datetime.today().year
+    next_year = current_year + 1
+    input_date = date(next_year, 1, 1)
+
+    result = days_between_dates(today, input_date)
+
+    assert result > 0
+
+
+@pytest.mark.asyncio
+async def test_days_between_dates_today():
+    today = datetime.today().date()
     input_date = datetime.today().date()
 
-    result = await days_since_date(input_date)
+    result = days_between_dates(today, input_date)
 
     assert result == 0

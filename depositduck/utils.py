@@ -37,23 +37,18 @@ def decrypt(secret_key: str, encrypted_token: str) -> str:
     return decrypted_bytes.decode()
 
 
-async def date_from_iso8601_str(date_str: str) -> date | None:
-    try:
-        return datetime.strptime(date_str, "%Y-%m-%d").date()
-    except ValueError:
-        print(f"invalid date format: {date_str}")
-        return None
+async def date_from_iso8601_str(date_str: str) -> date:
+    return datetime.strptime(date_str, "%Y-%m-%d").date()
 
 
-async def days_since_date(target_date: date) -> int:
+def days_between_dates(date1: date, date2: date) -> int:
     """
-    Positive for dates in the past.
+    Negative for dates in the past.
     Zero for today.
-    Negative for future dates.
+    Positive for future dates.
     """
-    today = datetime.today().date()
-    delta: timedelta = today - target_date
-    return delta.days
+    delta: timedelta = date1 - date2
+    return -delta.days
 
 
 async def htmx_redirect_to(redirect_to: str) -> Response:
