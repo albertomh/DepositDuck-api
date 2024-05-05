@@ -4,9 +4,11 @@
 
 import re
 
-from pydantic import BaseModel, field_validator
+from pydantic import BaseModel, PositiveInt, field_validator
 
 from depositduck.forms import BaseForm
+
+MINIMUM_DEPOSIT_AMOUNT = 100
 
 
 class EmptyStringError(ValueError):
@@ -17,9 +19,13 @@ class InvalidCharError(ValueError):
     pass
 
 
+class DepositTooSmall(ValueError):
+    pass
+
+
 class OnboardingFormFields(BaseModel):
     name: str | None
-    # deposit_amount: PositiveInt
+    deposit_amount: PositiveInt | None
     # tenancy_start_date: date
     # tenancy_end_date: date
 
@@ -32,7 +38,16 @@ class OnboardingFormFields(BaseModel):
         pattern = re.compile(r"^[a-zA-ZÀ-ÖÙ-öù-ÿĀ-žḀ-ỿ\s\-\']+$", re.UNICODE)
         if not bool(pattern.match(v)):
             raise InvalidCharError()
-        return re.sub(r"\s+", " ", v).strip()
+        return v.strip()
+
+    @field_validator("deposit_amount")
+    @classmethod
+    def deposit_amount_is_valid(cls, v: int) -> int:
+        if not v or v == "":
+            raise EmptyStringError()
+        if v < MINIMUM_DEPOSIT_AMOUNT:
+            raise DepositTooSmall()
+        return v
 
 
 class OnboardingForm(BaseForm):
