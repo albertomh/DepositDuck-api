@@ -2,6 +2,7 @@
 (c) 2024 Alberto Morón Hernández
 """
 
+from datetime import date, datetime
 from enum import Enum
 
 from sqlalchemy.ext.asyncio import async_sessionmaker
@@ -10,7 +11,7 @@ from depositduck.dependables import db_session_factory, get_logger, get_settings
 from depositduck.email import render_html_email, send_email
 from depositduck.models.email import HtmlEmail
 from depositduck.models.sql.auth import User
-from depositduck.utils import encrypt
+from depositduck.utils import days_between_dates, encrypt
 
 settings = get_settings()
 LOG = get_logger()
@@ -37,29 +38,39 @@ class UnsuitableProvider(Exception):
     pass
 
 
-class TenancyEndDateOutOfRange(Exception):
+class DatesInWrongOrder(Exception):
     pass
 
 
-async def is_prospect_suitable(deposit_provider: str, days_since_end_date: int) -> bool:
-    """
-    Determine whether a prospect can be accepted as a DepositDuck user or not, based on:
-      - their deposit being held by TDS
-      - the tenancy end date is within the next 180 days
-      - today falling between their tenancy end date and TDS' time limit
+class TenancyIsTooShort(Exception):
+    pass
 
+
+class TenancyEndDateOutOfRange(Exception):
+    def __init__(self, days_since: int) -> None:
+        super().__init__()
+        self.days_since = days_since
+
+
+class TooCloseToDisputeWindowEnd(TenancyEndDateOutOfRange):
+    pass
+
+
+class DisputeWindowHasClosed(TenancyEndDateOutOfRange):
+    pass
+
+
+class TenancyEndTooFarAway(TenancyEndDateOutOfRange):
+    pass
+
+
+def prospect_provider_is_acceptable(deposit_provider: str) -> bool:
+    """
     Args:
         deposit_provider (str): A string representation of their deposit provider.
-        days_since_end_date (int): Number of days since the tenancy ended. +ve for past,
-          -ve for future, 0 for today.
-
-    Returns:
-        bool: True if the prospect is suitable to become a user
 
     Raises:
         UnsuitableProvider: Provider is other than TDS.
-        TenancyEndDateOutOfRange: Too many days have passed since the end of the tenancy
-          or today is too close (less than five days) to the end of the dispute window.
     """
     acceptable_providers = [DepositProvider.TDS.value]
     provider_is_accepted = deposit_provider.lower() in acceptable_providers
@@ -68,23 +79,88 @@ async def is_prospect_suitable(deposit_provider: str, days_since_end_date: int) 
             f"prospect unsuitable due to provider '{deposit_provider}'"
         )
 
-    end_date_is_within_dispute_window = days_since_end_date < TDS_DISPUTE_WINDOW_IN_DAYS
-    end_date_too_close_to_dispute_window_end = days_since_end_date > (
-        TDS_DISPUTE_WINDOW_IN_DAYS - 5
-    )
-    if not end_date_is_within_dispute_window or end_date_too_close_to_dispute_window_end:
-        raise TenancyEndDateOutOfRange(
-            f"prospect unsuitable due to end date being {days_since_end_date} days ago"
-        )
+    return provider_is_accepted
 
-    end_date_is_within_next_six_months = days_since_end_date > (-1 * MAX_DAYS_IN_ADVANCE)
-    if not end_date_is_within_next_six_months:
-        raise TenancyEndDateOutOfRange(
-            f"prospect unsuitable due to end date being {days_since_end_date * -1} "
-            "days from now"
-        )
 
-    return provider_is_accepted and end_date_is_within_dispute_window
+def prospect_tenancy_dates_are_acceptable(start_date: date, end_date: date) -> bool:
+    """
+    Raises:
+        DatesInWrongOrder: the end date must follow the start date.
+        TenancyIsTooShort: must be at least thirty days long.
+    """
+    if start_date > end_date:
+        raise DatesInWrongOrder()
+    difference = days_between_dates(start_date, end_date)
+    if difference < 30:
+        raise TenancyIsTooShort()
+    return True
+
+
+def prospect_end_date_is_acceptable(tenancy_end_date: date) -> bool:
+    """
+    Raises:
+        DisputeWindowHasClosed: too many days have passed since the end of the tenancy.
+        TooCloseToDisputeWindowEnd: end of dispute window is less than five days away.
+        TenancyEndTooFarAway: tenancy ends more than six months in he future.
+    """
+    today = datetime.today().date()
+    days_since_end_date = days_between_dates(today, tenancy_end_date)
+
+    if days_since_end_date < 0:
+        if (-1 * days_since_end_date) > TDS_DISPUTE_WINDOW_IN_DAYS:
+            raise DisputeWindowHasClosed(days_since_end_date)
+        if (-1 * days_since_end_date) > (TDS_DISPUTE_WINDOW_IN_DAYS - 5):
+            raise TooCloseToDisputeWindowEnd(days_since_end_date)
+
+    else:
+        if days_since_end_date > MAX_DAYS_IN_ADVANCE:
+            raise TenancyEndTooFarAway(days_since_end_date)
+
+    return True
+
+
+async def is_prospect_suitable(
+    deposit_provider: str, start_date: date | None, end_date: date
+) -> bool:
+    """
+    Determine whether a prospect can be accepted as a DepositDuck user.
+
+    Args:
+        deposit_provider (str): A string representation of their deposit provider.
+        start_date (date | None):
+        end_date (date):
+
+    Returns:
+        bool: True if the prospect is suitable to become a user
+
+    Raises:
+        ExceptionGroup[UnsuitableProvider, TenancyEndDateOutOfRange]
+    """
+    exceptions: list[Exception] = []
+
+    try:
+        provider_is_ok = prospect_provider_is_acceptable(deposit_provider)
+    except UnsuitableProvider as e:
+        exceptions.append(e)
+
+    if start_date:
+        try:
+            dates_are_ok = prospect_tenancy_dates_are_acceptable(start_date, end_date)
+        except (DatesInWrongOrder, TenancyIsTooShort) as e:
+            exceptions.append(e)
+
+    try:
+        end_date_is_ok = prospect_end_date_is_acceptable(end_date)
+    except (
+        DisputeWindowHasClosed,
+        TooCloseToDisputeWindowEnd,
+        TenancyEndTooFarAway,
+    ) as e:
+        exceptions.append(e)
+
+    if exceptions:
+        raise ExceptionGroup("", exceptions)
+    return provider_is_ok and dates_are_ok and end_date_is_ok
 
 
 async def send_verification_email(user: User, token: str) -> None:
