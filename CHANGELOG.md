@@ -10,6 +10,9 @@ to create a new release.
 
 ## [Unreleased]
 
+### Added
+- `forms` module to create generic form models powered by Pydantic.
+
 ### Changed
 
 - Reject prospect if today is too close to the end of their dispute window.
