@@ -30,24 +30,25 @@ class BaseForm(ABC):
 
     def get_errors_for_frontend(self) -> dict:
         errors: dict[str, dict[str, str]] = defaultdict(dict)
-        if self.field_values and self.errors:
+        if self.errors:
             for error in self.errors:
                 loc = str(error["loc"][0])
-                error_cls = type(error["ctx"]["error"]).__name__
-                errors[loc][error_cls] = error["input"]
+                if self.field_values.get(loc) is not None:
+                    error_cls = type(error["ctx"]["error"]).__name__
+                    errors[loc][error_cls] = error["input"]
         return errors
 
     def get_classes_for_fields(self) -> dict:
         classes = {}
         for field_name, value in self.field_values.items():
             class_str = ""
-            # if value is not None:
-            errors = self.get_errors_for_frontend().get(field_name)
-            if errors is None:
-                class_str = "is-valid"
-            else:
-                class_str = "is-invalid"
-            classes[field_name] = class_str
+            if value is not None:
+                errors = self.get_errors_for_frontend().get(field_name)
+                if errors is None:
+                    class_str = "is-valid"
+                else:
+                    class_str = "is-invalid"
+                classes[field_name] = class_str
         return classes
 
     def for_template(self) -> dict:
