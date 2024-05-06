@@ -35,7 +35,7 @@ cffi==1.16.0
     #   cryptography
 click==8.1.7
     # via uvicorn
-coverage==7.5.0
+coverage==7.5.1
     # via -r requirements/test.in
 cryptography==42.0.5
     # via
