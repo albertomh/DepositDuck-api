@@ -73,7 +73,7 @@ async def onboarding(
 
 
 @dashboard_operations_router.post(
-    "/onboarding/form/validate/",
+    "/onboarding/validateForm/",
     summary="[htmx]",
 )
 async def validate_onboarding_form(

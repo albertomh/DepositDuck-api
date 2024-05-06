@@ -9,6 +9,10 @@ from typing import Any
 from pydantic import BaseModel
 
 
+class EmptyValueError(ValueError):
+    pass
+
+
 class BaseFormFields(BaseModel, ABC):
     # {"field_name": {"CustomException": "user_input", "AnotherExc": "other_input"}}
     errors: dict[str, dict[str, str]] = defaultdict(dict)
@@ -42,7 +46,8 @@ class BaseForm(ABC):
 
     @property
     def can_submit(self) -> bool:
-        return bool(self.user_input) and not bool(self.fields.errors)
+        missing_input = any(v is None for v in self.user_input.values())
+        return not missing_input and not bool(self.fields.errors)
 
     def for_template(self) -> dict:
         fields_export = self.fields.model_dump()

@@ -52,12 +52,18 @@
                         type="email"
                         id="email"
                         name="email"
-                        value="{{ email }}"
-                        class="form-control"
+                        value="{{ signup_form["user_input"]["email"] or '' }}"
+                        hx-post="/auth/signup/validateForm/"
+                        hx-target="#signupForm"
+                        class="form-control mt-1 {{ signup_form["field_classes"]["email"]|d('') }}"
                         required />
-                    {% if "REGISTER_INVALID_EMAIL" in errors %}
+                    {% if signup_form["errors"]["email"] %}
                         <div class="invalid-feedback">
-                            Please provide a valid email.
+                            {% for err_cls, input in signup_form["errors"]["email"].items() %}
+                                {% if err_cls == "InvalidEmail" %}
+                                    <li>Please provide a valid email.</li>
+                                {% endif %}
+                            {% endfor %}
                         </div>
                     {% endif %}
                 </div>
@@ -69,17 +75,25 @@
                         type="password"
                         id="password"
                         name="password"
-                        value="{{ password }}"
-                        class="form-control"
                         aria-describedby="passwordHelp"
+                        value="{{ signup_form["user_input"]["password"] or '' }}"
+                        hx-post="/auth/signup/validateForm/"
+                        hx-target="#signupForm"
+                        class="form-control mt-1 {{ signup_form["field_classes"]["password"]|d('') }}"
                         required />
                     <div id="passwordHelp" class="form-text">
                         Password must be at least 8 characters long.
                     </div>
-                    {% if "PASSWORD_TOO_SHORT" in errors %}
+                    {% if signup_form["errors"]["password"] %}
                         <div class="invalid-feedback">
-                            Please make sure your password is at least 8
-                            characters long.
+                            {% for err_cls, input in signup_form["errors"]["password"].items() %}
+                                {% if err_cls == "PasswordTooShort" %}
+                                    <li>
+                                        Please make sure your password is at
+                                        least 8 characters long.
+                                    </li>
+                                {% endif %}
+                            {% endfor %}
                         </div>
                     {% endif %}
                 </div>
@@ -91,11 +105,20 @@
                         type="password"
                         id="confirm-password"
                         name="confirmPassword"
-                        class="form-control"
+                        value="{{ signup_form["user_input"]["confirm_password"] or '' }}"
+                        hx-post="/auth/signup/validateForm/"
+                        hx-target="#signupForm"
+                        class="form-control mt-1 {{ signup_form["field_classes"]["confirm_password"]|d('') }}"
                         required />
-                    {% if "CONFIRM_PASSWORD_DOES_NOT_MATCH" in errors %}
+                    {% if signup_form["errors"]["confirm_password"] %}
                         <div class="invalid-feedback">
-                            Please provide the same password twice.
+                            {% for err_cls, input in signup_form["errors"]["confirm_password"].items() %}
+                                {% if err_cls == "ConfirmPasswordDoesNotMatch" %}
+                                    <li>
+                                        Please provide the same password twice.
+                                    </li>
+                                {% endif %}
+                            {% endfor %}
                         </div>
                     {% endif %}
                 </div>
@@ -125,7 +148,10 @@
             </div>
 
             <div class="col-10 col-md-6">
-                <button type="submit" class="btn btn-primary float-end">
+                <button
+                    type="submit"
+                    class="btn btn-primary float-end"
+                    {% if not signup_form["can_submit"] %}disabled{% endif %}>
                     Sign up
                 </button>
             </div>

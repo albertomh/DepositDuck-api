@@ -2,8 +2,7 @@
 (c) 2024 Alberto Morón Hernández
 """
 
-from collections import defaultdict
-from datetime import date, datetime
+from datetime import datetime
 
 from cryptography.fernet import InvalidToken
 from fastapi import APIRouter, Depends, Form, Query, Request, status
@@ -18,7 +17,7 @@ from fastapi_users.exceptions import (
     UserInactive,
     UserNotExists,
 )
-from pydantic import EmailStr, ValidationError
+from pydantic import ValidationError
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 from typing_extensions import Annotated
@@ -40,7 +39,13 @@ from depositduck.auth.forms.login import (
     UserNotVerified,
     VerificationLinkExpired,
 )
-from depositduck.auth.forms.signup import FilterProspectForm
+from depositduck.auth.forms.signup import (
+    ConfirmPasswordDoesNotMatch,
+    FilterProspectForm,
+    InvalidEmail,
+    PasswordTooShort,
+    SignupForm,
+)
 from depositduck.auth.users import auth_backend, current_active_user
 from depositduck.dependables import (
     AuthenticatedJinjaBlocks,
@@ -61,7 +66,6 @@ from depositduck.utils import (
     decrypt,
     htmx_redirect_to,
 )
-from depositduck.web.templates import BootstrapClasses
 
 auth_frontend_router = APIRouter(
     dependencies=[Depends(frontend_auth_middleware)],
@@ -171,11 +175,18 @@ async def filter_prospect_for_signup(
     today = datetime.today().date()
     context.days_since_end_date = days_between_dates(today, tenancy_end_date)
 
+    context.tenancy_end_date = tenancy_end_date_str
     context.end_date_is_within_range = True
     try:
         context.is_suitable_prospect = await is_prospect_suitable(
             provider_choice, None, tenancy_end_date
         )
+        signup_form = SignupForm(
+            email=None,
+            password=None,
+            confirm_password=None,
+        )
+        context.signup_form = signup_form.for_template()
         response = templates.TemplateResponse(
             "fragments/auth/signup/_signup_user_form.html.jinja2", context
         )
@@ -197,7 +208,7 @@ async def filter_prospect_for_signup(
 
 @auth_operations_router.post("/unsuitableProspectFunnel/")
 async def unsuitable_prospect_funnel(
-    email: Annotated[EmailStr, Form()],
+    email: Annotated[str, Form()],
     provider_name: Annotated[str, Form(alias="providerName")],
     db_session_factory: Annotated[async_sessionmaker, Depends(db_session_factory)],
     templates: Annotated[AuthenticatedJinjaBlocks, Depends(get_templates)],
@@ -224,27 +235,64 @@ async def unsuitable_prospect_funnel(
     )
 
 
+@auth_operations_router.post("/signup/validateForm/")
+async def validate_signup_form(
+    tenancy_end_date_str: Annotated[str, Form(alias="tenancyEndDate")],
+    templates: Annotated[AuthenticatedJinjaBlocks, Depends(get_templates)],
+    user_manager: Annotated[UserManager, Depends(get_user_manager)],
+    user: Annotated[User, Depends(current_active_user)],
+    request: Request,
+    email: Annotated[str | None, Form()] = None,
+    password: Annotated[str | None, Form()] = None,
+    confirm_password: Annotated[str | None, Form(alias="confirmPassword")] = None,
+):
+    signup_form = SignupForm(
+        email=email,
+        password=password,
+        confirm_password=confirm_password,
+    )
+
+    if password is not None:
+        try:
+            await user_manager.validate_password(password)
+        except InvalidPasswordException as e:
+            if e.reason == InvalidPasswordReason.PASSWORD_TOO_SHORT:
+                signup_form.fields.add_error("password", PasswordTooShort, password)
+        if confirm_password is not None and confirm_password != password:
+            signup_form.fields.add_error(
+                "confirm_password", ConfirmPasswordDoesNotMatch, confirm_password
+            )
+
+    context = AuthenticatedJinjaBlocks.TemplateContext(
+        request=request,
+        user=user,
+        tenancy_end_date=tenancy_end_date_str,
+        signup_form=signup_form.for_template(),
+    )
+    return templates.TemplateResponse(
+        "fragments/auth/signup/_signup_user_form.html.jinja2",
+        context=context,
+        block_name="signup_form",
+    )
+
+
 @auth_operations_router.post("/register/")
 async def register(
-    tenancy_end_date: Annotated[date, Form(alias="tenancyEndDate")],
-    email: Annotated[EmailStr, Form()],
-    password: Annotated[str, Form()],
-    confirm_password: Annotated[str, Form(alias="confirmPassword")],
+    tenancy_end_date_str: Annotated[str, Form(alias="tenancyEndDate")],
     db_session_factory: Annotated[async_sessionmaker, Depends(db_session_factory)],
     templates: Annotated[AuthenticatedJinjaBlocks, Depends(get_templates)],
     user_manager: Annotated[UserManager, Depends(get_user_manager)],
     user: Annotated[User, Depends(current_active_user)],
     request: Request,
+    email: Annotated[str | None, Form()] = None,
+    password: Annotated[str | None, Form()] = None,
+    confirm_password: Annotated[str | None, Form(alias="confirmPassword")] = None,
 ):
-    errors: list[str] = []
-    classes_by_id: dict[str, str] = defaultdict(str)
-
-    if confirm_password != password:
-        errors.append(InvalidPasswordReason.CONFIRM_PASSWORD_DOES_NOT_MATCH.value)
-    try:
-        await user_manager.validate_password(password)
-    except InvalidPasswordException as e:
-        errors.append(e.reason.value)
+    signup_form = SignupForm(
+        email=email,
+        password=password,
+        confirm_password=confirm_password,
+    )
 
     try:
         user_create = UserCreate(
@@ -254,13 +302,15 @@ async def register(
     except UserAlreadyExists:
         redirect_to_login = await htmx_redirect_to("/login/?prev=existingUser")
         return redirect_to_login
-    except InvalidPasswordException as e:
-        errors.append(e.reason.value)
+    except InvalidPasswordException:
+        signup_form.fields.add_error("password", PasswordTooShort, password)
     except ValidationError:
-        errors.append("REGISTER_INVALID_EMAIL")
+        signup_form.fields.add_error("email", InvalidEmail, email)
 
     if new_user is not None:
         try:
+            if tenancy_end_date_str:
+                tenancy_end_date = await date_from_iso8601_str(tenancy_end_date_str)
             tenancy = Tenancy(
                 deposit_in_p=0, end_date=tenancy_end_date, user_id=new_user.id
             )
@@ -276,25 +326,14 @@ async def register(
             return redirect_to_login
         except (UserNotExists, UserInactive, UserAlreadyVerified) as e:
             LOG.warn(f"exception when initiating verification for {new_user}: {e}")
-
-    fields_to_exceptions = {
-        "email": ["REGISTER_INVALID_EMAIL"],
-        "password": [InvalidPasswordReason.PASSWORD_TOO_SHORT.value],
-        "confirm-password": [InvalidPasswordReason.CONFIRM_PASSWORD_DOES_NOT_MATCH.value],
-    }
-    for field_id, excs in fields_to_exceptions.items():
-        if set(errors).intersection(set(excs)):
-            classes_by_id[field_id] += f" {BootstrapClasses.IS_INVALID.value}"
-        else:
-            classes_by_id[field_id] += f" {BootstrapClasses.IS_VALID.value}"
+            if isinstance(e, UserAlreadyVerified):
+                redirect_to_login = await htmx_redirect_to("/login/?prev=existingUser")
+                return redirect_to_login
 
     context = AuthenticatedJinjaBlocks.TemplateContext(
         request=request,
         user=user,
-        email=email,
-        password=password,
-        classes_by_id=classes_by_id,
-        errors=errors,
+        signup_form=signup_form.for_template(),
     )
     return templates.TemplateResponse(
         "fragments/auth/signup/_signup_user_form.html.jinja2",
