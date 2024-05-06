@@ -40,6 +40,7 @@ from depositduck.auth.forms.login import (
     UserNotVerified,
     VerificationLinkExpired,
 )
+from depositduck.auth.forms.signup import FilterProspectForm
 from depositduck.auth.users import auth_backend, current_active_user
 from depositduck.dependables import (
     AuthenticatedJinjaBlocks,
@@ -97,58 +98,101 @@ async def signup(
     user: Annotated[User, Depends(current_active_user)],
     request: Request,
 ):
+    filter_prospect_form = FilterProspectForm(
+        provider_choice=None,
+        tenancy_end_date=None,
+    )
+
     context = AuthenticatedJinjaBlocks.TemplateContext(
         request=request,
         user=user,
-        classes_by_id={},
+        filter_prospect_form=filter_prospect_form.for_template(),
     )
     return templates.TemplateResponse("auth/signup.html.jinja2", context)
 
 
-@auth_operations_router.post("/filterProspect/")
-async def filter_prospect_for_signup(
-    provider_choice: Annotated[str, Form(alias="providerChoice")],
-    tenancy_end_date_str: Annotated[str, Form(alias="tenancyEndDate")],
+@auth_operations_router.post("/filterProspect/validateForm/")
+async def validate_filter_prospect_form(
     templates: Annotated[AuthenticatedJinjaBlocks, Depends(get_templates)],
     user: Annotated[User, Depends(current_active_user)],
     request: Request,
+    provider_choice: Annotated[str | None, Form(alias="providerChoice")] = None,
+    tenancy_end_date_str: Annotated[str | None, Form(alias="tenancyEndDate")] = None,
 ):
-    tenancy_end_date = await date_from_iso8601_str(tenancy_end_date_str)
-    if tenancy_end_date is None:
-        return  # TODO: return form with validation message
+    tenancy_end_date = None
+    if tenancy_end_date_str:
+        tenancy_end_date = await date_from_iso8601_str(tenancy_end_date_str)
+    filter_prospect_form = FilterProspectForm(
+        provider_choice=provider_choice,
+        tenancy_end_date=tenancy_end_date,
+    )
 
-    today = datetime.today().date()
-    days_since_end_date = days_between_dates(today, tenancy_end_date)
+    context = AuthenticatedJinjaBlocks.TemplateContext(
+        request=request,
+        user=user,
+        filter_prospect_form=filter_prospect_form.for_template(),
+    )
 
+    return templates.TemplateResponse(
+        "fragments/auth/signup/_filter_prospect_form.html.jinja2",
+        context,
+        block_name="filter_prospect_form",
+    )
+
+
+@auth_operations_router.post("/filterProspect/")
+async def filter_prospect_for_signup(
+    templates: Annotated[AuthenticatedJinjaBlocks, Depends(get_templates)],
+    user: Annotated[User, Depends(current_active_user)],
+    request: Request,
+    provider_choice: Annotated[str | None, Form(alias="providerChoice")] = None,
+    tenancy_end_date_str: Annotated[str | None, Form(alias="tenancyEndDate")] = None,
+):
     context = AuthenticatedJinjaBlocks.TemplateContext(
         request=request,
         user=user,
         is_suitable_prospect=False,
         provider_choice=provider_choice,
-        suitable_provider=True,
-        tenancy_end_date=tenancy_end_date_str,
-        days_since_end_date=days_since_end_date,
-        end_date_is_within_range=True,
-        classes_by_id={},
     )
 
+    tenancy_end_date = None
+    if tenancy_end_date_str:
+        tenancy_end_date = await date_from_iso8601_str(tenancy_end_date_str)
+    if provider_choice is None or tenancy_end_date is None:
+        filter_prospect_form = FilterProspectForm(
+            provider_choice=provider_choice,
+            tenancy_end_date=tenancy_end_date,
+        )
+        context.filter_prospect_form = filter_prospect_form.for_template()
+        return templates.TemplateResponse(
+            "fragments/auth/signup/_filter_prospect_form.html.jinja2", context
+        )
+
+    today = datetime.today().date()
+    context.days_since_end_date = days_between_dates(today, tenancy_end_date)
+
+    context.end_date_is_within_range = True
     try:
         context.is_suitable_prospect = await is_prospect_suitable(
             provider_choice, None, tenancy_end_date
         )
+        response = templates.TemplateResponse(
+            "fragments/auth/signup/_signup_user_form.html.jinja2", context
+        )
+        query = "step=signup"
     except ExceptionGroup as eg:
         for exc in eg.exceptions:
             LOG.info(str(exc))
             if isinstance(exc, TenancyEndDateOutOfRange):
                 context.end_date_is_within_range = False
 
-        return templates.TemplateResponse(
+        response = templates.TemplateResponse(
             "fragments/auth/signup/_filter_prospect_reject.html.jinja2", context
         )
+        query = "step=funnel"
 
-    return templates.TemplateResponse(
-        "fragments/auth/signup/_signup_user_form.html.jinja2", context
-    )
+    response.headers.update({"HX-Replace-Url": f"/signup/?{query}"})
+    return response
 
 
 @auth_operations_router.post("/unsuitableProspectFunnel/")

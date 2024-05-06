@@ -53,7 +53,7 @@
                         id="email"
                         name="email"
                         value="{{ email }}"
-                        class="form-control {{ classes_by_id['email'] }}"
+                        class="form-control"
                         required />
                     {% if "REGISTER_INVALID_EMAIL" in errors %}
                         <div class="invalid-feedback">
@@ -70,7 +70,7 @@
                         id="password"
                         name="password"
                         value="{{ password }}"
-                        class="form-control {{ classes_by_id['password'] }}"
+                        class="form-control"
                         aria-describedby="passwordHelp"
                         required />
                     <div id="passwordHelp" class="form-text">
@@ -91,7 +91,7 @@
                         type="password"
                         id="confirm-password"
                         name="confirmPassword"
-                        class="form-control {{ classes_by_id['confirm-password'] }}"
+                        class="form-control"
                         required />
                     {% if "CONFIRM_PASSWORD_DOES_NOT_MATCH" in errors %}
                         <div class="invalid-feedback">

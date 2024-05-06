@@ -43,7 +43,7 @@
                                     maxlength="40"
                                     @input="$event.target.value = $event.target.value.replace(/\s+/g,' ');"
                                     value="{{ onboarding_form["user_input"]["name"] or '' }}"
-                                    hx-post="/dashboard/onboarding/form/validate/"
+                                    hx-post="/dashboard/onboarding/validateForm/"
                                     hx-target="#onboardingForm"
                                     class="form-control {{ onboarding_form["field_classes"]["name"]|d('') }}"
                                     required />
@@ -124,7 +124,7 @@
                                 name="depositAmount"
                                 aria-label="Deposit (to the nearest pound)"
                                 value="{{ onboarding_form["user_input"]["deposit_amount"] or '' }}"
-                                hx-post="/dashboard/onboarding/form/validate/"
+                                hx-post="/dashboard/onboarding/validateForm/"
                                 hx-target="#onboardingForm"
                                 class="form-control {{ onboarding_form["field_classes"]["deposit_amount"]|d('') }}"
                                 required />
@@ -179,7 +179,7 @@
                             type="date"
                             name="tenancyStartDate"
                             value="{{ onboarding_form["user_input"]["tenancy_start_date"] }}"
-                            hx-post="/dashboard/onboarding/form/validate/"
+                            hx-post="/dashboard/onboarding/validateForm/"
                             hx-target="#onboardingForm"
                             class="form-control mt-1 {{ onboarding_form["field_classes"]["tenancy_start_date"]|d('') }}"
                             required />
@@ -232,7 +232,7 @@
                                 type="date"
                                 name="tenancyEndDate"
                                 value="{{ onboarding_form["user_input"]["tenancy_end_date"] }}"
-                                hx-post="/dashboard/onboarding/form/validate/"
+                                hx-post="/dashboard/onboarding/validateForm/"
                                 hx-target="#onboardingForm"
                                 class="form-control mt-1 {{ onboarding_form["field_classes"]["tenancy_end_date"]|d('') }}"
                                 required />
@@ -296,18 +296,12 @@
             </div>
 
             <div class="col-10 col-md-6">
-                {% if onboarding_form["can_submit"] %}
-                    <button type="submit" class="btn btn-primary float-end">
-                        Next
-                    </button>
-                {% else %}
-                    <button
-                        type="submit"
-                        class="btn btn-primary float-end"
-                        disabled>
-                        Next
-                    </button>
-                {% endif %}
+                <button
+                    type="submit"
+                    class="btn btn-primary float-end"
+                    {% if not onboarding_form["can_submit"] %}disabled{% endif %}>
+                    Next
+                </button>
             </div>
         </div>
     </form>
