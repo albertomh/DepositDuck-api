@@ -37,7 +37,7 @@ click==8.1.7
     # via uvicorn
 coverage==7.5.0
     # via -r requirements/test.in
-cryptography==42.0.5
+cryptography==42.0.6
     # via
     #   -r requirements/base.in
     #   pyjwt
