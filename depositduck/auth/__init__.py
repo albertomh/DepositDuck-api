@@ -143,12 +143,6 @@ async def is_prospect_suitable(
     except UnsuitableProvider as e:
         exceptions.append(e)
 
-    if start_date:
-        try:
-            dates_are_ok = prospect_tenancy_dates_are_acceptable(start_date, end_date)
-        except (DatesInWrongOrder, TenancyIsTooShort) as e:
-            exceptions.append(e)
-
     try:
         end_date_is_ok = prospect_end_date_is_acceptable(end_date)
     except (
@@ -158,9 +152,17 @@ async def is_prospect_suitable(
     ) as e:
         exceptions.append(e)
 
+    if start_date:
+        try:
+            dates_are_ok = prospect_tenancy_dates_are_acceptable(start_date, end_date)
+        except (DatesInWrongOrder, TenancyIsTooShort) as e:
+            exceptions.append(e)
+
     if exceptions:
         raise ExceptionGroup("", exceptions)
-    return provider_is_ok and dates_are_ok and end_date_is_ok
+    if start_date:
+        return provider_is_ok and dates_are_ok and end_date_is_ok
+    return provider_is_ok and end_date_is_ok
 
 
 async def send_verification_email(user: User, token: str) -> None:

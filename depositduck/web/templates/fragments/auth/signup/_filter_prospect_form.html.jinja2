@@ -37,7 +37,11 @@
                             type="radio"
                             name="providerChoice"
                             value="tds"
-                            id="providerTDS" />
+                            id="providerTDS"
+                            hx-post="/auth/filterProspect/validateForm/"
+                            hx-target="#filterProspectForm"
+                            {% if filter_prospect_form["user_input"]["provider_choice"]=="tds" %}checked{% endif %}
+                            required />
                         <label
                             class="form-check-label"
                             for="providerTDS"
@@ -51,7 +55,11 @@
                             type="radio"
                             name="providerChoice"
                             value="other"
-                            id="providerOther" />
+                            id="providerOther"
+                            hx-post="/auth/filterProspect/validateForm/"
+                            hx-target="#filterProspectForm"
+                            {% if filter_prospect_form["user_input"]["provider_choice"]=="other" %}checked{% endif %}
+                            required />
                         <label
                             class="form-check-label"
                             for="providerOther"
@@ -107,7 +115,11 @@
                     <input
                         type="date"
                         name="tenancyEndDate"
-                        class="form-control" />
+                        value="{{ filter_prospect_form["user_input"]["tenancy_end_date"] }}"
+                        hx-post="/auth/filterProspect/validateForm/"
+                        hx-target="#filterProspectForm"
+                        class="form-control mt-1 {{ filter_prospect_form["field_classes"]["tenancy_end_date"]|d('') }}"
+                        required />
                 </label>
             </div>
         </div>
@@ -159,7 +171,10 @@
             </div>
 
             <div class="col-10 col-md-6">
-                <button type="submit" class="btn btn-primary float-end">
+                <button
+                    type="submit"
+                    class="btn btn-primary float-end"
+                    {% if not filter_prospect_form["can_submit"] %}disabled{% endif %}>
                     Next
                 </button>
             </div>

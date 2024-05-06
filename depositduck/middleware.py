@@ -19,6 +19,7 @@ FRONTEND_MUST_BE_LOGGED_OUT_PATHS = [
 
 OPERATIONS_MUST_BE_LOGGED_OUT_PATHS = [
     "/auth/filterProspect/",
+    "/auth/filterProspect/validateForm/",
     "/auth/unsuitableProspectFunnel/",
     "/auth/requestVerification/",
     "/auth/verify/",
