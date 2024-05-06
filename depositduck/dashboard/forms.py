@@ -17,13 +17,9 @@ from depositduck.auth import (
     prospect_end_date_is_acceptable,
     prospect_tenancy_dates_are_acceptable,
 )
-from depositduck.forms import BaseForm, BaseFormFields
+from depositduck.forms import BaseForm, BaseFormFields, EmptyValueError
 
 MINIMUM_DEPOSIT_AMOUNT = 100
-
-
-class EmptyValueError(ValueError):
-    pass
 
 
 class InvalidCharError(ValueError):
