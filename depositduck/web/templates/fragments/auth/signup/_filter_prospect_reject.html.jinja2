@@ -61,7 +61,7 @@
     </div>
 
     {% block unsuitable_prospect_funnel %}
-        <div class="row mt-5" id="unsuitable-prospect-funnel-card">
+        <div class="row mt-5" id="unsuitableProspectFunnelCard">
             <div class="d-none d-md-block col-md-2"></div>
 
             <div class="col-12 col-md-8">
@@ -95,7 +95,8 @@
 
                             <form
                                 hx-post="/auth/unsuitableProspectFunnel/"
-                                hx-target="#unsuitable-prospect-funnel-card">
+                                hx-target="#unsuitableProspectFunnelCard"
+                                hx-swap="outerHTML">
                                 <div class="mb-3">
                                     <label
                                         for="email"
@@ -108,7 +109,11 @@
                                                 type="email"
                                                 id="email"
                                                 name="email"
-                                                class="form-control"
+                                                value="{{ unsuitable_prospect_form["user_input"]["email"] or '' }}"
+                                                hx-post="/auth/unsuitableProspectFunnel/validateForm/"
+                                                hx-target="#unsuitableProspectFunnelCard"
+                                                hx-swap="outerHTML"
+                                                class="form-control {{ unsuitable_prospect_form["field_classes"]["email"]|d('') }}"
                                                 required />
                                         </div>
                                     </div>
@@ -125,14 +130,19 @@
                                                 type="text"
                                                 id="provider-name"
                                                 name="providerName"
-                                                class="form-control"
+                                                value="{{ unsuitable_prospect_form["user_input"]["provider_name"] or '' }}"
+                                                hx-post="/auth/unsuitableProspectFunnel/validateForm/"
+                                                hx-target="#unsuitableProspectFunnelCard"
+                                                hx-swap="outerHTML"
+                                                class="form-control {{ unsuitable_prospect_form["field_classes"]["provider_name"]|d('') }}"
                                                 required />
                                         </div>
                                     </div>
                                 </div>
                                 <button
                                     type="submit"
-                                    class="btn btn-outline-secondary float-end">
+                                    class="btn btn-outline-secondary float-end"
+                                    {% if not unsuitable_prospect_form["can_submit"] %}disabled{% endif %}>
                                     Submit
                                 </button>
                             </form>
