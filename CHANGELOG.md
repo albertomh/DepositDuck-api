@@ -12,7 +12,7 @@ to create a new release.
 
 ### Added
 
-- `forms` module to create generic form models powered by Pydantic.
+- `forms` package to create generic form models powered by Pydantic.
 
 ### Changed
 

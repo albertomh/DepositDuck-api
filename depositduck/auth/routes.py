@@ -45,6 +45,7 @@ from depositduck.auth.forms.signup import (
     PasswordTooShort,
     SignupForm,
 )
+from depositduck.auth.forms.unsuitable_prospect_funnel import UnsuitableProspectForm
 from depositduck.auth.users import auth_backend, current_active_user
 from depositduck.dependables import (
     AuthenticatedJinjaBlocks,
@@ -197,6 +198,11 @@ async def filter_prospect_for_signup(
             if isinstance(exc, TenancyEndDateOutOfRange):
                 context.end_date_is_within_range = False
 
+        unsuitable_prospect_form = UnsuitableProspectForm(
+            email=None,
+            provider_name=None,
+        )
+        context.unsuitable_prospect_form = unsuitable_prospect_form.for_template()
         response = templates.TemplateResponse(
             "fragments/auth/signup/_filter_prospect_reject.html.jinja2", context
         )
@@ -206,15 +212,45 @@ async def filter_prospect_for_signup(
     return response
 
 
+@auth_operations_router.post("/unsuitableProspectFunnel/validateForm/")
+async def validate_unsuitable_prospect_funnel_form(
+    templates: Annotated[AuthenticatedJinjaBlocks, Depends(get_templates)],
+    user: Annotated[User, Depends(current_active_user)],
+    request: Request,
+    email: Annotated[str | None, Form()] = None,
+    provider_name: Annotated[str | None, Form(alias="providerName")] = None,
+):
+    unsuitable_prospect_form = UnsuitableProspectForm(
+        email=email,
+        provider_name=provider_name,
+    )
+    context = AuthenticatedJinjaBlocks.TemplateContext(
+        request=request,
+        user=user,
+        unsuitable_prospect_form=unsuitable_prospect_form.for_template(),
+        has_submitted_funnel_form=False,
+    )
+    return templates.TemplateResponse(
+        "fragments/auth/signup/_filter_prospect_reject.html.jinja2",
+        context=context,
+        block_name="unsuitable_prospect_funnel",
+    )
+
+
 @auth_operations_router.post("/unsuitableProspectFunnel/")
 async def unsuitable_prospect_funnel(
-    email: Annotated[str, Form()],
-    provider_name: Annotated[str, Form(alias="providerName")],
     db_session_factory: Annotated[async_sessionmaker, Depends(db_session_factory)],
     templates: Annotated[AuthenticatedJinjaBlocks, Depends(get_templates)],
     user: Annotated[User, Depends(current_active_user)],
     request: Request,
+    email: Annotated[str | None, Form()] = None,
+    provider_name: Annotated[str | None, Form(alias="providerName")] = None,
 ):
+    unsuitable_prospect_form = UnsuitableProspectForm(
+        email=email,
+        provider_name=provider_name,
+    )
+
     try:
         prospect = Prospect(email=email, deposit_provider_name=provider_name)
         session: AsyncSession
@@ -226,6 +262,7 @@ async def unsuitable_prospect_funnel(
     context = AuthenticatedJinjaBlocks.TemplateContext(
         request=request,
         user=user,
+        unsuitable_prospect_form=unsuitable_prospect_form.for_template(),
         has_submitted_funnel_form=True,
     )
     return templates.TemplateResponse(
