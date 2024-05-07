@@ -42,7 +42,6 @@ from depositduck.auth.forms.login import (
 from depositduck.auth.forms.signup import (
     ConfirmPasswordDoesNotMatch,
     FilterProspectForm,
-    InvalidEmail,
     PasswordTooShort,
     SignupForm,
 )
@@ -54,6 +53,7 @@ from depositduck.dependables import (
     get_settings,
     get_templates,
 )
+from depositduck.forms.validators import InvalidEmail
 from depositduck.middleware import frontend_auth_middleware, operations_auth_middleware
 from depositduck.models.auth import UserCreate
 from depositduck.models.sql.auth import User

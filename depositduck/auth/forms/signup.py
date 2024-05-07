@@ -2,19 +2,13 @@
 (c) 2024 Alberto Morón Hernández
 """
 
-import re
 from datetime import date
-from typing import Self
 
 from pydantic import model_validator
-from pydantic.networks import validate_email
 
 from depositduck.auth import DepositProvider
-from depositduck.forms import BaseForm, BaseFormFields, EmptyValueError
-
-
-class InvalidEmail(ValueError):
-    pass
+from depositduck.forms import BaseForm, BaseFormFields
+from depositduck.forms.validators import is_email_valid
 
 
 class PasswordTooShort(ValueError):
@@ -40,17 +34,7 @@ class SignupFormFields(BaseFormFields):
     password: str | None
     confirm_password: str | None
 
-    @model_validator(mode="after")
-    def email_is_valid(self) -> Self:
-        only_space = re.compile(r"^\s+$")
-        if not self.email or self.email == "" or only_space.match(self.email):
-            self.add_error("email", EmptyValueError, self.email)
-        else:
-            try:
-                validate_email(self.email)
-            except Exception:
-                self.add_error("email", InvalidEmail, self.email)
-        return self
+    _email_is_valid = model_validator(mode="after")(is_email_valid)
 
     # prefer `user_manager.validate_password` to validators here, catching exceptions
     # and using SignupForm's `fields.add_error` to attach these to the form.
