@@ -83,7 +83,7 @@ async def _create_client_factory(
     if dependency_overrides:
         for dependency, override in dependency_overrides.items():
             app.dependency_overrides[dependency] = override
-    client = AsyncClient(transport=ASGITransport(app=app), base_url=base_url)
+    client = AsyncClient(transport=ASGITransport(app=app), base_url=base_url)  # type: ignore
     return client
 
 
