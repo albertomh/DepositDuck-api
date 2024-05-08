@@ -67,7 +67,7 @@ async def test_webapp_kitchensink_presence(web_client_factory, debug_setting) ->
         settings=settings, dependency_overrides=None
     )
 
-    app: FastAPI = web_client._transport.app
+    app: FastAPI = web_client._transport.app  # type: ignore
     paths = [r.path for r in cast(Iterable[Route], app.routes)]
 
     contains_kitchensink_routes = any(p.startswith("/kitchensink") for p in paths)
