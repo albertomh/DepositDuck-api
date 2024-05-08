@@ -38,6 +38,7 @@ email-validator==2.1.1
     # via fastapi-users
 fastapi==0.110.3
     # via fastapi-users
+fastapi-slim==0.111.0
 fastapi-users==13.0.0
     # via
     #   fastapi-users-db-sqlalchemy
@@ -84,6 +85,7 @@ pycparser==2.22
 pydantic==2.7.1
     # via
     #   fastapi
+    #   fastapi-slim
     #   pydantic-settings
     #   sqlmodel
 pydantic-core==2.18.2
@@ -111,12 +113,15 @@ sqlalchemy==2.0.30
 sqlmodel==0.0.18
     # via fastapi-users-db-sqlmodel
 starlette==0.37.2
-    # via fastapi
+    # via
+    #   fastapi
+    #   fastapi-slim
 structlog==24.1.0
 typing-extensions==4.11.0
     # via
     #   alembic
     #   fastapi
+    #   fastapi-slim
     #   pydantic
     #   pydantic-core
     #   sqlalchemy
