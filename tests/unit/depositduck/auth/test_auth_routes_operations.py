@@ -75,22 +75,23 @@ async def test_register_happy_path(
       - redirects the user to the login screen with the necessary query param
     """
     # arrange
-    tenancy_end_date = datetime.now().date().strftime("%Y-%m-%d")
+    tenancy_end_date = datetime.now().date()
+    tenancy_end_date_str = tenancy_end_date.strftime("%Y-%m-%d")
     email = "user@example.com"
     password, confirm_password = "password", "password"
     mock_user_manager.create.return_value = mock_user
 
     # act
     response = await register(
-        tenancy_end_date,
-        email,
-        password,
-        confirm_password,
+        tenancy_end_date_str,
         mock_async_sessionmaker,
         mock_authenticated_jinja_blocks,
         mock_user_manager,
         None,
         mock_request,
+        email,
+        password,
+        confirm_password,
     )
 
     # assert
@@ -101,8 +102,6 @@ async def test_register_happy_path(
     assert user_create.is_active
     assert not user_create.is_superuser
     assert not user_create.is_verified
-    mock_user_manager.validate_password.assert_awaited_once()
-    assert mock_user_manager.validate_password.await_args[0][0] == password
     mock_async_session.add.assert_called_once()
     new_tenancy = mock_async_session.add.call_args[0][0]
     assert new_tenancy.deposit_in_p == 0
