@@ -83,7 +83,8 @@
                                 </div>
                                 <p class="card-text">
                                     Thank you for your interest in DepositDuck.
-                                    We'll be in touch once we match your needs.
+                                    We'll be in touch once we can meet your
+                                    needs.
                                 </p>
                             </div>
                         {% else %}
@@ -92,7 +93,6 @@
                                 and we'll get in touch once DepositDuck catches
                                 up with your needs.
                             </p>
-
                             <form
                                 hx-post="/auth/unsuitableProspectFunnel/"
                                 hx-target="#unsuitableProspectFunnelCard"
@@ -103,20 +103,22 @@
                                         class="form-label fw-bold">
                                         Your email:
                                     </label>
-                                    <div class="row">
-                                        <div class="col-12 col-md-9">
-                                            <input
-                                                type="email"
-                                                id="email"
-                                                name="email"
-                                                value="{{ unsuitable_prospect_form["user_input"]["email"] or '' }}"
-                                                hx-post="/auth/unsuitableProspectFunnel/validateForm/"
-                                                hx-target="#unsuitableProspectFunnelCard"
-                                                hx-swap="outerHTML"
-                                                class="form-control {{ unsuitable_prospect_form["field_classes"]["email"]|d('') }}"
-                                                required />
+                                    {% block unsuitable_prospect_funnel__email %}
+                                        <div class="row">
+                                            <div class="col-12 col-md-9">
+                                                <input
+                                                    type="email"
+                                                    id="email"
+                                                    name="email"
+                                                    value="{{ unsuitable_prospect_form["user_input"]["email"] or '' }}"
+                                                    hx-post="/auth/unsuitableProspectFunnel/validateForm/?field=email"
+                                                    hx-target="#unsuitableProspectFunnelCard"
+                                                    hx-swap="outerHTML"
+                                                    class="form-control {{ unsuitable_prospect_form["field_classes"]["email"]|d('') }}"
+                                                    required />
+                                            </div>
                                         </div>
-                                    </div>
+                                    {% endblock unsuitable_prospect_funnel__email %}
                                 </div>
                                 <div class="mb-3">
                                     <label
@@ -124,20 +126,22 @@
                                         class="form-label fw-bold">
                                         Current deposit provider:
                                     </label>
-                                    <div class="row">
-                                        <div class="col-12 col-md-9">
-                                            <input
-                                                type="text"
-                                                id="provider-name"
-                                                name="providerName"
-                                                value="{{ unsuitable_prospect_form["user_input"]["provider_name"] or '' }}"
-                                                hx-post="/auth/unsuitableProspectFunnel/validateForm/"
-                                                hx-target="#unsuitableProspectFunnelCard"
-                                                hx-swap="outerHTML"
-                                                class="form-control {{ unsuitable_prospect_form["field_classes"]["provider_name"]|d('') }}"
-                                                required />
+                                    {% block unsuitable_prospect_funnel__provider_name %}
+                                        <div class="row">
+                                            <div class="col-12 col-md-9">
+                                                <input
+                                                    type="text"
+                                                    id="provider-name"
+                                                    name="providerName"
+                                                    value="{{ unsuitable_prospect_form["user_input"]["provider_name"] or '' }}"
+                                                    hx-post="/auth/unsuitableProspectFunnel/validateForm/?field=provider_name"
+                                                    hx-target="#unsuitableProspectFunnelCard"
+                                                    hx-swap="outerHTML"
+                                                    class="form-control {{ unsuitable_prospect_form["field_classes"]["provider_name"]|d('') }}"
+                                                    required />
+                                            </div>
                                         </div>
-                                    </div>
+                                    {% endblock unsuitable_prospect_funnel__provider_name %}
                                 </div>
                                 <button
                                     type="submit"
