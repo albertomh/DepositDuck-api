@@ -30,45 +30,47 @@
             <div class="col-1 border-end border-1 border-black"></div>
             <div class="col-1 border-start border-1 border-black"></div>
             <div class="col-10 pt-3 pb-5 ps-4">
-                <div class="row">
-                    <div class="col-12 form-check pb-3">
-                        <!-- TODO: turn into big button with TDS logo. -->
-                        <input
-                            class="form-check-input"
-                            type="radio"
-                            name="providerChoice"
-                            value="tds"
-                            id="providerTDS"
-                            hx-post="/auth/filterProspect/validateForm/"
-                            hx-target="#filterProspectForm"
-                            {% if filter_prospect_form["user_input"]["provider_choice"]=="tds" %}checked{% endif %}
-                            required />
-                        <label
-                            class="form-check-label"
-                            for="providerTDS"
-                            role="button">
-                            Tenancy Deposit Scheme (TDS)
-                        </label>
+                {% block filter_prospect_form__provider_choice %}
+                    <div class="row" id="field-provider-choice">
+                        <div class="col-12 form-check pb-3">
+                            <!-- TODO: turn into big button with TDS logo. -->
+                            <input
+                                class="form-check-input"
+                                type="radio"
+                                name="providerChoice"
+                                value="tds"
+                                id="providerTDS"
+                                hx-post="/auth/filterProspect/validateForm/?field=provider_choice"
+                                hx-target="#field-provider-choice"
+                                {% if filter_prospect_form["user_input"]["provider_choice"]=="tds" %}checked{% endif %}
+                                required />
+                            <label
+                                class="form-check-label"
+                                for="providerTDS"
+                                role="button">
+                                Tenancy Deposit Scheme (TDS)
+                            </label>
+                        </div>
+                        <div class="col-12 form-check">
+                            <input
+                                class="form-check-input"
+                                type="radio"
+                                name="providerChoice"
+                                value="other"
+                                id="providerOther"
+                                hx-post="/auth/filterProspect/validateForm/?field=provider_choice"
+                                hx-target="#field-provider-choice"
+                                {% if filter_prospect_form["user_input"]["provider_choice"]=="other" %}checked{% endif %}
+                                required />
+                            <label
+                                class="form-check-label"
+                                for="providerOther"
+                                role="button">
+                                A different provider
+                            </label>
+                        </div>
                     </div>
-                    <div class="col-12 form-check">
-                        <input
-                            class="form-check-input"
-                            type="radio"
-                            name="providerChoice"
-                            value="other"
-                            id="providerOther"
-                            hx-post="/auth/filterProspect/validateForm/"
-                            hx-target="#filterProspectForm"
-                            {% if filter_prospect_form["user_input"]["provider_choice"]=="other" %}checked{% endif %}
-                            required />
-                        <label
-                            class="form-check-label"
-                            for="providerOther"
-                            role="button">
-                            A different provider
-                        </label>
-                    </div>
-                </div>
+                {% endblock filter_prospect_form__provider_choice %}
             </div>
         </div>
 
@@ -112,16 +114,20 @@
             <div class="col-1 border-end border-1 border-black"></div>
             <div class="col-1 border-start border-1 border-black"></div>
             <div class="col-10 pt-3 ps-4">
-                <label>
-                    <input
-                        type="date"
-                        name="tenancyEndDate"
-                        value="{{ filter_prospect_form["user_input"]["tenancy_end_date"] }}"
-                        hx-post="/auth/filterProspect/validateForm/"
-                        hx-target="#filterProspectForm"
-                        class="form-control mt-1 {{ filter_prospect_form["field_classes"]["tenancy_end_date"]|d('') }}"
-                        required />
-                </label>
+                {% block filter_prospect_form__tenancy_end_date %}
+                    <label id="field-tenancy-end-date">
+                        <!-- TODO: set min and max -->
+                        <input
+                            type="date"
+                            name="tenancyEndDate"
+                            data-testid="tenancyEndDateInput"
+                            value="{{ filter_prospect_form["user_input"]["tenancy_end_date"] }}"
+                            hx-post="/auth/filterProspect/validateForm/?field=tenancy_end_date"
+                            hx-target="#field-tenancy-end-date"
+                            class="form-control mt-1 {{ filter_prospect_form["field_classes"]["tenancy_end_date"]|d('') }}"
+                            required />
+                    </label>
+                {% endblock filter_prospect_form__tenancy_end_date %}
             </div>
         </div>
         <div class="row">
@@ -172,12 +178,16 @@
             </div>
 
             <div class="col-10 col-md-6">
-                <button
-                    type="submit"
-                    class="btn btn-primary float-end"
-                    {% if not filter_prospect_form["can_submit"] %}disabled{% endif %}>
-                    Next
-                </button>
+                {% block submit_button %}
+                    <button
+                        type="submit"
+                        id="submit-button"
+                        class="btn btn-primary float-end"
+                        {% if not filter_prospect_form["can_submit"] %}disabled{% endif %}
+                        hx-swap-oob="outerHTML: #submit-button">
+                        Next
+                    </button>
+                {% endblock submit_button %}
             </div>
         </div>
     </form>

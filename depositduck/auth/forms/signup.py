@@ -23,6 +23,10 @@ class FilterProspectFormFields(BaseFormFields):
     provider_choice: DepositProvider | None
     tenancy_end_date: date | None
 
+    # TODO: validate tenancyEndDate min/max range here and call `self.add_error`
+    # have generous range that prevents obviously wrong information but
+    # still allows dates that will redirect to /signup/?step=funnel
+
 
 class FilterProspectForm(BaseForm):
     def get_form_fields_class(self) -> type[BaseFormFields]:

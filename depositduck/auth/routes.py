@@ -121,6 +121,7 @@ async def validate_filter_prospect_form(
     templates: Annotated[AuthenticatedJinjaBlocks, Depends(get_templates)],
     user: Annotated[User, Depends(current_active_user)],
     request: Request,
+    field: str | None = None,
     provider_choice: Annotated[str | None, Form(alias="providerChoice")] = None,
     tenancy_end_date_str: Annotated[str | None, Form(alias="tenancyEndDate")] = None,
 ):
@@ -138,11 +139,22 @@ async def validate_filter_prospect_form(
         filter_prospect_form=filter_prospect_form.for_template(),
     )
 
-    return templates.TemplateResponse(
-        "fragments/auth/signup/_filter_prospect_form.html.jinja2",
+    template = "fragments/auth/signup/_filter_prospect_form.html.jinja2"
+    block_name = "filter_prospect_form"
+    if field is not None:
+        block_name += f"__{field}"
+    field_response = templates.TemplateResponse(
+        template,
         context,
-        block_name="filter_prospect_form",
+        block_name=block_name,
     )
+    submit_button_response = templates.TemplateResponse(
+        template,
+        context,
+        block_name="submit_button",
+    )
+    combined_html = field_response.body.decode() + submit_button_response.body.decode()
+    return Response(content=combined_html, media_type="text/html")
 
 
 @auth_operations_router.post("/filterProspect/")
@@ -191,7 +203,7 @@ async def filter_prospect_for_signup(
         response = templates.TemplateResponse(
             "fragments/auth/signup/_signup_user_form.html.jinja2", context
         )
-        query = "step=signup"
+        query = "step=register"
     except ExceptionGroup as eg:
         for exc in eg.exceptions:
             LOG.info(str(exc))
