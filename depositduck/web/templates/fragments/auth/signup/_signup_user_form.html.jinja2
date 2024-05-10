@@ -46,83 +46,96 @@
                     type="hidden"
                     name="tenancyEndDate"
                     value="{{ tenancy_end_date }}" />
-                <div class="mb-3">
-                    <label for="email" class="form-label fw-bold">Email:</label>
-                    <input
-                        type="email"
-                        id="email"
-                        name="email"
-                        value="{{ signup_form["user_input"]["email"] or '' }}"
-                        hx-post="/auth/signup/validateForm/"
-                        hx-target="#signupForm"
-                        class="form-control mt-1 {{ signup_form["field_classes"]["email"]|d('') }}"
-                        required />
-                    {% if signup_form["errors"]["email"] %}
-                        <div class="invalid-feedback">
-                            {% for err_cls, input in signup_form["errors"]["email"].items() %}
-                                {% if err_cls == "InvalidEmail" %}
-                                    <li>Please provide a valid email.</li>
-                                {% endif %}
-                            {% endfor %}
-                        </div>
-                    {% endif %}
-                </div>
-                <div class="mb-3">
-                    <label for="password" class="form-label fw-bold">
-                        Password:
-                    </label>
-                    <input
-                        type="password"
-                        id="password"
-                        name="password"
-                        aria-describedby="passwordHelp"
-                        value="{{ signup_form["user_input"]["password"] or '' }}"
-                        hx-post="/auth/signup/validateForm/"
-                        hx-target="#signupForm"
-                        class="form-control mt-1 {{ signup_form["field_classes"]["password"]|d('') }}"
-                        required />
-                    <div id="passwordHelp" class="form-text">
-                        Password must be at least 8 characters long.
+                {% block signup_form__email %}
+                    <div class="mb-3" id="field-email">
+                        <label for="email" class="form-label fw-bold">
+                            Email:
+                        </label>
+                        <input
+                            type="email"
+                            id="email"
+                            name="email"
+                            value="{{ signup_form["user_input"]["email"] or '' }}"
+                            hx-post="/auth/signup/validateForm/?field=email"
+                            hx-target="#field-email"
+                            class="form-control mt-1 {{ signup_form["field_classes"]["email"]|d('') }}"
+                            required />
+                        {% if signup_form["errors"]["email"] %}
+                            <div class="invalid-feedback">
+                                {% for err_cls, input in signup_form["errors"]["email"].items() %}
+                                    {% if err_cls == "InvalidEmail" %}
+                                        <li>Please provide a valid email.</li>
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
                     </div>
-                    {% if signup_form["errors"]["password"] %}
-                        <div class="invalid-feedback">
-                            {% for err_cls, input in signup_form["errors"]["password"].items() %}
-                                {% if err_cls == "PasswordTooShort" %}
-                                    <li>
-                                        Please make sure your password is at
-                                        least 8 characters long.
-                                    </li>
-                                {% endif %}
-                            {% endfor %}
+                {% endblock signup_form__email %}
+                {% block signup_form__password %}
+                    <div class="mb-3" id="field-password">
+                        <label for="password" class="form-label fw-bold">
+                            Password:
+                        </label>
+                        <input
+                            type="password"
+                            id="password"
+                            name="password"
+                            aria-describedby="passwordHelp"
+                            value="{{ signup_form["user_input"]["password"] or '' }}"
+                            hx-post="/auth/signup/validateForm/?field=password"
+                            hx-target="#field-password"
+                            class="form-control mt-1 {{ signup_form["field_classes"]["password"]|d('') }}"
+                            required />
+                        <div id="passwordHelp" class="form-text">
+                            Password must be at least 8 characters long.
                         </div>
-                    {% endif %}
-                </div>
-                <div class="mb-3">
-                    <label for="confirm-password" class="form-label fw-bold">
-                        Confirm password:
-                    </label>
-                    <input
-                        type="password"
-                        id="confirm-password"
-                        name="confirmPassword"
-                        value="{{ signup_form["user_input"]["confirm_password"] or '' }}"
-                        hx-post="/auth/signup/validateForm/"
-                        hx-target="#signupForm"
-                        class="form-control mt-1 {{ signup_form["field_classes"]["confirm_password"]|d('') }}"
-                        required />
-                    {% if signup_form["errors"]["confirm_password"] %}
-                        <div class="invalid-feedback">
-                            {% for err_cls, input in signup_form["errors"]["confirm_password"].items() %}
-                                {% if err_cls == "ConfirmPasswordDoesNotMatch" %}
-                                    <li>
-                                        Please provide the same password twice.
-                                    </li>
-                                {% endif %}
-                            {% endfor %}
-                        </div>
-                    {% endif %}
-                </div>
+                        {% if signup_form["errors"]["password"] %}
+                            <div class="invalid-feedback">
+                                {% for err_cls, input in signup_form["errors"]["password"].items() %}
+                                    {% if err_cls == "PasswordTooShort" %}
+                                        <li>
+                                            Please make sure your password is at
+                                            least 8 characters long.
+                                        </li>
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                {% endblock signup_form__password %}
+                {% block signup_form__confirm_password %}
+                    <div class="mb-3" id="field-confirm-password">
+                        <label
+                            for="confirm-password"
+                            class="form-label fw-bold">
+                            Confirm password:
+                        </label>
+                        <input
+                            type="password"
+                            id="confirm-password"
+                            name="confirmPassword"
+                            value="{{ signup_form["user_input"]["confirm_password"] or '' }}"
+                            hx-post="/auth/signup/validateForm/?field=confirm_password"
+                            hx-target="#field-confirm-password"
+                            class="form-control mt-1 {{ signup_form["field_classes"]["confirm_password"]|d('') }}"
+                            required />
+                        {% if signup_form["errors"]["confirm_password"] %}
+                            <div class="invalid-feedback">
+                                {% for err_cls, input in signup_form["errors"]["confirm_password"].items() %}
+                                    {% if err_cls == "ConfirmPasswordDoesNotMatch" %}
+                                        <li>
+                                            Please provide the same password
+                                            twice.
+                                        </li>
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                {% endblock signup_form__confirm_password %}
 
+                <!-- TODO: flesh out, add separate T&C page and link to it,
+                    or add accordion to avoid users navigating away -->
                 <!--div class="my-4 form-check">
                 <input type="checkbox" class="form-check-input" id="agreeTcCheck">
                 <label class="form-check-label" for="agreeTcCheck">I agree to the Terms & Conditions</label>
@@ -148,12 +161,18 @@
             </div>
 
             <div class="col-10 col-md-6">
-                <button
-                    type="submit"
-                    class="btn btn-primary float-end"
-                    {% if not signup_form["can_submit"] %}disabled{% endif %}>
-                    Sign up
-                </button>
+                {% block submit_button %}
+                    <button
+                        type="submit"
+                        id="submit-button"
+                        class="btn btn-primary float-end"
+                        {% if not signup_form["can_submit"] %}disabled{% endif %}
+                        {% if oob_submit_button %}
+                            hx-swap-oob="outerHTML: #submit-button"
+                        {% endif %}>
+                        Sign up
+                    </button>
+                {% endblock submit_button %}
             </div>
         </div>
     </form>

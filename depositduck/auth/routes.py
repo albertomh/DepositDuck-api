@@ -305,6 +305,7 @@ async def validate_signup_form(
     user_manager: Annotated[UserManager, Depends(get_user_manager)],
     user: Annotated[User, Depends(current_active_user)],
     request: Request,
+    field: str | None = None,
     email: Annotated[str | None, Form()] = None,
     password: Annotated[str | None, Form()] = None,
     confirm_password: Annotated[str | None, Form(alias="confirmPassword")] = None,
@@ -332,11 +333,24 @@ async def validate_signup_form(
         tenancy_end_date=tenancy_end_date_str,
         signup_form=signup_form.for_template(),
     )
-    return templates.TemplateResponse(
-        "fragments/auth/signup/_signup_user_form.html.jinja2",
+
+    template = "fragments/auth/signup/_signup_user_form.html.jinja2"
+    block_name = "signup_form"
+    if field is not None:
+        block_name += f"__{field}"
+    field_response = templates.TemplateResponse(
+        template,
         context=context,
-        block_name="signup_form",
+        block_name=block_name,
     )
+    context.oob_submit_button = True
+    submit_button_response = templates.TemplateResponse(
+        template,
+        context,
+        block_name="submit_button",
+    )
+    combined_html = field_response.body.decode() + submit_button_response.body.decode()
+    return Response(content=combined_html, media_type="text/html")
 
 
 @auth_operations_router.post("/register/")
