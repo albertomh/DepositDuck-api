@@ -17,8 +17,9 @@ to create a new release.
 ### Changed
 
 - Reject prospect if today is too close to the end of their dispute window.
-- Refactor prospect suitability checks to be more composable & reusable.
-- Refactor onboarding form to use a Pydantic-based form model.
+- Prospect suitability checks are more composable & reusable.
+- Onboarding form uses a Pydantic-based form model.
+- Form validation endpoints now return per-input markup instead of the entire form.
 
 ## [0.5.0] - 2024-05-02
 
