@@ -229,6 +229,7 @@ async def validate_unsuitable_prospect_funnel_form(
     templates: Annotated[AuthenticatedJinjaBlocks, Depends(get_templates)],
     user: Annotated[User, Depends(current_active_user)],
     request: Request,
+    field: str | None = None,
     email: Annotated[str | None, Form()] = None,
     provider_name: Annotated[str | None, Form(alias="providerName")] = None,
 ):
@@ -236,17 +237,30 @@ async def validate_unsuitable_prospect_funnel_form(
         email=email,
         provider_name=provider_name,
     )
+
     context = AuthenticatedJinjaBlocks.TemplateContext(
         request=request,
         user=user,
         unsuitable_prospect_form=unsuitable_prospect_form.for_template(),
         has_submitted_funnel_form=False,
     )
-    return templates.TemplateResponse(
-        "fragments/auth/signup/_filter_prospect_reject.html.jinja2",
+
+    template = "fragments/auth/signup/_filter_prospect_reject.html.jinja2"
+    block_name = "unsuitable_prospect_funnel"
+    if field is not None:
+        block_name += f"__{field}"
+    field_response = templates.TemplateResponse(
+        template,
         context=context,
-        block_name="unsuitable_prospect_funnel",
+        block_name=block_name,
     )
+    submit_button_response = templates.TemplateResponse(
+        template,
+        context,
+        block_name="submit_button",
+    )
+    combined_html = field_response.body.decode() + submit_button_response.body.decode()
+    return Response(content=combined_html, media_type="text/html")
 
 
 @auth_operations_router.post("/unsuitableProspectFunnel/")
