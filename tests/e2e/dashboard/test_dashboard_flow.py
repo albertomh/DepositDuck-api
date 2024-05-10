@@ -24,3 +24,5 @@ async def test_redirect_to_onboarding_when_needed(
 
 
 # TODO: onboarding flow happy path
+
+# TODO: onboarding unhappy paths for invalid dates & their respective validation messages

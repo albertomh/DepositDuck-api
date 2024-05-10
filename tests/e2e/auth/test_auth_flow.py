@@ -2,10 +2,14 @@
 (c) 2024 Alberto Morón Hernández
 """
 
+from datetime import datetime, timedelta
+
 import pytest
+from bs4 import BeautifulSoup
 from playwright.async_api import Page, expect
 
 from tests.e2e.conftest import APP_ORIGIN, E2E_USER_PASSWORD, E2EUser, log_in_user
+from tests.e2e.mailhog_utils import get_mailhog_email
 
 
 @pytest.mark.asyncio
@@ -33,58 +37,96 @@ async def test_navbar_logged_in(page: Page) -> None:
 
 @pytest.mark.asyncio
 async def test_sign_up_happy_path(page: Page) -> None:
-    # email = "test@domain.tld"
-    # password = "MyPassword"
+    email = "test@domain.tld"
+    password = "MyPassword"
+    today = datetime.today().date()
+    one_month_ago = today - timedelta(weeks=4)
 
-    # navigate to sign-up form
     await page.goto(f"{APP_ORIGIN}/")
     await page.get_by_role("button", name="Sign up").click()
     await expect(page.get_by_role("heading", name="Sign up")).to_be_visible()
-    # TODO: refactor & reinstate
-    # fill out sign-up form
-    # sign_up_form = page.locator("#signupForm")
-    # await page.get_by_label("Email:").fill(email)
-    # await page.get_by_label("Password:", exact=True).fill(password)
-    # await page.get_by_label("Confirm password:").fill(password)
-    # await sign_up_form.get_by_role("button", name="Sign up").click()
-    # await page.wait_for_url("**/login/?prev=/auth/signup/")
-    # await expect(page.locator("//h1")).to_contain_text("Log in")
-    # # check user prompted to find verification email
-    # card = page.get_by_test_id("cardPleaseVerify")
-    # await expect(card.get_by_role("heading")).to_contain_text("Pleaseverifyyour email")
-    # await expect(
-    #     card.get_by_text(
-    #     "Please follow the link in the email we have sent you to verify your account "
-    #         "before logging in"
-    #     )
-    # ).to_be_visible()
-    # # check verification email and follow verification link
-    # mh_email = await get_mailhog_email()
-    # assert mh_email.Content.Headers.Subject == ["Your DepositDuck account verification"]
-    # soup = BeautifulSoup(mh_email.Content.Body, "html.parser")
-    # verify_anchor = soup.find("a", attrs={"data-testid": "link-to-verify"})
-    # verify_url = verify_anchor["href"]
-    # await page.goto(verify_url)
-    # assert "/login" in page.url
-    # await expect(page.locator("//h1")).to_contain_text("Log in")
-    # card = page.get_by_test_id("card-verification-info")
-    # await expect(card.get_by_role("heading")).to_contain_text("Thank you for verifying")
-    # # check can log in
-    # log_in_form = page.locator("#loginForm")
-    # await expect(page.get_by_label("Email:")).to_have_value(email)
-    # await page.get_by_label("Password:", exact=True).fill(password)
-    # await log_in_form.get_by_role("button", name="Log in").click()
-    # await page.wait_for_url("**/")
-    # await expect(page.locator("//h1")).to_contain_text("Home")
+    # fill out first half of sign-up form (prospect filter)
+    filter_prospect_form = page.locator("#filterProspectForm")
+    await expect(
+        filter_prospect_form.get_by_text("Who is your deposit registered with?")
+    ).to_be_visible()
+    tds_radio = page.get_by_role("button", name="Tenancy Deposit Scheme (TDS)")
+    await expect(tds_radio).to_be_visible()
+    await expect(
+        filter_prospect_form.get_by_role("button", name="A different provider")
+    ).to_be_visible()
+    await expect(
+        filter_prospect_form.get_by_text("When does your tenancy end?")
+    ).to_be_visible()
+    await tds_radio.click()
+    await page.get_by_test_id("tenancyEndDateInput").fill(one_month_ago.isoformat())
+    await filter_prospect_form.get_by_role("button", name="Next").click()
+    # fill out second half of sign-up form (register new user)
+    await page.wait_for_url("**/signup/?step=register")
+    await expect(page.get_by_text("Deposit held by TDS")).to_be_visible()
+    await expect(
+        page.get_by_text(f"Tenancy ended on {one_month_ago.isoformat()}")
+    ).to_be_visible()
+    email_input = page.get_by_label("Email:")
+    await email_input.fill(email)
+    page.wait_for_function(
+        "document.querySelector('input#email').classList.contains('is-valid')"
+    )
+    password_input = page.get_by_label("Password:", exact=True)
+    await password_input.fill(password)
+    page.wait_for_function(
+        "document.querySelector('input#password').classList.contains('is-valid')"
+    )
+    confirm_password_input = page.get_by_label("Confirm password:")
+    await confirm_password_input.fill(password)
+    page.wait_for_function(
+        "document.querySelector('input#confirm-password').classList.contains('is-valid')"
+    )
+    await confirm_password_input.blur()
+    sign_up_form = page.locator("#signupForm")
+    await sign_up_form.get_by_role("button", name="Sign up").click()
+    await page.wait_for_url("**/login/?prev=/auth/signup/")
+    await expect(page.locator("//h1")).to_contain_text("Log in")
+    # check user prompted to find verification email
+    card = page.get_by_test_id("cardPleaseVerify")
+    await expect(card.get_by_role("heading")).to_contain_text("Please verify your email")
+    await expect(
+        card.get_by_text(
+            "Please follow the link in the email we have sent you to verify your account "
+            "before logging in"
+        )
+    ).to_be_visible()
+    # check verification email and follow verification link
+    mh_email = await get_mailhog_email()
+    assert mh_email.Content.Headers.Subject == ["Your DepositDuck account verification"]
+    soup = BeautifulSoup(mh_email.Content.Body, "html.parser")
+    verify_anchor = soup.find("a", attrs={"data-testid": "link-to-verify"})
+    verify_url = verify_anchor["href"]
+    await page.goto(verify_url)
+    assert "/login" in page.url
+    await expect(page.locator("//h1")).to_contain_text("Log in")
+    card = page.get_by_test_id("card-verification-info")
+    await expect(card.get_by_role("heading")).to_contain_text("Thank you for verifying")
+    # check can log in and sees onboarding form
+    log_in_form = page.locator("#loginForm")
+    await expect(page.get_by_label("Email:")).to_have_value(email)
+    await page.get_by_label("Password:", exact=True).fill(password)
+    await log_in_form.get_by_role("button", name="Log in").click()
+    await page.wait_for_url("**/")
+    await expect(page.locator("//h1")).to_contain_text("Welcome!")
 
 
 # TODO: test unhappy paths: test validation of sign up fields:
 #         - non-TDS prospect
 #         - out-of-range end date: longer than 3 months ago, over 6 months in the future,
-#           within 5 days of TDS dispute limit.
+#           within 5 days of TDS dispute window ending.
 
 
 # TODO: test unhappy path: following expired / invalid verification link
+
+
+# TODO: in new scenario, pick up where `test_sign_up_happy_path` left off and
+#       test onboarding happy path.
 
 
 @pytest.mark.asyncio
