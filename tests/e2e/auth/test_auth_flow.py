@@ -69,17 +69,20 @@ async def test_sign_up_happy_path(page: Page) -> None:
     ).to_be_visible()
     email_input = page.get_by_label("Email:")
     await email_input.fill(email)
-    page.wait_for_function(
+    await email_input.blur()
+    await page.wait_for_function(
         "document.querySelector('input#email').classList.contains('is-valid')"
     )
     password_input = page.get_by_label("Password:", exact=True)
     await password_input.fill(password)
-    page.wait_for_function(
+    await password_input.blur()
+    await page.wait_for_function(
         "document.querySelector('input#password').classList.contains('is-valid')"
     )
     confirm_password_input = page.get_by_label("Confirm password:")
     await confirm_password_input.fill(password)
-    page.wait_for_function(
+    await confirm_password_input.blur()
+    await page.wait_for_function(
         "document.querySelector('input#confirm-password').classList.contains('is-valid')"
     )
     await confirm_password_input.blur()
