@@ -24,6 +24,6 @@ pydantic-settings ~= 2.2.1
 # ORM
 sqlmodel ~= 0.0.16
 # logging
-structlog ~= 24.1.0
+structlog ~= 24.2.0
 # ASGI server
 uvicorn[standard] ~= 0.29.0
