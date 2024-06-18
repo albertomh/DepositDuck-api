@@ -226,7 +226,6 @@ coverage: venv
 e2e: venv _wipe_db && stop
   #!/usr/bin/env bash
   set -euo pipefail
-  just dotenv={{dotenv}} mailhog &
   just dotenv={{dotenv}} run &
   . {{VENV_DIR}}/bin/activate
   if [ -z ${CI:-} ]; then . ./local/read_dotenv.sh {{dotenv}}; fi
