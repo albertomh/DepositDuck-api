@@ -42,7 +42,7 @@ jobs:
     # TODO: upgrade to ubuntu-24.04 (LTS) once Playwright 1.45 is available.
     runs-on: ubuntu-22.04
     services:
-      postgres:
+      depositduck_db:
         image: pgvector/pgvector:pg15
         env:
           POSTGRES_PASSWORD: password
