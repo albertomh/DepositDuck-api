@@ -38,12 +38,12 @@ cp .env.in .env
 # see 'Embeddings Service' below and https://github.com/albertomh/draLLaM
 just drallam &
 
-# start database, local email server on :1025,
-# run migrations and start server on :8000
+# start database, local email server on :1025/:8025,
+# run migrations and start webapp server on :8000
 just run
 
 # stop all local services, including: database container,
-# draLLaM container, SMTP server, app server.
+# draLLaM container, SMTP server, webapp server.
 just stop
 ```
 

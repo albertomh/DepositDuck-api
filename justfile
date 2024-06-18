@@ -185,10 +185,16 @@ run: stop && stop
 
 # stop all running services
 stop:
-  docker stop depositduck_db || true
-  docker stop drallam || true
-  just dotenv={{dotenv}} _stop_mailhog
-  just dotenv={{dotenv}} _stop_server
+  #!/usr/bin/env bash
+  set -euo pipefail
+  if [ -z ${CI:-} ]; then
+    docker stop depositduck_db || true
+    docker stop drallam || true
+    just dotenv={{dotenv}} _stop_mailhog
+    just dotenv={{dotenv}} _stop_server
+  else
+    echo "justfile: no-op 'stop' since executing in a pipeline [CI='$CI']"
+  fi
 
 # Setting env vars from a dotenv in GitHub Actions is handled in a step of the action
 # separate from the one that invokes the recipe. This is because environment variables are
