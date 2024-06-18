@@ -150,7 +150,7 @@ starlette==0.37.2
     # via
     #   fastapi
     #   fastapi-slim
-structlog==24.1.0
+structlog==24.2.0
     # via -r requirements/base.in
 typer==0.12.3
     # via fastapi-cli
