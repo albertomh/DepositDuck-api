@@ -21,7 +21,6 @@ runs:
       shell: bash
       # dotenv intentionally left blank when calling 'just'
     - run: |
-        sudo apt-get update
         just dotenv= install-deps-test
         just dotenv= e2e
       shell: bash

@@ -18,6 +18,11 @@ runs:
         sudo apt-get update
         sudo apt-get install --yes --no-install-recommends postgresql-client
       shell: bash
+    # initialise tge depositduck service container by creating postgres users & databases
     - run: |
         PGPASSWORD=password psql -h localhost -U postgres -d postgres -a -f ./local/database/init_scripts/init.sql
+      shell: bash
+    # make e2e fixture available inside the depositduck_db service container
+    - run: |
+        docker cp ${{ github.workspace }}/local/database/init_scripts/e2e_fixture.sql depositduck_db:/docker-entrypoint-initdb.d
       shell: bash
