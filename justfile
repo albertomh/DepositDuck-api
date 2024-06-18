@@ -174,9 +174,11 @@ _stop_server:
 run: stop && stop
   #!/usr/bin/env bash
   set -euo pipefail
-  just db &
+  if [ -z ${CI:-} ]; then
+    just dotenv={{dotenv}} mailhog &
+    just db &
+  fi
   just dotenv={{dotenv}} migrate &
-  just dotenv={{dotenv}} mailhog &
   . {{VENV_DIR}}/bin/activate
   if [ -z ${CI:-} ]; then . ./local/read_dotenv.sh {{dotenv}}; fi
   uvicorn depositduck.main:webapp --reload
