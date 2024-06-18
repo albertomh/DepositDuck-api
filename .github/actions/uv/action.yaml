@@ -1,4 +1,5 @@
 # Re-usable steps for a GitHub Action that needs `uv`.
+# As a side-effect also installs `just` - might want to extract this to a separate action.
 #
 # Usage:
 #   ```
@@ -17,6 +18,7 @@ runs:
   using: 'composite'
   steps:
     - uses: actions/setup-python@v5
+    # TODO: can switch to apt-get when upgrade Actions runner to ubuntu-24.04
     - run: |
         sudo snap install --edge --classic just
         curl -LsSf https://astral.sh/uv/install.sh | sh
