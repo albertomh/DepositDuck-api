@@ -39,13 +39,13 @@ pin-deps:
   @just pin-deps-test
 
 pin-deps-base:
-  @uv pip compile  {{REQS_DIR}}/base.in -o {{REQS_DIR}}/base.txt
+  @uv pip compile {{REQS_DIR}}/base.in -o {{REQS_DIR}}/base.txt
 
 pin-deps-dev:
-  @uv pip compile  {{REQS_DIR}}/dev.in -o {{REQS_DIR}}/dev.txt
+  @uv pip compile {{REQS_DIR}}/dev.in -o {{REQS_DIR}}/dev.txt
 
 pin-deps-test:
-  @uv pip compile  {{REQS_DIR}}/test.in -o {{REQS_DIR}}/test.txt
+  @uv pip compile {{REQS_DIR}}/test.in -o {{REQS_DIR}}/test.txt
 
 # bump dependency versions in line with constraints in requirements/*.in files
 update-deps:

@@ -45,7 +45,7 @@ cryptography==42.0.8
     #   pyjwt
 dnspython==2.6.1
     # via email-validator
-email-validator==2.1.1
+email-validator==2.1.2
     # via
     #   fastapi
     #   fastapi-users
@@ -109,11 +109,11 @@ markupsafe==2.1.5
     #   mako
 mdurl==0.1.2
     # via markdown-it-py
-numpy==1.26.4
+numpy==2.0.0
     # via pgvector
-orjson==3.10.3
+orjson==3.10.5
     # via fastapi
-packaging==24.0
+packaging==24.1
     # via pytest
 pgvector==0.2.5
     # via -r requirements/base.in
@@ -125,7 +125,7 @@ pwdlib==0.2.0
     # via fastapi-users
 pycparser==2.22
     # via cffi
-pydantic==2.7.3
+pydantic==2.7.4
     # via
     #   fastapi
     #   fastapi-slim
@@ -133,7 +133,7 @@ pydantic==2.7.3
     #   sqlmodel
 pydantic-core==2.18.4
     # via pydantic
-pydantic-settings==2.2.1
+pydantic-settings==2.3.3
     # via -r requirements/base.in
 pyee==11.1.0
     # via playwright
