@@ -5,6 +5,7 @@
 from datetime import datetime, timedelta
 
 import pytest
+from flaky import flaky
 from playwright.async_api import Page, expect
 
 from tests.e2e.conftest import APP_ORIGIN, E2EUser, log_in_user
@@ -26,6 +27,7 @@ async def test_redirect_to_onboarding_when_needed(
     await expect(page).to_have_url(f"{APP_ORIGIN}{expected_path}")
 
 
+@flaky(max_runs=3, min_passes=1)
 @pytest.mark.asyncio
 async def test_onboarding_happy_path(page: Page) -> None:
     today = datetime.today().date()

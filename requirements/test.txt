@@ -64,6 +64,8 @@ fastapi-users-db-sqlalchemy==6.0.1
     # via fastapi-users
 fastapi-users-db-sqlmodel==0.3.0
     # via -r requirements/base.in
+flaky==3.8.1
+    # via -r requirements/test.in
 greenlet==3.0.3
     # via
     #   -r requirements/base.in
