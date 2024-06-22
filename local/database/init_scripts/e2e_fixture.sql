@@ -1,5 +1,6 @@
 /*
  * Data fixture for e2e testing.
+ * All user passwords are 'password'.
  *
  * (c) 2024 Alberto Morón Hernández
  */
