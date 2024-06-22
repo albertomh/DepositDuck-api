@@ -291,6 +291,9 @@ Playwright tests run in headless mode by default. To run them in a visible brows
 and/or slow them down, set `E2E_HEADLESS` and `E2E_SLOW_MO` (in milliseconds) accordingly
 in `.env.e2e`.
 
+To run only specific tests, append the `-k` flag along with an appropriate selector to the
+pytest invocation at the end of the `e2e` recipe in the justfile.
+
 #### Generate e2e tests
 
 The Playwright Inspector can be used to record tests by interacting with the webapp
@@ -318,6 +321,8 @@ The e2e fixture creates the following users:
 |--------------------------------|--------------|-----------|-------------|-------------------------|
 | <active_verified@example.com>  |              |     ✔️     |      ✔️      |           now()         |
 | <needs_onboarding@example.com> |              |     ✔️     |      ✔️      |           NULL          |
+
+All users have the password `password`.
 
 ## Continuous Integration
 
