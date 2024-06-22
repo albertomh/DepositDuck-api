@@ -165,3 +165,20 @@ async def complete_onboarding(
 
     redirect_to_dashboard = await htmx_redirect_to("/?prev=/welcome/")
     return redirect_to_dashboard
+
+
+@dashboard_frontend_router.get(
+    "/",
+    summary="[htmx]",
+    tags=["frontend"],
+)
+async def root(
+    templates: Annotated[AuthenticatedJinjaBlocks, Depends(get_templates)],
+    user: Annotated[User, Depends(current_active_user)],
+    request: Request,
+):
+    context = AuthenticatedJinjaBlocks.TemplateContext(
+        request=request,
+        user=user,
+    )
+    return templates.TemplateResponse("home.html.jinja2", context)
