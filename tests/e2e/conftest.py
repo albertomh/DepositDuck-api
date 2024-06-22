@@ -53,6 +53,12 @@ class E2EUser(StrEnum):
     NEEDS_ONBOARDING = "needs_onboarding@example.com"
 
 
+async def input_is_valid(page: Page, query_selector: str) -> None:
+    await page.wait_for_function(
+        f'document.querySelector({query_selector}).classList.contains("is-valid")'
+    )
+
+
 async def log_in_user(page: Page, user: E2EUser, wait_for_path: str = "/") -> None:
     await page.goto(f"{APP_ORIGIN}/login/")
     await page.get_by_label("Email:").fill(user.value)

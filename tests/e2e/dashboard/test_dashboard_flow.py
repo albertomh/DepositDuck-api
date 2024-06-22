@@ -8,7 +8,7 @@ import pytest
 from flaky import flaky
 from playwright.async_api import Page, expect
 
-from tests.e2e.conftest import APP_ORIGIN, E2EUser, log_in_user
+from tests.e2e.conftest import APP_ORIGIN, E2EUser, input_is_valid, log_in_user
 
 
 @pytest.mark.asyncio
@@ -44,17 +44,13 @@ async def test_onboarding_happy_path(page: Page) -> None:
     name_input = page.get_by_test_id("nameInput")
     await name_input.fill("Onboarder")
     await name_input.blur()
-    await page.wait_for_function(
-        'document.querySelector(`[data-testid="nameInput"]`).classList.contains("is-valid")'
-    )
+    await input_is_valid(page, '`[data-testid="nameInput"]`')
     # question: deposit amount
     await expect(onboarding_form.get_by_text("How much is your deposit?")).to_be_visible()
     deposit_input = page.get_by_test_id("depositAmountInput")
     await deposit_input.fill("924")
     await deposit_input.blur()
-    await page.wait_for_function(
-        'document.querySelector(`[data-testid="depositAmountInput"]`).classList.contains("is-valid")'
-    )
+    await input_is_valid(page, '`[data-testid="depositAmountInput"]`')
     # question: tenancy start date
     await expect(
         onboarding_form.get_by_text("When did your tenancy start?")
@@ -62,9 +58,7 @@ async def test_onboarding_happy_path(page: Page) -> None:
     start_date_input = page.get_by_test_id("tenancyStartDateInput")
     await start_date_input.fill(one_year_ago.isoformat())
     await start_date_input.blur()
-    await page.wait_for_function(
-        'document.querySelector(`[data-testid="tenancyStartDateInput"]`).classList.contains("is-valid")'
-    )
+    await input_is_valid(page, '`[data-testid="tenancyStartDateInput"]`')
     # question: tenancy end date
     await expect(
         onboarding_form.get_by_text("When does your tenancy end?")

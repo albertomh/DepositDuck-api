@@ -9,7 +9,13 @@ from bs4 import BeautifulSoup
 from playwright.async_api import Page, expect
 
 from depositduck.auth import MAX_DAYS_IN_ADVANCE, TDS_DISPUTE_WINDOW_IN_DAYS
-from tests.e2e.conftest import APP_ORIGIN, E2E_USER_PASSWORD, E2EUser, log_in_user
+from tests.e2e.conftest import (
+    APP_ORIGIN,
+    E2E_USER_PASSWORD,
+    E2EUser,
+    input_is_valid,
+    log_in_user,
+)
 from tests.e2e.mailhog_utils import get_mailhog_email
 
 
@@ -75,23 +81,17 @@ async def test_signup_happy_path(page: Page) -> None:
     email_input = page.get_by_label("Email:")
     await email_input.fill(email)
     await email_input.blur()
-    await page.wait_for_function(
-        "document.querySelector('input#email').classList.contains('is-valid')"
-    )
+    await input_is_valid(page, "'input#email'")
     # question: password
     password_input = page.get_by_label("Password:", exact=True)
     await password_input.fill(password)
     await password_input.blur()
-    await page.wait_for_function(
-        "document.querySelector('input#password').classList.contains('is-valid')"
-    )
+    await input_is_valid(page, "'input#password'")
     # question: confirm password
     confirm_password_input = page.get_by_label("Confirm password:")
     await confirm_password_input.fill(password)
     await confirm_password_input.blur()
-    await page.wait_for_function(
-        "document.querySelector('input#confirmPassword').classList.contains('is-valid')"
-    )
+    await input_is_valid(page, "'input#confirmPassword'")
     sign_up_form = page.locator("#signupForm")
     await sign_up_form.get_by_role("button", name="Sign up").click()
     await page.wait_for_url("**/login/?prev=/auth/signup/")
