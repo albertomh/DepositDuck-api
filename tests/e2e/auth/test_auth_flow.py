@@ -2,12 +2,13 @@
 (c) 2024 Alberto Morón Hernández
 """
 
-from datetime import datetime, timedelta
+from datetime import date, datetime, timedelta
 
 import pytest
 from bs4 import BeautifulSoup
 from playwright.async_api import Page, expect
 
+from depositduck.auth import MAX_DAYS_IN_ADVANCE, TDS_DISPUTE_WINDOW_IN_DAYS
 from tests.e2e.conftest import APP_ORIGIN, E2E_USER_PASSWORD, E2EUser, log_in_user
 from tests.e2e.mailhog_utils import get_mailhog_email
 
@@ -124,8 +125,6 @@ async def test_sign_up_happy_path(page: Page) -> None:
     )
 
 
-# TODO: test unhappy paths: test validation of sign up fields:
-#         - non-TDS prospect
 @pytest.mark.asyncio
 async def test_sign_up_unhappy_non_tds_prospect(page: Page) -> None:
     today = datetime.today().date()
@@ -152,9 +151,52 @@ async def test_sign_up_unhappy_non_tds_prospect(page: Page) -> None:
     await expect(start_over_link).to_contain_text("Start over")
 
 
-# TODO: test unhappy paths: test validation of sign up fields:
-#         - out-of-range end date: longer than 3 months ago, over 6 months in the future,
-#           within 5 days of TDS dispute window ending.
+@pytest.mark.asyncio
+async def test_sign_up_unhappy_end_date_out_of_range(page: Page) -> None:
+    async def _fill_out_signup(page: Page, tenancy_end_date: date) -> None:
+        filter_prospect_form = page.locator("#filterProspectForm")
+        tds_radio = page.get_by_role("button", name="Tenancy Deposit Scheme (TDS)")
+        await tds_radio.click()
+        await page.get_by_test_id("tenancyEndDateInput").fill(
+            tenancy_end_date.isoformat()
+        )
+        await filter_prospect_form.get_by_role("button", name="Next").click()
+        await page.wait_for_url("**/signup/?step=funnel")
+
+    today = datetime.today().date()
+    over_tds_dispute_window = today - timedelta(days=(TDS_DISPUTE_WINDOW_IN_DAYS + 1))
+    within_five_days_of_window_end = today - timedelta(
+        days=(TDS_DISPUTE_WINDOW_IN_DAYS - 3)
+    )
+    over_max_days_in_advance = today + timedelta(days=(MAX_DAYS_IN_ADVANCE + 1))
+
+    await page.goto(f"{APP_ORIGIN}/")
+    await page.get_by_role("button", name="Sign up").click()
+    await expect(page.get_by_role("heading", name="Sign up")).to_be_visible()
+    # tenancy end date is in past and today is outside TDS dispute window
+    await _fill_out_signup(page, over_tds_dispute_window)
+    await expect(
+        page.get_by_text(f"Tenancy ended on {over_tds_dispute_window.isoformat()}")
+    ).to_be_visible()
+    await expect(page.locator("//h2")).to_contain_text("It's not you, it's us...")
+    start_over_link = page.get_by_test_id("linkToStartOver")
+    await start_over_link.click()
+    await page.wait_for_url("**/signup/")
+    # tenancy end date is in past and today is within five days of dispute window end
+    await _fill_out_signup(page, within_five_days_of_window_end)
+    await expect(
+        page.get_by_text(f"Tenancy ended on {within_five_days_of_window_end.isoformat()}")
+    ).to_be_visible()
+    await expect(page.locator("//h2")).to_contain_text("It's not you, it's us...")
+    start_over_link = page.get_by_test_id("linkToStartOver")
+    await start_over_link.click()
+    await page.wait_for_url("**/signup/")
+    # tenancy end date is in future and beyond max days in advance
+    await _fill_out_signup(page, over_max_days_in_advance)
+    await expect(
+        page.get_by_text(f"Tenancy will end on {over_max_days_in_advance.isoformat()}")
+    ).to_be_visible()
+    await expect(page.locator("//h2")).to_contain_text("It's not you, it's us...")
 
 
 # TODO: test unhappy path: following expired / invalid verification link
