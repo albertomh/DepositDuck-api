@@ -117,6 +117,11 @@ async def test_sign_up_happy_path(page: Page) -> None:
     await log_in_form.get_by_role("button", name="Log in").click()
     await page.wait_for_url("**/")
     await expect(page.locator("//h1")).to_contain_text("Welcome!")
+    # check the tenancy end date provided at signup is reflected on the onboarding form
+    await expect(page.get_by_text("You told us your tenancy ends on:")).to_be_visible()
+    await expect(page.get_by_test_id("tenancyEndDateInput")).to_have_value(
+        one_month_ago.isoformat()
+    )
 
 
 # TODO: test unhappy paths: test validation of sign up fields:
