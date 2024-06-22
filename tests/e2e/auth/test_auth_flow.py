@@ -37,7 +37,7 @@ async def test_navbar_logged_in(page: Page) -> None:
 
 @pytest.mark.asyncio
 async def test_sign_up_happy_path(page: Page) -> None:
-    email = "test@domain.tld"
+    email = "happy_path@example.com"
     password = "MyPassword"
     today = datetime.today().date()
     one_month_ago = today - timedelta(weeks=4)
@@ -103,7 +103,7 @@ async def test_sign_up_happy_path(page: Page) -> None:
     mh_email = await get_mailhog_email()
     assert mh_email.Content.Headers.Subject == ["Your DepositDuck account verification"]
     soup = BeautifulSoup(mh_email.Content.Body, "html.parser")
-    verify_anchor = soup.find("a", attrs={"data-testid": "link-to-verify"})
+    verify_anchor = soup.find("a", attrs={"data-testid": "linkToVerify"})
     verify_url = verify_anchor["href"]
     await page.goto(verify_url)
     assert "/login" in page.url
@@ -126,6 +126,33 @@ async def test_sign_up_happy_path(page: Page) -> None:
 
 # TODO: test unhappy paths: test validation of sign up fields:
 #         - non-TDS prospect
+@pytest.mark.asyncio
+async def test_sign_up_unhappy_non_tds_prospect(page: Page) -> None:
+    today = datetime.today().date()
+    one_month_ago = today - timedelta(weeks=4)
+
+    await page.goto(f"{APP_ORIGIN}/")
+    await page.get_by_role("button", name="Sign up").click()
+    await expect(page.get_by_role("heading", name="Sign up")).to_be_visible()
+    # fill out first half of sign-up form (prospect filter)
+    filter_prospect_form = page.locator("#filterProspectForm")
+    other_provider_radio = page.get_by_role("button", name="A different provider")
+    await other_provider_radio.click()
+    await page.get_by_test_id("tenancyEndDateInput").fill(one_month_ago.isoformat())
+    await filter_prospect_form.get_by_role("button", name="Next").click()
+    # check redirected to filter prospect rejection screen
+    await page.wait_for_url("**/signup/?step=funnel")
+    await expect(page.locator("//h1")).to_contain_text("Sign up")
+    await expect(page.get_by_text("Deposit held by other provider")).to_be_visible()
+    await expect(
+        page.get_by_text(f"Tenancy ended on {one_month_ago.isoformat()}")
+    ).to_be_visible()
+    await expect(page.locator("//h2")).to_contain_text("It's not you, it's us...")
+    start_over_link = page.get_by_test_id("linkToStartOver")
+    await expect(start_over_link).to_contain_text("Start over")
+
+
+# TODO: test unhappy paths: test validation of sign up fields:
 #         - out-of-range end date: longer than 3 months ago, over 6 months in the future,
 #           within 5 days of TDS dispute window ending.
 
