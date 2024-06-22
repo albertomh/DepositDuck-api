@@ -38,8 +38,8 @@
                                 </label>
                                 <input
                                     type="text"
-                                    id="name"
                                     name="name"
+                                    data-testid="nameInput"
                                     maxlength="40"
                                     @input="$event.target.value = $event.target.value.replace(/\s+/g,' ');"
                                     value="{{ onboarding_form["user_input"]["name"] or '' }}"
@@ -104,8 +104,8 @@
             <div class="col-10 col-md-6">
                 <p class="text-muted mb-0">Please say to the nearest pound.</p>
                 <p class="text-muted mb-0">
-                    If the deposit is shared between more than one person,
-                    provide the total figure.
+                    If the deposit is shared between tenants, provide the total
+                    figure.
                 </p>
             </div>
         </div>
@@ -122,6 +122,7 @@
                             <input
                                 type="number"
                                 name="depositAmount"
+                                data-testid="depositAmountInput"
                                 aria-label="Deposit (to the nearest pound)"
                                 value="{{ onboarding_form["user_input"]["deposit_amount"] or '' }}"
                                 hx-post="/dashboard/onboarding/validateForm/"
@@ -178,6 +179,7 @@
                         <input
                             type="date"
                             name="tenancyStartDate"
+                            data-testid="tenancyStartDateInput"
                             value="{{ onboarding_form["user_input"]["tenancy_start_date"] }}"
                             hx-post="/dashboard/onboarding/validateForm/"
                             hx-target="#onboardingForm"
@@ -221,9 +223,14 @@
                 <div class="col-1 border-end border-1 border-black"></div>
                 <div class="col-1 border-start border-1 border-black"></div>
                 <div class="col-10 pt-3 pb-5 ps-4">
+                    {% if days_since_end_date <= 0 %}
+                        {% set date_answer_label = "ended on:" %}
+                    {% else %}
+                        {% set date_answer_label = "ends on:" %}
+                    {% endif %}
                     <p class="mb-0">
                         You told us your tenancy
-                        <span class="fw-bold">ends on:</span>
+                        <span class="fw-bold">{{ date_answer_label }}</span>
                     </p>
 
                     <div class="row">

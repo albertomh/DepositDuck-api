@@ -26,7 +26,7 @@ from depositduck.middleware import frontend_auth_middleware
 from depositduck.models.auth import UserUpdate
 from depositduck.models.sql.auth import User
 from depositduck.models.sql.deposit import Tenancy
-from depositduck.utils import date_from_iso8601_str, htmx_redirect_to
+from depositduck.utils import date_from_iso8601_str, days_between_dates, htmx_redirect_to
 
 dashboard_frontend_router = APIRouter(
     dependencies=[Depends(frontend_auth_middleware)],
@@ -69,6 +69,9 @@ async def onboarding(
         user=user,
         onboarding_form=onboarding_form.for_template(),
     )
+    today = datetime.today().date()
+    context.days_since_end_date = days_between_dates(today, tenancy_end_date)
+
     return templates.TemplateResponse("dashboard/onboarding.html.jinja2", context)
 
 
@@ -101,6 +104,9 @@ async def validate_onboarding_form(
     context = AuthenticatedJinjaBlocks.TemplateContext(
         request=request, user=user, onboarding_form=onboarding_form.for_template()
     )
+    if tenancy_end_date:
+        today = datetime.today().date()
+        context.days_since_end_date = days_between_dates(today, tenancy_end_date)
 
     return templates.TemplateResponse(
         "fragments/dashboard/onboarding/_onboarding_form.html.jinja2",
