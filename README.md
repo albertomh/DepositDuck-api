@@ -61,6 +61,8 @@ After invoking `just run` the following are available:
   Large language model & embeddings service.
 - [0.0.0.0:8025/](http://0.0.0.0:8025/) - Mailhog UI
 
+See [Fixtures](#fixtures) below for a list of ready-to-use credentials.
+
 ### Environment variables / application Settings
 
 #### APP_SECRET
@@ -194,7 +196,7 @@ It creates a `depositduck` user and two databases:
 - `depositduck`: for local development
 - `depositduck_test`: for use during integration & e2e tests
 
-### Migrations
+#### Migrations
 
 Migrations are provided by Alembic. Alembic was initialised with the `async` template to
 enable it to use a SQLAlchemy async engine.  
@@ -213,7 +215,7 @@ just migrate
 just downgrade
 ```
 
-### Fixtures
+#### Fixtures
 
 Fixtures with data needed during development and e2e tests can be found in `local/database/init-scripts/`.
 These are applied as part of the `just migrate` script.  
