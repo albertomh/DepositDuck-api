@@ -28,6 +28,7 @@ async def test_navbar_logged_out(page: Page) -> None:
 @pytest.mark.asyncio
 async def test_navbar_logged_in(page: Page) -> None:
     await log_in_user(page, E2EUser.ACTIVE_VERIFIED)
+
     await expect(page.get_by_test_id("navbarAccountDropdown")).to_be_visible()
     await page.get_by_test_id("navbarAccountDropdown").click()
     await expect(
@@ -37,8 +38,8 @@ async def test_navbar_logged_in(page: Page) -> None:
 
 
 @pytest.mark.asyncio
-async def test_sign_up_happy_path(page: Page) -> None:
-    email = "happy_path@example.com"
+async def test_signup_happy_path(page: Page) -> None:
+    email = "signup_happy_path@example.com"
     password = "MyPassword"
     today = datetime.today().date()
     one_month_ago = today - timedelta(weeks=4)
@@ -48,6 +49,7 @@ async def test_sign_up_happy_path(page: Page) -> None:
     await expect(page.get_by_role("heading", name="Sign up")).to_be_visible()
     # fill out first half of sign-up form (prospect filter)
     filter_prospect_form = page.locator("#filterProspectForm")
+    # question: deposit provider
     await expect(
         filter_prospect_form.get_by_text("Who is your deposit registered with?")
     ).to_be_visible()
@@ -56,6 +58,7 @@ async def test_sign_up_happy_path(page: Page) -> None:
     await expect(
         filter_prospect_form.get_by_role("button", name="A different provider")
     ).to_be_visible()
+    # question: tenancy end date
     await expect(
         filter_prospect_form.get_by_text("When does your tenancy end?")
     ).to_be_visible()
@@ -68,25 +71,27 @@ async def test_sign_up_happy_path(page: Page) -> None:
     await expect(
         page.get_by_text(f"Tenancy ended on {one_month_ago.isoformat()}")
     ).to_be_visible()
+    # question: email
     email_input = page.get_by_label("Email:")
     await email_input.fill(email)
     await email_input.blur()
     await page.wait_for_function(
         "document.querySelector('input#email').classList.contains('is-valid')"
     )
+    # question: password
     password_input = page.get_by_label("Password:", exact=True)
     await password_input.fill(password)
     await password_input.blur()
     await page.wait_for_function(
         "document.querySelector('input#password').classList.contains('is-valid')"
     )
+    # question: confirm password
     confirm_password_input = page.get_by_label("Confirm password:")
     await confirm_password_input.fill(password)
     await confirm_password_input.blur()
     await page.wait_for_function(
-        "document.querySelector('input#confirm-password').classList.contains('is-valid')"
+        "document.querySelector('input#confirmPassword').classList.contains('is-valid')"
     )
-    await confirm_password_input.blur()
     sign_up_form = page.locator("#signupForm")
     await sign_up_form.get_by_role("button", name="Sign up").click()
     await page.wait_for_url("**/login/?prev=/auth/signup/")
@@ -109,7 +114,7 @@ async def test_sign_up_happy_path(page: Page) -> None:
     await page.goto(verify_url)
     assert "/login" in page.url
     await expect(page.locator("//h1")).to_contain_text("Log in")
-    card = page.get_by_test_id("card-verification-info")
+    card = page.get_by_test_id("cardVerificationInfo")
     await expect(card.get_by_role("heading")).to_contain_text("Thank you for verifying")
     # check can log in and sees onboarding form
     log_in_form = page.locator("#loginForm")
@@ -119,7 +124,7 @@ async def test_sign_up_happy_path(page: Page) -> None:
     await page.wait_for_url("**/")
     await expect(page.locator("//h1")).to_contain_text("Welcome!")
     # check the tenancy end date provided at signup is reflected on the onboarding form
-    await expect(page.get_by_text("You told us your tenancy ends on:")).to_be_visible()
+    await expect(page.get_by_text("You told us your tenancy ended on:")).to_be_visible()
     await expect(page.get_by_test_id("tenancyEndDateInput")).to_have_value(
         one_month_ago.isoformat()
     )
@@ -202,13 +207,10 @@ async def test_sign_up_unhappy_end_date_out_of_range(page: Page) -> None:
 # TODO: test unhappy path: following expired / invalid verification link
 
 
-# TODO: in new scenario, pick up where `test_sign_up_happy_path` left off and
-#       test onboarding happy path.
-
-
 @pytest.mark.asyncio
 async def test_log_in_happy_path(page: Page) -> None:
     await log_in_user(page, E2EUser.ACTIVE_VERIFIED)
+
     await expect(page.get_by_test_id("navbarAccountDropdown")).to_be_visible()
     navbar = page.get_by_role("navigation")
     await expect(navbar.get_by_role("button", name="Log in")).to_have_count(0)
@@ -217,9 +219,9 @@ async def test_log_in_happy_path(page: Page) -> None:
 
 @pytest.mark.asyncio
 async def test_protected_routes_next_path_is_forwarded(page: Page) -> None:
-    # TODO: make more robust by changing to path other than `/welcome/` once one is
-    #       available. Reasoning: `/welcome/` is default for non-onboarded users so
-    #       other redirects might interfere with clarity of this test.
+    # TODO: make more robust by changing to path other than `/welcome/` once one exists.
+    #       Reasoning: `/welcome/` is the onboarding screen, ie. default for non-onboarded
+    #       users so other redirects might interfere with clarity of this test.
     target_path = "/welcome/"
     await page.goto(f"{APP_ORIGIN}{target_path}")
     await expect(page).to_have_url(f"{APP_ORIGIN}/login/?next={target_path}")

@@ -47,7 +47,7 @@
                     name="tenancyEndDate"
                     value="{{ tenancy_end_date }}" />
                 {% block signup_form__email %}
-                    <div class="mb-3" id="field-email">
+                    <div class="mb-3" id="fieldEmail">
                         <label for="email" class="form-label fw-bold">
                             Email:
                         </label>
@@ -57,7 +57,7 @@
                             name="email"
                             value="{{ signup_form["user_input"]["email"] or '' }}"
                             hx-post="/auth/signup/validateForm/?field=email"
-                            hx-target="#field-email"
+                            hx-target="#fieldEmail"
                             class="form-control mt-1 {{ signup_form["field_classes"]["email"]|d('') }}"
                             required />
                         {% if signup_form["errors"]["email"] %}
@@ -72,7 +72,7 @@
                     </div>
                 {% endblock signup_form__email %}
                 {% block signup_form__password %}
-                    <div class="mb-3" id="field-password">
+                    <div class="mb-3" id="fieldPassword">
                         <label for="password" class="form-label fw-bold">
                             Password:
                         </label>
@@ -83,7 +83,7 @@
                             aria-describedby="passwordHelp"
                             value="{{ signup_form["user_input"]["password"] or '' }}"
                             hx-post="/auth/signup/validateForm/?field=password"
-                            hx-target="#field-password"
+                            hx-target="#fieldPassword"
                             class="form-control mt-1 {{ signup_form["field_classes"]["password"]|d('') }}"
                             required />
                         <div id="passwordHelp" class="form-text">
@@ -104,19 +104,17 @@
                     </div>
                 {% endblock signup_form__password %}
                 {% block signup_form__confirm_password %}
-                    <div class="mb-3" id="field-confirm-password">
-                        <label
-                            for="confirm-password"
-                            class="form-label fw-bold">
+                    <div class="mb-3" id="fieldConfirmPassword">
+                        <label for="confirmPassword" class="form-label fw-bold">
                             Confirm password:
                         </label>
                         <input
                             type="password"
-                            id="confirm-password"
+                            id="confirmPassword"
                             name="confirmPassword"
                             value="{{ signup_form["user_input"]["confirm_password"] or '' }}"
                             hx-post="/auth/signup/validateForm/?field=confirm_password"
-                            hx-target="#field-confirm-password"
+                            hx-target="#fieldConfirmPassword"
                             class="form-control mt-1 {{ signup_form["field_classes"]["confirm_password"]|d('') }}"
                             required />
                         {% if signup_form["errors"]["confirm_password"] %}

@@ -241,6 +241,10 @@ customised to use the project's palette which lives at [albertomh/speculum](http
 `speculum` static assets are hosted in a public Cloudflare R2 bucket with CORS enabled to
 allow GET from `localhost:8000`.
 
+#### Naming conventions
+
+Element IDs should be in `camelCase`. Classes (mostly from Boostrap) should be in `kebab-case`.
+
 #### JavaScript
 
 Pages should be built in a HTML-first way, progressively enhanced with CSS and JavaScript.
