@@ -31,38 +31,41 @@ def test_get_db_connection_string():
     assert len(conn_str) > 0
 
 
-def test_TemplateResponse_valid_context(
-    mock_request: Request,
-    mock_user: User,
-):
-    """ """
-    templates = get_templates()
-    template_name = "dashboard/home.html.jinja2"
-    context = AuthenticatedJinjaBlocks.TemplateContext(
-        request=mock_request,
-        user=mock_user,
-    )
+class TestAuthenticatedJinjaBlocks:
+    def test_TemplateResponse_valid_context(
+        self,
+        mock_request: Request,
+        mock_user: User,
+    ):
+        """ """
+        templates = get_templates()
+        template_name = "dashboard/home.html.jinja2"
+        context = AuthenticatedJinjaBlocks.TemplateContext(
+            request=mock_request,
+            user=mock_user,
+        )
 
-    response = templates.TemplateResponse(template_name, context)
+        response = templates.TemplateResponse(template_name, context)
 
-    assert isinstance(response, _TemplateResponse)
-    assert list(response.context.keys()) == ["speculum_source", "request", "user"]
+        assert isinstance(response, _TemplateResponse)
+        assert list(response.context.keys()) == ["speculum_source", "request", "user"]
 
+    def test_TemplateResponse_invalid_context(self):
+        templates = get_templates()
 
-def test_TemplateResponse_invalid_context():
-    templates = get_templates()
+        with pytest.raises(HTTPException):
+            templates.TemplateResponse("test.html", {})
 
-    with pytest.raises(HTTPException):
-        templates.TemplateResponse("test.html", {})
+    def test_TemplateContext_default_speculum_source(self, mock_request: Request):
+        context = AuthenticatedJinjaBlocks.TemplateContext(
+            request=mock_request, user=None
+        )
 
-
-def test_TemplateContext_default_speculum_source(mock_request: Request):
-    context = AuthenticatedJinjaBlocks.TemplateContext(request=mock_request, user=None)
-
-    settings = get_settings()
-    assert (
-        context.speculum_source == f"{settings.static_origin}/{settings.speculum_release}"
-    )
+        settings = get_settings()
+        assert (
+            context.speculum_source
+            == f"{settings.static_origin}/{settings.speculum_release}"
+        )
 
 
 @pytest.mark.asyncio
