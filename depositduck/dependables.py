@@ -86,9 +86,12 @@ class AuthenticatedJinjaBlocks(Jinja2Blocks):
                 ),
             )
 
-        return super().TemplateResponse(
-            template_name, context.model_dump(), *args, **kwargs
-        )
+        context_dict = context.model_dump()
+        user_dict = context_dict.get("user", {})
+        if user_dict:
+            user_dict.pop("hashed_password", None)
+
+        return super().TemplateResponse(template_name, context_dict, *args, **kwargs)
 
 
 @cache
