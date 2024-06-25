@@ -31,6 +31,9 @@ def test_get_db_connection_string():
     assert len(conn_str) > 0
 
 
+HOME_TEMPLATE = "dashboard/home.html.jinja2"
+
+
 class TestAuthenticatedJinjaBlocks:
     def test_TemplateResponse_valid_context(
         self,
@@ -39,13 +42,12 @@ class TestAuthenticatedJinjaBlocks:
     ):
         """ """
         templates = get_templates()
-        template_name = "dashboard/home.html.jinja2"
         context = AuthenticatedJinjaBlocks.TemplateContext(
             request=mock_request,
             user=mock_user,
         )
 
-        response = templates.TemplateResponse(template_name, context)
+        response = templates.TemplateResponse(HOME_TEMPLATE, context)
 
         assert isinstance(response, _TemplateResponse)
         assert list(response.context.keys()) == ["speculum_source", "request", "user"]
@@ -66,6 +68,40 @@ class TestAuthenticatedJinjaBlocks:
             context.speculum_source
             == f"{settings.static_origin}/{settings.speculum_release}"
         )
+
+    def test_TemplateResponse_no_user_in_context(
+        self,
+        mock_request: Request,
+    ):
+        templates = get_templates()
+        context = AuthenticatedJinjaBlocks.TemplateContext(
+            request=mock_request,
+            user=None,
+        )
+
+        response = templates.TemplateResponse(HOME_TEMPLATE, context)
+
+        assert isinstance(response, _TemplateResponse)
+        assert list(response.context.keys()) == ["speculum_source", "request", "user"]
+        assert response.context["user"] is None
+
+    def test_TemplateResponse_user_hashed_password_not_available_in_context(
+        self,
+        mock_request: Request,
+        mock_user: User,
+    ):
+        mock_user.hashed_password = "some_hashed_password"
+        templates = get_templates()
+        context = AuthenticatedJinjaBlocks.TemplateContext(
+            request=mock_request,
+            user=mock_user,
+        )
+
+        response = templates.TemplateResponse(HOME_TEMPLATE, context)
+
+        assert isinstance(response, _TemplateResponse)
+        assert list(response.context.keys()) == ["speculum_source", "request", "user"]
+        assert "hashed_password" not in response.context["user"]
 
 
 @pytest.mark.asyncio
