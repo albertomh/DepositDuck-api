@@ -37,7 +37,7 @@ def test_TemplateResponse_valid_context(
 ):
     """ """
     templates = get_templates()
-    template_name = "home.html.jinja2"
+    template_name = "dashboard/home.html.jinja2"
     context = AuthenticatedJinjaBlocks.TemplateContext(
         request=mock_request,
         user=mock_user,
