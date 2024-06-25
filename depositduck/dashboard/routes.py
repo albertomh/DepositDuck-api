@@ -181,4 +181,4 @@ async def root(
         request=request,
         user=user,
     )
-    return templates.TemplateResponse("home.html.jinja2", context)
+    return templates.TemplateResponse("dashboard/home.html.jinja2", context)
