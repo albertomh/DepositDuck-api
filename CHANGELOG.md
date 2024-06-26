@@ -13,6 +13,7 @@ to create a new release.
 ### Added
 
 - `forms` package to create generic form models powered by Pydantic.
+- Show Tenancy information in the dashboard.
 
 ### Changed
 

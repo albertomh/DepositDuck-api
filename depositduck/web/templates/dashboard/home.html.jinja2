@@ -4,7 +4,37 @@
 {% extends "common/_base.html.jinja2" %}
 
 {% block main %}
-    <h1>Home</h1>
-    Hello, {{ user.first_name }}
-    <br />
+    <div class="container border border-black pb-2 mb-4">
+        <div class="row">
+            <h2 class="mt-1">
+                <i class="bi bi-house text-primary fs-1"></i>
+                Your tenancy
+            </h2>
+            <div class="d-flex flex-row justify-content-start">
+                <div class="d-flex flex-column px-2 me-5 bg-light rounded-1">
+                    <div class="vstack">
+                        <p class="text-body-secondary mb-0">Started</p>
+                        <p class="h3">{{ tenancy.start_date }}</p>
+                    </div>
+                    <div class="vstack">
+                        <p class="text-body-secondary mb-0">Ended</p>
+                        <p class="h3">{{ tenancy.end_date }}</p>
+                    </div>
+                </div>
+                <div class="vstack px-2 bg-light rounded-1 align-self-start">
+                    <p class="text-body-secondary mb-0">Deposit</p>
+                    <p class="h3">£{{ tenancy.deposit_in_p // 100 }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container border border-black">
+        <div class="row">
+            <h2 class="mt-1">
+                <i class="bi bi-signpost text-primary fs-1"></i>
+                Your dispute
+            </h2>
+        </div>
+    </div>
 {% endblock %}

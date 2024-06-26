@@ -175,10 +175,23 @@ async def complete_onboarding(
 async def root(
     templates: Annotated[AuthenticatedJinjaBlocks, Depends(get_templates)],
     user: Annotated[User, Depends(current_active_user)],
+    db_session_factory: Annotated[async_sessionmaker, Depends(db_session_factory)],
     request: Request,
 ):
     context = AuthenticatedJinjaBlocks.TemplateContext(
         request=request,
         user=user,
     )
+
+    session: AsyncSession
+    async with db_session_factory.begin() as session:
+        try:
+            statement = select(Tenancy).filter_by(user_id=user.id)
+            result = await session.execute(statement)
+            tenancy: Tenancy = result.scalar_one()
+            context.tenancy = tenancy
+
+        except (NoResultFound, MultipleResultsFound) as e:
+            LOG.warn(f"error when looking for Tenancy for {user}: {e}")
+
     return templates.TemplateResponse("dashboard/home.html.jinja2", context)
