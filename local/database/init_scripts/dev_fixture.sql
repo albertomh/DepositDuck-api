@@ -69,7 +69,15 @@ INSERT INTO public.deposit__tenancy (
     end_date,
     user_id
 )
-VALUES(
+VALUES (
+    '75039111-95fc-4cf9-908b-48859896b9cc'::uuid,
+    now(),
+    NULL,
+    92400,
+    '2020-01-12',
+    '2024-06-25',
+    '8c9356f7-3fb3-486a-8481-346b7ffe62f0'::uuid -- active_verified@example.com
+), (
     'b99643d3-f0ff-40b5-a0b5-c07af587f382'::uuid,
     now(),
     NULL,
