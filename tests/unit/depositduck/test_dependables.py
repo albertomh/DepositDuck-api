@@ -7,6 +7,7 @@ import pytest
 from fastapi import HTTPException, Request
 from starlette.templating import _TemplateResponse
 
+from depositduck.auth.forms.login import LoginForm
 from depositduck.dependables import (
     AuthenticatedJinjaBlocks,
     get_db_connection_string,
@@ -15,6 +16,7 @@ from depositduck.dependables import (
     get_templates,
 )
 from depositduck.models.sql.auth import User
+from depositduck.models.sql.deposit import Tenancy
 from depositduck.settings import Settings
 
 
@@ -32,6 +34,7 @@ def test_get_db_connection_string():
 
 
 HOME_TEMPLATE = "dashboard/home.html.jinja2"
+LOGIN_TEMPLATE = "auth/login.html.jinja2"
 
 
 class TestAuthenticatedJinjaBlocks:
@@ -45,12 +48,18 @@ class TestAuthenticatedJinjaBlocks:
         context = AuthenticatedJinjaBlocks.TemplateContext(
             request=mock_request,
             user=mock_user,
+            tenancy=Tenancy(deposit_in_p=10000, end_date=None),
         )
 
         response = templates.TemplateResponse(HOME_TEMPLATE, context)
 
         assert isinstance(response, _TemplateResponse)
-        assert list(response.context.keys()) == ["speculum_source", "request", "user"]
+        assert list(response.context.keys()) == [
+            "speculum_source",
+            "request",
+            "user",
+            "tenancy",
+        ]
 
     def test_TemplateResponse_invalid_context(self):
         templates = get_templates()
@@ -77,12 +86,18 @@ class TestAuthenticatedJinjaBlocks:
         context = AuthenticatedJinjaBlocks.TemplateContext(
             request=mock_request,
             user=None,
+            login_form=LoginForm(username=None, password=None).for_template(),
         )
 
-        response = templates.TemplateResponse(HOME_TEMPLATE, context)
+        response = templates.TemplateResponse(LOGIN_TEMPLATE, context)
 
         assert isinstance(response, _TemplateResponse)
-        assert list(response.context.keys()) == ["speculum_source", "request", "user"]
+        assert list(response.context.keys()) == [
+            "speculum_source",
+            "request",
+            "user",
+            "login_form",
+        ]
         assert response.context["user"] is None
 
     def test_TemplateResponse_user_hashed_password_not_available_in_context(
@@ -95,12 +110,18 @@ class TestAuthenticatedJinjaBlocks:
         context = AuthenticatedJinjaBlocks.TemplateContext(
             request=mock_request,
             user=mock_user,
+            tenancy=Tenancy(deposit_in_p=10000, end_date=None),
         )
 
         response = templates.TemplateResponse(HOME_TEMPLATE, context)
 
         assert isinstance(response, _TemplateResponse)
-        assert list(response.context.keys()) == ["speculum_source", "request", "user"]
+        assert list(response.context.keys()) == [
+            "speculum_source",
+            "request",
+            "user",
+            "tenancy",
+        ]
         assert "hashed_password" not in response.context["user"]
 
 

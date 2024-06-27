@@ -3,12 +3,12 @@
 """
 
 from datetime import datetime
-from unittest.mock import AsyncMock, Mock
+from unittest.mock import AsyncMock, Mock, patch
 
 import pytest
 from fastapi import HTTPException, Request, status
 
-from depositduck.dashboard.routes import db_session_factory
+from depositduck.dashboard.routes import AsyncSession, db_session_factory
 from depositduck.middleware import (
     FRONTEND_MUST_BE_LOGGED_OUT_PATHS,
     _get_path_from_request,
@@ -16,6 +16,7 @@ from depositduck.middleware import (
     current_active_user,
 )
 from depositduck.models.sql.auth import User
+from depositduck.models.sql.deposit import Tenancy
 from tests.unit.conftest import mock_user
 
 
@@ -206,13 +207,26 @@ async def test_must_be_logged_out_routes_forbid_authenticated_user(
     ],
 )
 async def test_protected_routes_redirects_user_to_onboarding(
-    web_client_factory, mock_user, completed_onboarding_at, http_status, redirect_to
+    web_client_factory,
+    mock_user,
+    mock_async_sessionmaker,
+    completed_onboarding_at,
+    http_status,
+    redirect_to,
 ):
     mock_user.completed_onboarding_at = completed_onboarding_at
-    dependency_overrides = {current_active_user: lambda: mock_user}
+    dependency_overrides = {
+        current_active_user: lambda: mock_user,
+        db_session_factory: lambda: mock_async_sessionmaker,
+    }
     web_client = await web_client_factory(
         settings=None, dependency_overrides=dependency_overrides
     )
+    with patch.object(AsyncSession, "execute", AsyncMock) as mock_execute:
+        mock_scalar_one = Mock(return_value=Tenancy(deposit_in_p=10000, end_date=None))
+        mock_result = AsyncMock()
+        mock_result.scalar_one = mock_scalar_one
+        mock_execute.return_value = mock_result
 
     async with web_client as client:
         response = await client.get("/")
@@ -270,11 +284,19 @@ async def test_onboarding_route_redirects_already_onboarded_user(
 
 
 @pytest.mark.asyncio
-async def test_protected_routes_accept_user(web_client_factory):
-    dependency_overrides = {current_active_user: lambda: Mock(spec=User)}
+async def test_protected_routes_accept_user(web_client_factory, mock_async_sessionmaker):
+    dependency_overrides = {
+        current_active_user: lambda: Mock(spec=User),
+        db_session_factory: lambda: mock_async_sessionmaker,
+    }
     web_client = await web_client_factory(
         settings=None, dependency_overrides=dependency_overrides
     )
+    with patch.object(AsyncSession, "execute", AsyncMock) as mock_execute:
+        mock_scalar_one = Mock(return_value=Tenancy(deposit_in_p=10000, end_date=None))
+        mock_result = AsyncMock()
+        mock_result.scalar_one = mock_scalar_one
+        mock_execute.return_value = mock_result
 
     async with web_client as client:
         response = await client.get("/")
