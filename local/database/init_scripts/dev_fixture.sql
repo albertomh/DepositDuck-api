@@ -56,7 +56,7 @@ VALUES (
     true,
     now(),
     NULL,
-    'User',
+    'UserName',
     'NeedsOnboarding'
 );
 

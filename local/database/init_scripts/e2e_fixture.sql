@@ -30,7 +30,7 @@ VALUES (
     true,
     now(),
     now(),
-    'User',
+    'UserName',
     'ActiveVerified'
 ), (
     '63d3c89c-c699-4c29-944b-01e506e58fea'::uuid,

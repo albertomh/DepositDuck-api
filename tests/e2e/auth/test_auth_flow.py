@@ -35,11 +35,11 @@ async def test_navbar_logged_out(page: Page) -> None:
 async def test_navbar_logged_in(page: Page) -> None:
     await log_in_user(page, E2EUser.ACTIVE_VERIFIED)
 
-    await expect(page.get_by_test_id("navbarAccountDropdown")).to_be_visible()
-    await page.get_by_test_id("navbarAccountDropdown").click()
-    await expect(
-        page.get_by_test_id("navbarAccountDropdown").get_by_role("list")
-    ).to_have_count(1)
+    navbar_account_dropdown = page.get_by_test_id("navbarAccountDropdown")
+    await expect(navbar_account_dropdown).to_be_visible()
+    await expect(navbar_account_dropdown).to_contain_text("UserName")
+    await navbar_account_dropdown.click()
+    await expect(navbar_account_dropdown.get_by_role("list")).to_have_count(1)
     await expect(page.get_by_text("Log out")).to_be_visible()
 
 
