@@ -1,4 +1,4 @@
-"""add_prospect
+"""people__prospect
 
 Revision ID: 7f669a1075d0
 Revises: d6f3c7a542f7
