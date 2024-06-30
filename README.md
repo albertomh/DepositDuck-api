@@ -92,7 +92,8 @@ pre-commit install
 ```
 
 Please follow the [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/)
-guidelines when writing commit messages.
+guidelines when writing commit messages. Where possible, scope commit types
+eg. `feat(fe)` or `test(unit)`.
 `commitlint` is enabled as a pre-commit hook. Valid commit types are defined in `.commitlintrc.yaml`.
 
 ### Manage requirements
@@ -410,6 +411,7 @@ in `.env` that can be used to specify host and port.
 
 ### Cut a release
 
+1. Check out the `main` branch.
 1. Pick the semantic version (`M.m.p`) for the release.
 1. Run `just release M.m.p`  
    This stamps the changelog & updates the semver globals in `depositduck/__init__.py`.
