@@ -17,7 +17,7 @@ runs:
     - run: |
         sudo apt-get install --yes --no-install-recommends postgresql-client
       shell: bash
-    # initialise tge depositduck service container by creating postgres users & databases
+    # initialise the depositduck service container by creating postgres users & databases
     - run: |
         PGPASSWORD=password psql -h localhost -U postgres -d postgres -a -f ./local/database/init_scripts/init.sql
       shell: bash
