@@ -1,6 +1,6 @@
 /*
- * Initialisation script for the local containerised Postgres instance.
- * For use during development and testing.
+ * Initialisation script for the containerised Postgres instance.
+ * For use during development and testing. Also used ahead of running e2e tests in CI.
  * Keep values in sync with `.env`, `.env.test` & `.env.e2e`.
  *
  * (c) 2024 Alberto Morón Hernández

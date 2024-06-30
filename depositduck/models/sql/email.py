@@ -19,11 +19,11 @@ class Email(EmailBase, TableBase, table=True):
     __tablename__ = "email__email"
 
     recipient_id: UUID = Field(nullable=True, foreign_key="auth__user.id")
+    user: User = Relationship(back_populates="emails")
+
     sent_at: datetime | None = Field(
         sa_column=sa.Column(sa.DateTime(timezone=True), nullable=True)
     )
-
-    user: User = Relationship(back_populates="emails")
 
     def __str__(self) -> str:
         return f"Email[{self.id}]"
