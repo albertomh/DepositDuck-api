@@ -10,6 +10,8 @@ to create a new release.
 
 ## [Unreleased]
 
+## [0.6.0] - 2024-06-30
+
 ### Added
 
 - `forms` package to create generic form models powered by Pydantic.
