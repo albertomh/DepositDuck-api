@@ -93,10 +93,11 @@ _wipe_db: _start_db
   if [ -z ${CI:-} ]; then
     . ./local/read_dotenv.sh {{dotenv}}
     CONN_STR="postgresql://$DB_USER:$DB_PASSWORD@$DB_HOST:$DB_PORT/$DB_NAME"
-    SQL_CMD="select format('DROP TABLE IF EXISTS %I CASCADE;', tablename) from pg_tables where schemaname='public'\gexec"
-    PSQL_CMD="echo \\\"$SQL_CMD\\\" | psql -t $CONN_STR"
-    CMD="docker exec depositduck_db bash -c \"$PSQL_CMD\""
-    eval "$CMD"
+    DROP_TABLES_CMD="SELECT format('DROP TABLE IF EXISTS %I CASCADE;', tablename) FROM pg_tables WHERE schemaname='public';\gexec"
+    PSQL_DROP_CMD="echo \\\"$DROP_TABLES_CMD\\\" | psql -t $CONN_STR"
+    DROP_CMD="docker exec depositduck_db bash -c \"$PSQL_DROP_CMD\""
+    echo "[just _wipe_db] $DROP_CMD"
+    eval "$DROP_CMD"
   fi
 
 # create an Alembic migration
@@ -121,6 +122,7 @@ migrate up="head": venv
   else
     FIXTURE_PATH="/docker-entrypoint-fixtures.d/e2e_fixture.sql"
   fi
+  printf "\n[just migrate] applying fixture '$FIXTURE_PATH'\n"
   CONN_STR="postgresql://$DB_USER:$DB_PASSWORD@$DB_HOST:$DB_PORT/$DB_NAME"
   PSQL_CMD="psql $CONN_STR -f $FIXTURE_PATH"
   CMD="docker exec depositduck_db bash -c \"$PSQL_CMD\""
@@ -178,6 +180,7 @@ run: stop && stop
     just dotenv={{dotenv}} mailhog &
     just db &
   fi
+  sleep 3
   just dotenv={{dotenv}} migrate &
   . {{VENV_DIR}}/bin/activate
   if [ -z ${CI:-} ]; then . ./local/read_dotenv.sh {{dotenv}}; fi
@@ -193,7 +196,7 @@ stop:
     just dotenv={{dotenv}} _stop_mailhog
     just dotenv={{dotenv}} _stop_server
   else
-    echo "justfile: no-op 'stop' since executing in a pipeline [CI='$CI']"
+    printf "\n[just stop] no-op 'stop' since executing in a pipeline [CI='$CI']\n"
   fi
 
 # Setting env vars from a dotenv in GitHub Actions is handled in a step of the action
