@@ -29,6 +29,7 @@ docker run \
   --volume $script_dir/pg_hba.conf:/etc/postgresql/pg_hba.conf \
   --volume $script_dir/postgresql.conf:/etc/postgresql/postgresql.conf \
   --volume $script_dir/init_scripts:/docker-entrypoint-initdb.d \
+  --volume $script_dir/fixtures:/docker-entrypoint-fixtures.d \
   -e PGDATA=/var/lib/postgresql/data/pgdata15 \
   -e POSTGRES_INITDB_ARGS="--data-checksums --encoding=UTF8" \
   -e POSTGRES_PASSWORD=${DB_PASSWORD} \

@@ -117,9 +117,9 @@ migrate up="head": venv
 
   # run data fixtures for local development or e2e testing
   if [ -z ${E2E:-} ] || [ "$E2E" = 'false' ]; then
-    FIXTURE_PATH="/docker-entrypoint-initdb.d/dev_fixture.sql"
+    FIXTURE_PATH="/docker-entrypoint-fixtures.d/dev_fixture.sql"
   else
-    FIXTURE_PATH="/docker-entrypoint-initdb.d/e2e_fixture.sql"
+    FIXTURE_PATH="/docker-entrypoint-fixtures.d/e2e_fixture.sql"
   fi
   CONN_STR="postgresql://$DB_USER:$DB_PASSWORD@$DB_HOST:$DB_PORT/$DB_NAME"
   PSQL_CMD="psql $CONN_STR -f $FIXTURE_PATH"
