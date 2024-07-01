@@ -99,7 +99,7 @@ numpy==2.0.0
     # via pgvector
 orjson==3.10.5
     # via fastapi
-pgvector==0.2.5
+pgvector==0.3.0
     # via -r requirements/base.in
 pwdlib==0.2.0
     # via fastapi-users
