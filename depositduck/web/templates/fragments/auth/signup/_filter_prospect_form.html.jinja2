@@ -31,7 +31,7 @@
             <div class="col-1 border-start border-1 border-black"></div>
             <div class="col-10 pt-3 pb-5 ps-4">
                 {% block filter_prospect_form__provider_choice %}
-                    <div class="row" id="field-provider-choice">
+                    <div class="row" id="fieldProviderChoice">
                         <div class="col-12 form-check pb-3">
                             <!-- TODO: turn into big button with TDS logo. -->
                             <input
@@ -41,7 +41,7 @@
                                 value="tds"
                                 id="providerTDS"
                                 hx-post="/auth/filterProspect/validateForm/?field=provider_choice"
-                                hx-target="#field-provider-choice"
+                                hx-target="#fieldProviderChoice"
                                 {% if filter_prospect_form["user_input"]["provider_choice"]=="tds" %}checked{% endif %}
                                 required />
                             <label
@@ -59,7 +59,7 @@
                                 value="other"
                                 id="providerOther"
                                 hx-post="/auth/filterProspect/validateForm/?field=provider_choice"
-                                hx-target="#field-provider-choice"
+                                hx-target="#fieldProviderChoice"
                                 {% if filter_prospect_form["user_input"]["provider_choice"]=="other" %}checked{% endif %}
                                 required />
                             <label
@@ -115,7 +115,7 @@
             <div class="col-1 border-start border-1 border-black"></div>
             <div class="col-10 pt-3 ps-4">
                 {% block filter_prospect_form__tenancy_end_date %}
-                    <label id="field-tenancy-end-date">
+                    <label id="fieldTenancyEndDate">
                         <!-- TODO: set min and max -->
                         <input
                             type="date"
@@ -123,7 +123,7 @@
                             data-testid="tenancyEndDateInput"
                             value="{{ filter_prospect_form["user_input"]["tenancy_end_date"] }}"
                             hx-post="/auth/filterProspect/validateForm/?field=tenancy_end_date"
-                            hx-target="#field-tenancy-end-date"
+                            hx-target="#fieldTenancyEndDate"
                             class="form-control mt-1 {{ filter_prospect_form["field_classes"]["tenancy_end_date"]|d('') }}"
                             required />
                     </label>
@@ -134,7 +134,7 @@
             <div class="col-1 border-end border-1 border-black"></div>
             <div class="col-1 border-start border-1 border-black"></div>
             <div class="col-10 col-md-6 pt-3 pb-5">
-                <div class="accordion accordion-flush" id="accordion-why-ask">
+                <div class="accordion accordion-flush" id="accordionWhyAsk">
                     <div class="accordion-item">
                         <h2
                             class="accordion-header border-bottom border-1 border-light">
@@ -142,17 +142,17 @@
                                 class="accordion-button collapsed p-1 text-muted"
                                 type="button"
                                 data-bs-toggle="collapse"
-                                data-bs-target="#accordion-why-ask-body"
+                                data-bs-target="#accordionWhyAsk"
                                 aria-expanded="false"
-                                aria-controls="accordion-why-ask-body">
+                                aria-controls="accordionWhyAskBody">
                                 <i class="bi bi-info-circle pe-2"></i>
                                 Why do we ask?
                             </button>
                         </h2>
                         <div
-                            id="accordion-why-ask-body"
+                            id="accordionWhyAskBody"
                             class="accordion-collapse collapse"
-                            data-bs-parent="#accordion-why-ask">
+                            data-bs-parent="#accordionWhyAsk">
                             <div class="accordion-body py-1 text-muted">
                                 The TDS dispute process is only available for
                                 the three months after you leave a property.
@@ -181,10 +181,10 @@
                 {% block submit_button %}
                     <button
                         type="submit"
-                        id="submit-button"
+                        id="submitButton"
                         class="btn btn-primary float-end"
                         {% if not filter_prospect_form["can_submit"] %}disabled{% endif %}
-                        hx-swap-oob="outerHTML: #submit-button">
+                        hx-swap-oob="outerHTML: #submitButton">
                         Next
                     </button>
                 {% endblock submit_button %}
