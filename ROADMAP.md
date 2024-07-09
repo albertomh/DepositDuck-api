@@ -3,6 +3,8 @@
 ## TODO
 
 - [ ] find 'TODO's in code
+- [ ] tweak existing release process so that next semver is already stated as [unreleased]
+      in CHANGELOG and `just release` reads that instead of being handed a semver.
 - [ ] automated releases (release-it?)
 - [ ] add CD pipelines
 - [ ] write script to check latest version of htmx & Bootstrap since they are vendored

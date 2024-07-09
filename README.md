@@ -9,7 +9,7 @@ _Get what's yours_ <!-- markdownlint-disable-line MD036 -->
 |--------------|---|
 | stack        | [![python: 3.12](https://img.shields.io/badge/3.12-4584b6?logo=python&logoColor=ffde57)](https://docs.python.org/3.12/whatsnew/3.12.html) [![fastapi](https://img.shields.io/badge/FastAPI-009688?logo=fastapi&logoColor=white)](https://github.com/tiangolo/fastapi) [![postgres](https://img.shields.io/badge/Postgres-4169E1?logo=postgresql&logoColor=white)](https://github.com/tiangolo/fastapi) [![htmx](https://img.shields.io/badge/htmx-white?logo=htmx&logoColor=3366CC)](https://github.com/bigskysoftware/htmx) [![Alpine.js](https://img.shields.io/badge/Alpine.js-2D3442?logo=alpinedotjs&logoColor=#8BC0D0)](https://alpinejs.dev/) [![speculum](https://img.shields.io/badge/speculum-9f71ff?logo=apache&logoColor=ffffff)](https://github.com/albertomh/speculum/) <tr></tr> |
 | dev tooling  | [![justfile](https://img.shields.io/badge/🤖_justfile-EFF1F3)](https://github.com/casey/just) [![uv](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/uv/main/assets/badge/v0.json&labelColor=261230&color=de60e9)](https://github.com/astral-sh/uv) [![MailHog](https://img.shields.io/badge/🐽_MailHog-952225)](https://github.com/mailhog/MailHog) [![pre-commit](https://img.shields.io/badge/pre--commit-FAB040?logo=pre-commit&logoColor=1f2d23)](https://github.com/pre-commit/pre-commit) [![ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json&labelColor=261230&color=d8ff64)](https://github.com/astral-sh/ruff) [![esbuild](https://img.shields.io/badge/esbuild-FFCF00?logo=esbuild&logoColor=000000)](https://esbuild.github.io/) <tr></tr> |
-| tests        | [![pytest](https://img.shields.io/badge/pytest-0A9EDC?logo=pytest&logoColor=white)](https://github.com/pytest-dev/pytest) [![playwright](https://img.shields.io/badge/playwright-2ead34?logo=playwright&logoColor=e2584c)](https://playwright.dev/docs/intro) ![coverage](https://img.shields.io/badge/coverage-81%25-EADF6C?labelColor=2b3036) [![CI](https://github.com/albertomh/DepositDuck/actions/workflows/ci.yaml/badge.svg)](https://github.com/albertomh/DepositDuck/actions/workflows/ci.yaml) <tr></tr> |
+| tests        | [![pytest](https://img.shields.io/badge/pytest-0A9EDC?logo=pytest&logoColor=white)](https://github.com/pytest-dev/pytest) [![playwright](https://img.shields.io/badge/playwright-2ead34?logo=playwright&logoColor=e2584c)](https://playwright.dev/docs/intro) ![coverage](https://img.shields.io/badge/coverage-80%25-EADF6C?labelColor=2b3036) [![CI](https://github.com/albertomh/DepositDuck/actions/workflows/ci.yaml/badge.svg)](https://github.com/albertomh/DepositDuck/actions/workflows/ci.yaml) <tr></tr> |
 
 ### Prerequisites
 
@@ -141,8 +141,12 @@ And the following top-level modules:
 ### Dependables
 
 Callables for use with FastAPI's dependency injection system are made available in the
-`dependables` module. These include utilities to access the `structlog` logger, a configured
-settings object, a database session factory and a Jinja fragments context.
+`dependables` module. These include:
+
+- utilities to access the `structlog` logger
+- a configured settings object
+- a database session factory
+- a Jinja fragments context. Jinja environment config, such as extensions, must be set here.
 
 Packages may contain domain-specific dependables, such as the `auth.dependables` module.
 
@@ -158,17 +162,20 @@ as router-level dependables and used to filter every request.
 ### Models
 
 The `models` package defines physical and virtual models for entities used in the application.
-It contains:
+It contains the following modules:
 
-- the `auth` module - user authentication.
-- the `common` module - mixins to help build base models and tables elsewhere.
-- the `deposit` module - track deposit recovery cases linked to users.
-- the `email` module - templates and utilities to render and send HTML emails.
-- the `llm` module - models used when interacting with LLMs and storing their output
-  (embeddings, etc.)
-- the `dto` package: Data Transfer Objects building on base models.
-- the `migrations` package (Alembic migrations, see below)
-- the `sql` package - table models inheriting the models defined elsewhere. Uses SQLModel.
+- `auth`: user authentication.
+- `common`: mixins to help build base models and tables elsewhere.
+- `deposit`: track deposit recovery cases linked to users.
+- `email`: templates and utilities to render and send HTML emails.
+- `llm`: models used when interacting with LLMs and storing their output (embeddings, etc.)
+- `people`: prospects funnelled away during signup.
+
+And these packages:
+
+- `dto`: Data Transfer Objects building on base models.
+- `migrations` (Alembic migrations, see below)
+- `sql`: table models inheriting the models defined elsewhere. Uses SQLModel.
 
 Table models are exported in `sql.tables` for convenience.
 
