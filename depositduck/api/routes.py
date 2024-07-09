@@ -31,7 +31,7 @@ class ServicesSummary(BaseModel):
 @api_router.get(
     "/healthz",
     summary="Check status of the webapp and services DepositDuck depends on",
-    tags=["ops"],
+    tags=["healthcheck"],
 )
 async def healthz(
     request: Request,
