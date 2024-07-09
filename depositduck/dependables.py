@@ -36,14 +36,25 @@ AYieldFixture = AsyncGenerator[T, None]
 @cache
 def get_logger():
     """
+    Log levels:
+    - DEBUG
+    - INFO
+    - WARNING
+    - ERROR
+    - CRITICAL
+    https://docs.python.org/3/library/logging.html#logging-levels
+
     Usage:
       from structlog._config import BoundLoggerLazyProxy
       ...
       route(LOG: Annotated[BoundLoggerLazyProxy, Depends(get_logger)]):
           LOG.info("")
     """
+    # TODO: output as JSON:
+    # https://www.structlog.org/en/stable/standard-library.html#rendering-within-structlog
     settings = get_settings()
-    log_level = logging.DEBUG if settings.debug else logging.WARNING
+    # TODO: switch to WARNING in prod once need for de-noising logs evident in production
+    log_level = logging.DEBUG if settings.debug else logging.INFO
     configure(wrapper_class=make_filtering_bound_logger(log_level))
 
     return get_structlogger()
@@ -141,7 +152,7 @@ async def get_speculum_client(
         yield client
 
 
-def get_db_connection_string(settings=None) -> str:
+def get_db_connection_string(settings: Settings | None = None) -> str:
     if not settings:
         settings = get_settings()
     user = settings.db_user
