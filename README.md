@@ -242,6 +242,18 @@ customised to use the project's palette which lives at [albertomh/speculum](http
 `speculum` static assets are hosted in a public Cloudflare R2 bucket with CORS enabled to
 allow GET from `localhost:8000`.
 
+#### Jinja2
+
+The [jinja2_fragments](https://pypi.org/project/jinja2-fragments/) package is used to render
+blocks of HTML from Jinja2 templates ready to be used by htmx.
+
+The `get_templates` dependable returns an instance of `AuthenticatedJinjaBlocks`. This class
+enhances `Jinja2Blocks` (from `jinja2_fragments`) by using Pydantic to validate that a
+`TemplateContext` has all required attributes before being used to render a `TemplateResponse`.
+
+To see the context available to a page in the frontend, add `<pre>{% debug %}</pre>` to a
+Jinja template when running locally and `settings.debug` is true.
+
 #### Naming conventions
 
 Element IDs should be in `camelCase`. Classes (mostly from Boostrap) should be in `kebab-case`.

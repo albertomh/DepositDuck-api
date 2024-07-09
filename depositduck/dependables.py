@@ -8,6 +8,7 @@ eg. database sessions or application configuration.
 
 import logging
 from functools import cache
+from os import PathLike
 from typing import Annotated, AsyncGenerator, ClassVar, TypeVar
 
 import httpx
@@ -95,7 +96,9 @@ class AuthenticatedJinjaBlocks(Jinja2Blocks):
 
 
 @cache
-def get_templates() -> AuthenticatedJinjaBlocks:
+def get_templates(
+    settings: Settings | None = None, templates_dir_path: str | PathLike | None = None
+) -> AuthenticatedJinjaBlocks:
     """
     Usage:
       @router.get("/path/")
@@ -113,11 +116,20 @@ def get_templates() -> AuthenticatedJinjaBlocks:
           "dir/template.html.jinja2", context=context, [block_name="fragment_id"]
       )
     """
-    templates_dir_path = BASE_DIR / "web" / "templates"
+    if not templates_dir_path:
+        templates_dir_path = BASE_DIR / "web" / "templates"
+    if not settings:
+        settings = get_settings()
+
+    # https://jinja.palletsprojects.com/en/3.1.x/extensions/
+    extensions = []
+    if settings.debug:
+        extensions.append("jinja2.ext.debug")
 
     return AuthenticatedJinjaBlocks(
         directory=str(templates_dir_path),
         autoescape=select_autoescape(("html", "jinja2")),
+        extensions=extensions,
     )
 
 

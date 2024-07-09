@@ -126,6 +126,22 @@ class TestAuthenticatedJinjaBlocks:
 
 
 @pytest.mark.asyncio
+@pytest.mark.parametrize(
+    "debug",
+    [
+        True,
+        False,
+    ],
+)
+async def test_get_templates_debug_extension_follows_debug_setting(mock_settings, debug):
+    mock_settings.debug = debug
+
+    templates = get_templates(mock_settings)
+
+    assert ("jinja2.ext.DebugExtension" in templates.env.extensions) == debug
+
+
+@pytest.mark.asyncio
 async def test_get_drallam_client(mock_settings):
     drallam_origin = "https://example.com"
     mock_settings.drallam_origin = drallam_origin
