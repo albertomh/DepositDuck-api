@@ -14,10 +14,11 @@ from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 
 from depositduck import (
-    ROUTE_TAGS_METADATA,
+    APIAPP_ROUTE_TAGS,
     VERSION_MAJOR,
     VERSION_MINOR,
     VERSION_PATCH,
+    WEBAPP_ROUTE_TAGS,
 )
 from depositduck.api.routes import api_router
 from depositduck.auth.routes import auth_frontend_router, auth_operations_router
@@ -42,6 +43,7 @@ def get_apiapp(settings: Settings) -> FastAPI:
         description="",
         version=VERSION,
         debug=settings.debug,
+        openapi_tags=APIAPP_ROUTE_TAGS,
         openapi_url="/openapi.json" if settings.debug else None,
     )
     apiapp.include_router(api_router)
@@ -54,7 +56,7 @@ def get_llmapp(settings: Settings) -> FastAPI:
         description="",
         version=VERSION,
         debug=settings.debug,
-        openapi_tags=ROUTE_TAGS_METADATA,
+        openapi_tags=WEBAPP_ROUTE_TAGS,
         openapi_url="/openapi.json" if settings.debug else None,
     )
     llmapp.include_router(llm_router)
@@ -67,7 +69,7 @@ def get_webapp(settings: Settings) -> FastAPI:
         description="",
         version=VERSION,
         debug=settings.debug,
-        openapi_tags=ROUTE_TAGS_METADATA,
+        openapi_tags=WEBAPP_ROUTE_TAGS,
         openapi_url="/openapi.json" if settings.debug else None,
         default_response_class=HTMLResponse,
     )
