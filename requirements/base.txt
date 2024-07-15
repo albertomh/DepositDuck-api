@@ -45,7 +45,7 @@ fastapi-cli==0.0.4
     # via fastapi
 fastapi-slim==0.111.0
     # via -r requirements/base.in
-fastapi-users==13.0.0
+fastapi-users[sqlalchemy]==13.0.0
     # via
     #   -r requirements/base.in
     #   fastapi-users-db-sqlalchemy
@@ -99,9 +99,9 @@ numpy==2.0.0
     # via pgvector
 orjson==3.10.5
     # via fastapi
-pgvector==0.2.5
+pgvector==0.3.1
     # via -r requirements/base.in
-pwdlib==0.2.0
+pwdlib[argon2,bcrypt]==0.2.0
     # via fastapi-users
 pycparser==2.22
     # via cffi
@@ -117,7 +117,7 @@ pydantic-settings==2.3.3
     # via -r requirements/base.in
 pygments==2.18.0
     # via rich
-pyjwt==2.8.0
+pyjwt[crypto]==2.8.0
     # via fastapi-users
 python-dotenv==1.0.1
     # via
@@ -137,7 +137,7 @@ sniffio==1.3.1
     # via
     #   anyio
     #   httpx
-sqlalchemy==2.0.30
+sqlalchemy[asyncio]==2.0.30
     # via
     #   alembic
     #   fastapi-users-db-sqlalchemy
@@ -165,7 +165,7 @@ typing-extensions==4.12.2
     #   typer
 ujson==5.10.0
     # via fastapi
-uvicorn==0.30.1
+uvicorn[standard]==0.30.1
     # via
     #   -r requirements/base.in
     #   fastapi
