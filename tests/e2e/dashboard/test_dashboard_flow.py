@@ -32,6 +32,7 @@ async def test_redirect_to_onboarding_when_needed(
 async def test_onboarding_happy_path(page: Page) -> None:
     today = datetime.today().date()
     one_year_ago = today - timedelta(weeks=52)
+    ten_days_ago = today - timedelta(days=10)
 
     await log_in_user(page, E2EUser.NEEDS_ONBOARDING, "**/welcome/")
 
@@ -64,8 +65,9 @@ async def test_onboarding_happy_path(page: Page) -> None:
         onboarding_form.get_by_text("When does your tenancy end?")
     ).to_be_visible()
     await expect(page.get_by_text("You told us your tenancy ended on:")).to_be_visible()
-    # TODO: make tenancy end date dynamic in e2e fixture.
-    await expect(page.get_by_test_id("tenancyEndDateInput")).to_have_value("2024-04-28")
+    await expect(page.get_by_test_id("tenancyEndDateInput")).to_have_value(
+        ten_days_ago.isoformat()
+    )
     await onboarding_form.get_by_role("button", name="Next").click()
     await page.wait_for_url("**/?prev=/welcome/")
 
