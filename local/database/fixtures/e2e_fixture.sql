@@ -70,6 +70,6 @@ VALUES (
     NULL,
     0,
     NULL,
-    '2024-04-28',  -- TODO: make dynamic
+    CURRENT_DATE - INTERVAL '10 days',
     '63d3c89c-c699-4c29-944b-01e506e58fea'::uuid -- needs_onboarding@example.com
 );
