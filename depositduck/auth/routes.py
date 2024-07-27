@@ -102,7 +102,9 @@ async def signup(
     templates: Annotated[AuthenticatedJinjaBlocks, Depends(get_templates)],
     user: Annotated[User, Depends(current_active_user)],
     request: Request,
+    step: str | None = None,
 ):
+    # TODO: ensure `step=funnel` / `step=register` are reacted to
     filter_prospect_form = FilterProspectForm(
         provider_choice=None,
         tenancy_end_date=None,
@@ -206,7 +208,7 @@ async def filter_prospect_for_signup(
         query = "step=register"
     except ExceptionGroup as eg:
         for exc in eg.exceptions:
-            LOG.info(str(exc))
+            LOG.warn(str(exc))
             if isinstance(exc, TenancyEndDateOutOfRange):
                 context.end_date_is_within_range = False
 
@@ -254,6 +256,7 @@ async def validate_unsuitable_prospect_funnel_form(
         context=context,
         block_name=block_name,
     )
+    context.oob_submit_button = True
     submit_button_response = templates.TemplateResponse(
         template,
         context,
@@ -264,7 +267,7 @@ async def validate_unsuitable_prospect_funnel_form(
 
 
 @auth_operations_router.post("/unsuitableProspectFunnel/")
-async def unsuitable_prospect_funnel(
+async def submit_unsuitable_prospect_funnel_form(
     db_session_factory: Annotated[async_sessionmaker, Depends(db_session_factory)],
     templates: Annotated[AuthenticatedJinjaBlocks, Depends(get_templates)],
     user: Annotated[User, Depends(current_active_user)],

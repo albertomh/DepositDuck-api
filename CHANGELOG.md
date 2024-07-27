@@ -10,6 +10,10 @@ to create a new release.
 
 ## [Unreleased]
 
+### Fixed
+
+- Correct partial template for submit button on the unsuitableProspectFunnel form.
+
 ## [0.6.0] - 2024-06-30
 
 ### Added
