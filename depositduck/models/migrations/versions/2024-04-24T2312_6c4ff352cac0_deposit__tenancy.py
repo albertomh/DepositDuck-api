@@ -10,8 +10,8 @@ Create Date: 2024-04-24 23:12:54.297408
 from typing import Sequence, Union
 
 import sqlalchemy as sa
-import sqlmodel
 from alembic import op
+from sqlalchemy.dialects.postgresql import UUID
 
 # revision identifiers, used by Alembic.
 revision: str = "6c4ff352cac0"
@@ -25,7 +25,7 @@ def upgrade() -> None:
         "deposit__tenancy",
         sa.Column(
             "id",
-            sqlmodel.sql.sqltypes.GUID(),
+            UUID(),
             server_default=sa.text("gen_random_uuid()"),
             nullable=False,
         ),
@@ -39,7 +39,7 @@ def upgrade() -> None:
         sa.Column("deposit_in_p", sa.Integer(), nullable=False),
         sa.Column("start_date", sa.Date(), nullable=True),
         sa.Column("end_date", sa.Date(), nullable=False),
-        sa.Column("user_id", sqlmodel.sql.sqltypes.GUID(), nullable=False),
+        sa.Column("user_id", UUID(), nullable=False),
         sa.ForeignKeyConstraint(
             ["user_id"],
             ["auth__user.id"],

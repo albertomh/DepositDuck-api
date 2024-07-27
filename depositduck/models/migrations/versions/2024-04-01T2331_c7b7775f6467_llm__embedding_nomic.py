@@ -11,8 +11,8 @@ from typing import Sequence, Union
 
 import pgvector
 import sqlalchemy as sa
-import sqlmodel
 from alembic import op
+from sqlalchemy.dialects.postgresql import UUID
 
 # revision identifiers, used by Alembic.
 revision: str = "c7b7775f6467"
@@ -29,7 +29,7 @@ def upgrade() -> None:
         "llm__embedding_nomic",
         sa.Column(
             "id",
-            sqlmodel.sql.sqltypes.GUID(),
+            UUID(),
             server_default=sa.text("gen_random_uuid()"),
             nullable=False,
         ),
@@ -40,7 +40,7 @@ def upgrade() -> None:
             nullable=False,
         ),
         sa.Column("deleted_at", sa.DateTime(timezone=True), nullable=True),
-        sa.Column("snippet_id", sqlmodel.sql.sqltypes.GUID(), nullable=False),
+        sa.Column("snippet_id", UUID(), nullable=False),
         sa.Column("vector", pgvector.sqlalchemy.Vector(dim=768), nullable=False),
         sa.ForeignKeyConstraint(
             ["snippet_id"],
