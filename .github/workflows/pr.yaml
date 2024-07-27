@@ -22,7 +22,7 @@ env:
 
 jobs:
   pre_commit:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
       - uses: ./.github/actions/pre-commit
@@ -30,7 +30,7 @@ jobs:
   test:
     needs:
       - pre_commit
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
       - uses: ./.github/actions/test
@@ -41,7 +41,7 @@ jobs:
     if: ${{ github.event_name == 'push' && startsWith(github.ref_name, 'release-') }}
     needs:
       - test
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
       - run: gh pr create --base main --title "${{ github.ref_name }}" --body ""

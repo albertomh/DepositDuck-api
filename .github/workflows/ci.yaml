@@ -23,7 +23,7 @@ jobs:
   pre_commit:
     # proceed only when a PR is closed by a merge
     if: ${{ github.event.pull_request.merged }}
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
       - uses: ./.github/actions/pre-commit
@@ -31,7 +31,7 @@ jobs:
   test:
     needs:
       - pre_commit
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
       - uses: ./.github/actions/test
@@ -39,8 +39,7 @@ jobs:
   e2e:
     needs:
       - pre_commit
-    # TODO: upgrade to ubuntu-24.04 (LTS) once Playwright 1.45 is available.
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     services:
       depositduck_db:
         image: pgvector/pgvector:pg15
@@ -73,7 +72,7 @@ jobs:
     needs:
       - test
       - e2e
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
       - run: |
@@ -97,7 +96,7 @@ jobs:
     if: ${{ ! startsWith(github.head_ref, 'release-') }}
     needs:
       - test
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
       - run: |
