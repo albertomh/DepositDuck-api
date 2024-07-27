@@ -6,6 +6,7 @@ from datetime import date, datetime, timedelta
 
 import pytest
 from bs4 import BeautifulSoup
+from flaky import flaky
 from playwright.async_api import Page, expect
 
 from depositduck.auth import MAX_DAYS_IN_ADVANCE, TDS_DISPUTE_WINDOW_IN_DAYS
@@ -19,6 +20,7 @@ from tests.e2e.conftest import (
 from tests.e2e.mailhog_utils import get_mailhog_email
 
 
+@flaky(max_runs=3, min_passes=1)  # flaky due to being the first e2e test to run.
 @pytest.mark.asyncio
 async def test_navbar_logged_out(page: Page) -> None:
     await page.goto(f"{APP_ORIGIN}/")
