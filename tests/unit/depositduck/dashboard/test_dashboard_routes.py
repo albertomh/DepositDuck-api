@@ -7,6 +7,7 @@ from typing import Any, Iterator
 from unittest.mock import AsyncMock, Mock, patch
 
 import pytest
+import time_machine
 from fastapi import status
 
 from depositduck.auth.dependables import get_user_manager
@@ -60,6 +61,7 @@ async def test_onboarding_route_allows_user_with_null_completed_onboarding_at(
 
 
 @pytest.mark.asyncio
+@time_machine.travel(datetime(2024, 5, 4, 19, 46, 0, tzinfo=timezone.utc), tick=False)
 async def test_complete_onboarding_happy_path(
     web_client_factory,
     mock_user,
@@ -78,17 +80,12 @@ async def test_complete_onboarding_happy_path(
     web_client = await web_client_factory(
         settings=None, dependency_overrides=dependency_overrides
     )
-    fixed_datetime = datetime(2024, 5, 4, 19, 46, 0, tzinfo=timezone.utc)
     name = "TestUser"
     deposit_amount = 888
     tenancy_start_date = "2023-01-01"
     tenancy_end_date = "2024-04-30"
 
-    with (
-        patch("depositduck.dashboard.routes.datetime") as mock_datetime,
-        patch.object(AsyncSession, "execute", AsyncMock) as mock_execute,
-    ):
-        mock_datetime.now.return_value = fixed_datetime
+    with patch.object(AsyncSession, "execute", AsyncMock) as mock_execute:
         mock_existing_tenancy = Mock(spec=Tenancy)
         mock_scalar_one = Mock(return_value=mock_existing_tenancy)
         mock_result = AsyncMock()
@@ -113,7 +110,9 @@ async def test_complete_onboarding_happy_path(
     user_update = mock_user_manager.update.await_args[0][0]
     assert isinstance(user_update, UserUpdate)
     assert user_update.first_name == name
-    assert user_update.completed_onboarding_at == fixed_datetime
+    assert user_update.completed_onboarding_at == datetime(
+        2024, 5, 4, 19, 46, 0, tzinfo=timezone.utc
+    )
     assert mock_existing_tenancy.deposit_in_p == deposit_amount * 100
     assert mock_existing_tenancy.start_date == date(2023, 1, 1)
     assert response.status_code == status.HTTP_303_SEE_OTHER

@@ -1,7 +1,8 @@
-from datetime import datetime
+from datetime import datetime, timezone
 from unittest.mock import AsyncMock, Mock, patch
 
 import pytest
+import time_machine
 from fastapi import Request
 from fastapi_users_db_sqlalchemy import SQLAlchemyUserDatabase
 
@@ -65,18 +66,18 @@ async def test_on_after_request_verify(user_manager):
 
 
 @pytest.mark.asyncio
+@time_machine.travel(datetime(2024, 7, 27, 12, 46, 8, tzinfo=timezone.utc), tick=False)
 async def test_on_after_verify(user_manager):
     user = User(id=1, verified_at=None)
-    current_time = datetime.now()
 
     mock_db_update = AsyncMock()
     user_manager.user_db.update = mock_db_update
-    with patch("depositduck.auth.dependables.datetime") as mock_datetime:
-        mock_datetime.now.return_value = current_time
-        await user_manager.on_after_verify(user)
+    await user_manager.on_after_verify(user)
 
     mock_db_update.assert_awaited_once()
-    assert mock_db_update.await_args[0][1]["verified_at"] == current_time
+    updated_verified_at = mock_db_update.await_args[0][1]["verified_at"]
+    expected_verified_at = datetime(2024, 7, 27, 12, 46, 8, tzinfo=timezone.utc)
+    assert updated_verified_at == expected_verified_at
 
 
 # TODO: on_after_forgot_password

@@ -2,7 +2,7 @@
 (c) 2024 Alberto Morón Hernández
 """
 
-from datetime import datetime
+from datetime import datetime, timezone
 from unittest.mock import Mock, patch
 
 import pytest
@@ -75,7 +75,7 @@ async def test_register_happy_path(
       - redirects the user to the login screen with the necessary query param
     """
     # arrange
-    tenancy_end_date = datetime.now().date()
+    tenancy_end_date = datetime.now(timezone.utc).date()
     tenancy_end_date_str = tenancy_end_date.strftime("%Y-%m-%d")
     email = "user@example.com"
     password, confirm_password = "password", "password"

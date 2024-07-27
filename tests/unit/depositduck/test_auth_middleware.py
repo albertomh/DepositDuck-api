@@ -2,7 +2,7 @@
 (c) 2024 Alberto Morón Hernández
 """
 
-from datetime import datetime
+from datetime import datetime, timezone
 from unittest.mock import AsyncMock, Mock, patch
 
 import pytest
@@ -203,7 +203,7 @@ async def test_must_be_logged_out_routes_forbid_authenticated_user(
     "completed_onboarding_at, http_status, redirect_to",
     [
         (None, status.HTTP_307_TEMPORARY_REDIRECT, "/welcome/"),
-        (datetime.now(), status.HTTP_200_OK, None),
+        (datetime.now(timezone.utc), status.HTTP_200_OK, None),
     ],
 )
 async def test_protected_routes_redirects_user_to_onboarding(
@@ -258,9 +258,9 @@ async def test_user_pending_onboarding_is_redirected_to_onboarding_screen(
 
 @pytest.mark.asyncio
 async def test_onboarding_route_redirects_already_onboarded_user(
-    web_client_factory, mock_user, mock_async_sessionmaker, mock_async_session
+    web_client_factory, mock_user, mock_async_sessionmaker
 ):
-    mock_user.completed_onboarding_at = datetime.now()
+    mock_user.completed_onboarding_at = datetime.now(timezone.utc)
     dependency_overrides = {
         current_active_user: lambda: mock_user,
         db_session_factory: lambda: mock_async_sessionmaker,
