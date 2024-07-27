@@ -83,6 +83,7 @@ async def _create_client_factory(
     if dependency_overrides:
         for dependency, override in dependency_overrides.items():
             app.dependency_overrides[dependency] = override
+    # TODO: refactor to use `from fastapi.testclient import TestClient` instead
     client = AsyncClient(transport=ASGITransport(app=app), base_url=base_url)  # type: ignore
     return client
 
@@ -181,7 +182,11 @@ def mock_user_manager(mock_user):
 
 @pytest.fixture
 def mock_settings():
-    return Mock(spec=Settings)
+    mock_settings = Mock(spec=Settings)
+    mock_settings.app_name = "DepositDuck-Test"
+    mock_settings.debug = False
+    mock_settings.e2e = False
+    return mock_settings
 
 
 @pytest.fixture

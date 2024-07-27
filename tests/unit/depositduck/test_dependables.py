@@ -40,11 +40,12 @@ LOGIN_TEMPLATE = "auth/login.html.jinja2"
 class TestAuthenticatedJinjaBlocks:
     def test_TemplateResponse_valid_context(
         self,
+        mock_settings: Settings,
         mock_request: Request,
         mock_user: User,
     ):
         """ """
-        templates = get_templates()
+        templates = get_templates(mock_settings)
         context = AuthenticatedJinjaBlocks.TemplateContext(
             request=mock_request,
             user=mock_user,
@@ -61,11 +62,11 @@ class TestAuthenticatedJinjaBlocks:
             "tenancy",
         ]
 
-    def test_TemplateResponse_invalid_context(self):
-        templates = get_templates()
+    def test_TemplateResponse_invalid_context(self, mock_settings: Settings):
+        templates = get_templates(mock_settings)
 
         with pytest.raises(HTTPException):
-            templates.TemplateResponse("test.html", {})
+            templates.TemplateResponse("test.html", {})  # type: ignore
 
     def test_TemplateContext_default_speculum_source(self, mock_request: Request):
         context = AuthenticatedJinjaBlocks.TemplateContext(
@@ -80,9 +81,10 @@ class TestAuthenticatedJinjaBlocks:
 
     def test_TemplateResponse_no_user_in_context(
         self,
+        mock_settings: Settings,
         mock_request: Request,
     ):
-        templates = get_templates()
+        templates = get_templates(mock_settings)
         context = AuthenticatedJinjaBlocks.TemplateContext(
             request=mock_request,
             user=None,
@@ -102,11 +104,12 @@ class TestAuthenticatedJinjaBlocks:
 
     def test_TemplateResponse_user_hashed_password_not_available_in_context(
         self,
+        mock_settings: Settings,
         mock_request: Request,
         mock_user: User,
     ):
         mock_user.hashed_password = "some_hashed_password"
-        templates = get_templates()
+        templates = get_templates(mock_settings)
         context = AuthenticatedJinjaBlocks.TemplateContext(
             request=mock_request,
             user=mock_user,
