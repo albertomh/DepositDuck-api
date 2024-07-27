@@ -107,7 +107,7 @@
                                         Your email:
                                     </label>
                                     {% block unsuitable_prospect_funnel__email %}
-                                        <div class="row">
+                                        <div class="row" id="fieldEmail">
                                             <div class="col-12 col-md-9">
                                                 <input
                                                     type="email"
@@ -115,7 +115,7 @@
                                                     name="email"
                                                     value="{{ unsuitable_prospect_form["user_input"]["email"] or '' }}"
                                                     hx-post="/auth/unsuitableProspectFunnel/validateForm/?field=email"
-                                                    hx-target="#unsuitableProspectFunnelCard"
+                                                    hx-target="#fieldEmail"
                                                     hx-swap="outerHTML"
                                                     class="form-control {{ unsuitable_prospect_form["field_classes"]["email"]|d('') }}"
                                                     required />
@@ -130,15 +130,14 @@
                                         Current deposit provider:
                                     </label>
                                     {% block unsuitable_prospect_funnel__provider_name %}
-                                        <div class="row">
+                                        <div class="row" id="fieldProviderName">
                                             <div class="col-12 col-md-9">
                                                 <input
                                                     type="text"
-                                                    id="provider-name"
                                                     name="providerName"
                                                     value="{{ unsuitable_prospect_form["user_input"]["provider_name"] or '' }}"
                                                     hx-post="/auth/unsuitableProspectFunnel/validateForm/?field=provider_name"
-                                                    hx-target="#unsuitableProspectFunnelCard"
+                                                    hx-target="#fieldProviderName"
                                                     hx-swap="outerHTML"
                                                     class="form-control {{ unsuitable_prospect_form["field_classes"]["provider_name"]|d('') }}"
                                                     required />
@@ -146,12 +145,19 @@
                                         </div>
                                     {% endblock unsuitable_prospect_funnel__provider_name %}
                                 </div>
-                                <button
-                                    type="submit"
-                                    class="btn btn-outline-secondary float-end"
-                                    {% if not unsuitable_prospect_form["can_submit"] %}disabled{% endif %}>
-                                    Submit
-                                </button>
+                                {% block submit_button %}
+                                    <button
+                                        type="submit"
+                                        id="submitButton"
+                                        class="btn btn-outline-secondary float-end"
+                                        {% if not unsuitable_prospect_form["can_submit"] %}disabled{% endif %}
+                                        {% if oob_submit_button %}
+                                            hx-swap-oob="outerHTML:
+                                            #submitButton"
+                                        {% endif %}>
+                                        Submit
+                                    </button>
+                                {% endblock submit_button %}
                             </form>
                         {% endif %}
                     </div>

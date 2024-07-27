@@ -162,11 +162,11 @@
                 {% block submit_button %}
                     <button
                         type="submit"
-                        id="submit-button"
+                        id="submitButton"
                         class="btn btn-primary float-end"
                         {% if not signup_form["can_submit"] %}disabled{% endif %}
                         {% if oob_submit_button %}
-                            hx-swap-oob="outerHTML: #submit-button"
+                            hx-swap-oob="outerHTML: #submitButton"
                         {% endif %}>
                         Sign up
                     </button>
