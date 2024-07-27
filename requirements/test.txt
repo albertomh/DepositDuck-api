@@ -37,7 +37,7 @@ click==8.1.7
     # via
     #   typer
     #   uvicorn
-coverage==7.5.4
+coverage==7.6.0
     # via -r requirements/test.in
 cryptography==42.0.8
     # via
@@ -117,7 +117,7 @@ packaging==24.1
     # via pytest
 pgvector==0.3.2
     # via -r requirements/base.in
-playwright==1.44.0
+playwright==1.45.1
     # via -r requirements/test.in
 pluggy==1.5.0
     # via pytest
@@ -141,7 +141,7 @@ pygments==2.18.0
     # via rich
 pyjwt==2.8.0
     # via fastapi-users
-pytest==8.2.2
+pytest==8.3.2
     # via
     #   -r requirements/test.in
     #   pytest-asyncio
