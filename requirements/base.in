@@ -23,7 +23,7 @@ pgvector ~= 0.3.0
 pydantic-settings ~= 2.3.2
 # ORM
 # 0-based versioning necessitates tight pinning
-sqlmodel == 0.0.19
+sqlmodel == 0.0.21
 # logging
 structlog ~= 24.4
 # ASGI server
