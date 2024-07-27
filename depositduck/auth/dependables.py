@@ -6,7 +6,7 @@ https://fastapi-users.github.io/fastapi-users/13.0/configuration/user-manager/
 """
 
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 from enum import Enum
 from typing import Annotated, Any, Optional
 
@@ -101,7 +101,8 @@ class UserManager(UUIDIDMixin, BaseUserManager[User, uuid.UUID]):
         user: User,
         request: Optional[Request] = None,
     ):
-        await self.user_db.update(user, {"verified_at": datetime.now()})
+        now = datetime.now(timezone.utc)
+        await self.user_db.update(user, {"verified_at": now})
 
     async def on_after_forgot_password(
         self,

@@ -3,7 +3,7 @@
 """
 
 import ssl
-from datetime import datetime
+from datetime import datetime, timezone
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from smtplib import (
@@ -57,7 +57,7 @@ async def record_email(
             recipient_address=recipient,
             subject=subject,
             body=html_body,
-            sent_at=datetime.now(),
+            sent_at=datetime.now(timezone.utc),
         )
         session.add(email)
 
