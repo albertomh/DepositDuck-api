@@ -23,5 +23,5 @@ runs:
       shell: bash
     # make e2e fixture available inside the depositduck_db service container
     - run: |
-        docker cp ${{ github.workspace }}/local/database/init_scripts/e2e_fixture.sql depositduck_db:/docker-entrypoint-fixtures.d
+        docker cp ${{ github.workspace }}/local/database/fixtures/e2e_fixture.sql depositduck_db:/docker-entrypoint-fixtures.d
       shell: bash
