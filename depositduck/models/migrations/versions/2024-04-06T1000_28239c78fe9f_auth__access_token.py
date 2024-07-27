@@ -10,9 +10,9 @@ Create Date: 2024-04-06 10:00:53.541575
 from typing import Sequence, Union
 
 import sqlalchemy as sa
-import sqlmodel
 from alembic import op
 from fastapi_users_db_sqlmodel.generics import TIMESTAMPAware
+from sqlalchemy.dialects.postgresql import UUID
 
 # revision identifiers, used by Alembic.
 revision: str = "28239c78fe9f"
@@ -26,7 +26,7 @@ def upgrade() -> None:
         "auth__access_token",
         sa.Column("token", sa.String(length=43), nullable=False),
         sa.Column("created_at", TIMESTAMPAware(timezone=True), nullable=False),
-        sa.Column("user_id", sqlmodel.sql.sqltypes.GUID(), nullable=False),
+        sa.Column("user_id", UUID(), nullable=False),
         sa.ForeignKeyConstraint(
             ["user_id"],
             ["auth__user.id"],

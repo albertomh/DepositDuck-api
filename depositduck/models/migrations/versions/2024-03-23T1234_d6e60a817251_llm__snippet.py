@@ -12,6 +12,7 @@ from typing import Sequence, Union
 import sqlalchemy as sa
 import sqlmodel
 from alembic import op
+from sqlalchemy.dialects.postgresql import UUID
 
 # revision identifiers, used by Alembic.
 revision: str = "d6e60a817251"
@@ -25,7 +26,7 @@ def upgrade() -> None:
         "llm__snippet",
         sa.Column(
             "id",
-            sqlmodel.sql.sqltypes.GUID(),
+            UUID(),
             server_default=sa.text("gen_random_uuid()"),
             nullable=False,
         ),
@@ -37,7 +38,7 @@ def upgrade() -> None:
         ),
         sa.Column("deleted_at", sa.DateTime(timezone=True), nullable=True),
         sa.Column("content", sqlmodel.sql.sqltypes.AutoString(), nullable=False),
-        sa.Column("source_text_id", sqlmodel.sql.sqltypes.GUID(), nullable=False),
+        sa.Column("source_text_id", UUID(), nullable=False),
         sa.ForeignKeyConstraint(
             ["source_text_id"],
             ["llm__source_text.id"],

@@ -12,6 +12,7 @@ from typing import Sequence, Union
 import sqlalchemy as sa
 import sqlmodel
 from alembic import op
+from sqlalchemy.dialects.postgresql import UUID
 
 # revision identifiers, used by Alembic.
 revision: str = "90054aafa739"
@@ -25,7 +26,7 @@ def upgrade() -> None:
         "email__email",
         sa.Column(
             "id",
-            sqlmodel.sql.sqltypes.GUID(),
+            UUID(),
             server_default=sa.text("gen_random_uuid()"),
             nullable=False,
         ),
@@ -42,7 +43,7 @@ def upgrade() -> None:
         ),
         sa.Column("subject", sqlmodel.sql.sqltypes.AutoString(), nullable=False),
         sa.Column("body", sqlmodel.sql.sqltypes.AutoString(), nullable=False),
-        sa.Column("recipient_id", sqlmodel.sql.sqltypes.GUID(), nullable=True),
+        sa.Column("recipient_id", UUID(), nullable=True),
         sa.Column("sent_at", sa.DateTime(timezone=True), nullable=True),
         sa.ForeignKeyConstraint(
             ["recipient_id"],
