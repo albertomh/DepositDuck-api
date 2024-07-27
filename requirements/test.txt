@@ -184,7 +184,7 @@ starlette==0.37.2
     # via
     #   fastapi
     #   fastapi-slim
-structlog==24.2.0
+structlog==24.4.0
     # via -r requirements/base.in
 time-machine==2.14.2
     # via -r requirements/test.in

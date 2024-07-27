@@ -25,6 +25,6 @@ pydantic-settings ~= 2.3.2
 # 0-based versioning necessitates tight pinning
 sqlmodel == 0.0.19
 # logging
-structlog ~= 24.2.0
+structlog ~= 24.4
 # ASGI server
 uvicorn[standard] ~= 0.30.1
