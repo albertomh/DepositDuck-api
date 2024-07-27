@@ -176,7 +176,7 @@ sqlalchemy==2.0.31
     #   alembic
     #   fastapi-users-db-sqlalchemy
     #   sqlmodel
-sqlmodel==0.0.19
+sqlmodel==0.0.21
     # via
     #   -r requirements/base.in
     #   fastapi-users-db-sqlmodel
