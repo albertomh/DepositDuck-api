@@ -241,7 +241,7 @@ e2e: venv _wipe_db && stop
   . {{VENV_DIR}}/bin/activate
   if [ -z ${CI:-} ]; then . ./local/read_dotenv.sh {{dotenv}}; fi
   uv pip sync {{REQS_DIR}}/test.txt
-  python -m playwright install --with-deps
+  python -m playwright install --with-deps chromium
   # TODO: remove/improve
   sleep 1
   python -m pytest tests/e2e/ -s -vvv -W always
