@@ -12,7 +12,7 @@ to create a new release.
 
 ### Added
 
-- Track 'dispute deadline' as part of the Tenancy model.
+- Track 'dispute window end' as part of the Tenancy model.
 
 ### Fixed
 
