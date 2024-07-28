@@ -10,6 +10,10 @@ to create a new release.
 
 ## [Unreleased]
 
+### Added
+
+- Track 'dispute deadline' as part of the Tenancy model.
+
 ### Fixed
 
 - Correct partial template for submit button on the unsuitableProspectFunnel form.
