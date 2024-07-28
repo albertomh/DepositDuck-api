@@ -184,6 +184,7 @@ run: stop && stop
   just dotenv={{dotenv}} migrate &
   . {{VENV_DIR}}/bin/activate
   if [ -z ${CI:-} ]; then . ./local/read_dotenv.sh {{dotenv}}; fi
+  uv pip sync {{REQS_DIR}}/dev.txt
   uvicorn depositduck.main:webapp --reload
 
 # stop all running services
