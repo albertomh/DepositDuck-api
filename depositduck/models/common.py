@@ -12,6 +12,7 @@ import sqlalchemy as sa
 from pydantic import BaseModel
 from sqlalchemy import func
 from sqlmodel import Field, SQLModel
+from sqlmodel._compat import SQLModelConfig
 
 # --- Table models -----------------------------------------------------------------------
 
@@ -42,7 +43,17 @@ class DeletedAtMixin:
 
 
 class TableBase(SQLModel, DeletedAtMixin, CreatedAtMixin, IdMixin):
-    pass
+    """
+    Every object has two models associated with it:
+        - a Pydantic class eg. `class EntityBase(BaseModel)`
+        - and a SQLModel eg. `class Entity(EntityBase, TableBase, table=True)`
+    By default a SQLModel table object does not carry out Pydantic field validation.
+    `validate_assignment` needed for field validation to happen when an `Entity` object
+    is instantiated.
+    https://github.com/tiangolo/sqlmodel/issues/52
+    """
+
+    model_config = SQLModelConfig(validate_assignment=True)
 
 
 # --- Request bodies ---------------------------------------------------------------------
