@@ -84,6 +84,10 @@ This repo follows trunk-based development. This means:
 - the `main` branch should always be in a releasable state
 - use short-lived feature branches
 
+[wat](https://pypi.org/project/wat-inspector/) is available as a development dependency. To
+inspect an object and pretty-print information about it on the console, add a line like
+`import wat; wat / some_object`.
+
 Pre-commit hooks are available to prevent common gotchas and to lint & format code.
 
 ```sh
@@ -296,6 +300,10 @@ just dotenv=.env.test test coverage
 
 Unit tests have the `--pdb` flag when run locally, so will drop you into an interactive
 debugger at the first failure.
+
+[wat](https://pypi.org/project/wat-inspector/) is available in the debugger. To inspect an
+object and pretty-print information about it on the console, add a line like
+`import wat; wat / some_object`.
 
 Follow the [Arrange Act Assert](https://wiki.c2.com/?ArrangeActAssert) pattern as much as
 possible when writing unit tests.
