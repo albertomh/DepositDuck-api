@@ -13,6 +13,7 @@ to create a new release.
 ### Added
 
 - Track 'dispute window end' as part of the Tenancy model.
+- Display days until dispute window ends on the dashboard.
 
 ### Fixed
 
