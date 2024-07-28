@@ -4,9 +4,9 @@
 
 import logging
 import os
+import uuid
 from typing import Callable
 from unittest.mock import AsyncMock, Mock
-import uuid
 
 import pytest
 import pytest_asyncio
