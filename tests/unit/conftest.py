@@ -6,6 +6,7 @@ import logging
 import os
 from typing import Callable
 from unittest.mock import AsyncMock, Mock
+import uuid
 
 import pytest
 import pytest_asyncio
@@ -165,7 +166,9 @@ def mock_request():
 
 @pytest.fixture
 def mock_user():
-    return Mock(spec=User)
+    mock_user = Mock(spec=User)
+    mock_user.id = uuid.uuid4()
+    return mock_user
 
 
 @pytest.fixture

@@ -2,11 +2,14 @@
 (c) 2024 Alberto Morón Hernández
 """
 
+from datetime import date, timedelta
+
 import httpx
 import pytest
 from fastapi import HTTPException, Request
 from starlette.templating import _TemplateResponse
 
+from depositduck.auth import TDS_DISPUTE_WINDOW_IN_DAYS
 from depositduck.auth.forms.login import LoginForm
 from depositduck.dependables import (
     AuthenticatedJinjaBlocks,
@@ -46,10 +49,16 @@ class TestAuthenticatedJinjaBlocks:
     ):
         """ """
         templates = get_templates(mock_settings)
+        end_date = date(2024, 7, 28)
+        dispute_window_end = end_date + timedelta(days=TDS_DISPUTE_WINDOW_IN_DAYS)
         context = AuthenticatedJinjaBlocks.TemplateContext(
             request=mock_request,
             user=mock_user,
-            tenancy=Tenancy(deposit_in_p=10000, end_date=None),
+            tenancy=Tenancy(
+                deposit_in_p=10000,
+                end_date=end_date,
+                dispute_window_end=dispute_window_end,
+            ),
         )
 
         response = templates.TemplateResponse(HOME_TEMPLATE, context)
@@ -110,10 +119,16 @@ class TestAuthenticatedJinjaBlocks:
     ):
         mock_user.hashed_password = "some_hashed_password"
         templates = get_templates(mock_settings)
+        end_date = date(2024, 7, 28)
+        dispute_window_end = end_date + timedelta(days=TDS_DISPUTE_WINDOW_IN_DAYS)
         context = AuthenticatedJinjaBlocks.TemplateContext(
             request=mock_request,
             user=mock_user,
-            tenancy=Tenancy(deposit_in_p=10000, end_date=None),
+            tenancy=Tenancy(
+                deposit_in_p=10000,
+                end_date=end_date,
+                dispute_window_end=dispute_window_end,
+            ),
         )
 
         response = templates.TemplateResponse(HOME_TEMPLATE, context)
