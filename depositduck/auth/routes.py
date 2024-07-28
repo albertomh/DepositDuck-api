@@ -2,7 +2,7 @@
 (c) 2024 Alberto Morón Hernández
 """
 
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from cryptography.fernet import InvalidToken
 from fastapi import APIRouter, Depends, Form, Query, Request, status
@@ -24,6 +24,7 @@ from typing_extensions import Annotated
 
 from depositduck.auth import (
     AUTH_COOKIE_NAME,
+    TDS_DISPUTE_WINDOW_IN_DAYS,
     TenancyEndDateOutOfRange,
     is_prospect_suitable,
 )
@@ -391,8 +392,15 @@ async def register(
         try:
             if tenancy_end_date_str:
                 tenancy_end_date = await date_from_iso8601_str(tenancy_end_date_str)
+            # TODO: make flexible to include other tenancy protection schemes
+            dispute_window_end = tenancy_end_date + timedelta(
+                days=TDS_DISPUTE_WINDOW_IN_DAYS
+            )
             tenancy = Tenancy(
-                deposit_in_p=0, end_date=tenancy_end_date, user_id=new_user.id
+                deposit_in_p=0,
+                end_date=tenancy_end_date,
+                dispute_window_end=dispute_window_end,
+                user_id=new_user.id,
             )
             session: AsyncSession
             async with db_session_factory.begin() as session:
