@@ -2,12 +2,13 @@
 (c) 2024 Alberto Morón Hernández
 """
 
-from datetime import datetime, timezone
+from datetime import date, datetime, timedelta, timezone
 from unittest.mock import AsyncMock, Mock, patch
 
 import pytest
 from fastapi import HTTPException, Request, status
 
+from depositduck.auth import TDS_DISPUTE_WINDOW_IN_DAYS
 from depositduck.dashboard.routes import AsyncSession, db_session_factory
 from depositduck.middleware import (
     FRONTEND_MUST_BE_LOGGED_OUT_PATHS,
@@ -223,7 +224,13 @@ async def test_protected_routes_redirects_user_to_onboarding(
         settings=None, dependency_overrides=dependency_overrides
     )
     with patch.object(AsyncSession, "execute", AsyncMock) as mock_execute:
-        mock_scalar_one = Mock(return_value=Tenancy(deposit_in_p=10000, end_date=None))
+        end_date = date.today() - timedelta(days=12)
+        dwe = end_date + timedelta(days=TDS_DISPUTE_WINDOW_IN_DAYS)
+        mock_scalar_one = Mock(
+            return_value=Tenancy(
+                deposit_in_p=10000, end_date=end_date, dispute_window_end=dwe
+            )
+        )
         mock_result = AsyncMock()
         mock_result.scalar_one = mock_scalar_one
         mock_execute.return_value = mock_result
@@ -293,7 +300,13 @@ async def test_protected_routes_accept_user(web_client_factory, mock_async_sessi
         settings=None, dependency_overrides=dependency_overrides
     )
     with patch.object(AsyncSession, "execute", AsyncMock) as mock_execute:
-        mock_scalar_one = Mock(return_value=Tenancy(deposit_in_p=10000, end_date=None))
+        end_date = date.today() - timedelta(days=12)
+        dwe = end_date + timedelta(days=TDS_DISPUTE_WINDOW_IN_DAYS)
+        mock_scalar_one = Mock(
+            return_value=Tenancy(
+                deposit_in_p=10000, end_date=end_date, dispute_window_end=dwe
+            )
+        )
         mock_result = AsyncMock()
         mock_result.scalar_one = mock_scalar_one
         mock_execute.return_value = mock_result
