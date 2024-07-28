@@ -54,6 +54,7 @@ INSERT INTO public.deposit__tenancy (
     deposit_in_p,
     start_date,
     end_date,
+    dispute_window_end,
     user_id
 )
 VALUES (
@@ -61,8 +62,9 @@ VALUES (
     now(),
     NULL,
     92400,
-    '2020-01-12',
-    '2024-06-25',
+    CURRENT_DATE - INTERVAL '4 years 3 months 2 days',
+    CURRENT_DATE - INTERVAL '2 days',
+    CURRENT_DATE - INTERVAL '2 days' + INTERVAL '90 days',
     '8c9356f7-3fb3-486a-8481-346b7ffe62f0'::uuid -- active_verified@example.com
 ), (
     'b99643d3-f0ff-40b5-a0b5-c07af587f382'::uuid,
@@ -71,5 +73,6 @@ VALUES (
     0,
     NULL,
     CURRENT_DATE - INTERVAL '10 days',
+    NULL,
     '63d3c89c-c699-4c29-944b-01e506e58fea'::uuid -- needs_onboarding@example.com
 );
