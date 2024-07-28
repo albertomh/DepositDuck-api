@@ -39,6 +39,7 @@ def upgrade() -> None:
         sa.Column("deposit_in_p", sa.Integer(), nullable=False),
         sa.Column("start_date", sa.Date(), nullable=True),
         sa.Column("end_date", sa.Date(), nullable=False),
+        sa.Column("dispute_deadline", sa.Date(), nullable=True),
         sa.Column("user_id", UUID(), nullable=False),
         sa.ForeignKeyConstraint(
             ["user_id"],

@@ -12,4 +12,5 @@ class TenancyBase(BaseModel):
     deposit_in_p: PositiveInt
     start_date: date | None = None
     end_date: date
+    dispute_deadline: date
     user_id: UUID
