@@ -5,10 +5,10 @@ FROM python:3.12-slim
 
 WORKDIR /app
 
-COPY requirements/base.txt requirements/base.txt
+COPY uv.lock
 
 RUN pip install uv
-RUN uv pip install --system --no-cache-dir -r requirements/base.txt
+RUN uv sync
 
 COPY . .
 # actual .env is listed in .dockerignore. Create empty file so it can be overridden

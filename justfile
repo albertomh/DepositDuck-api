@@ -10,7 +10,6 @@
 dotenv := '.env'
 
 VENV_DIR := ".venv"
-REQS_DIR := "requirements"
 
 default:
   @just --list
@@ -24,44 +23,21 @@ venv:
 
 # sync project dependencies to virtualenv
 install-deps: venv
-  @uv pip sync {{REQS_DIR}}/base.txt
+  @uv sync
 
 install-deps-dev: venv
-  @uv pip sync {{REQS_DIR}}/dev.txt
+  @uv sync --extra dev
 
 install-deps-test: venv
-  @uv pip sync {{REQS_DIR}}/test.txt
+  @uv sync --extra test
 
-# generate requirements files with pinned dependencies
-pin-deps:
-  @just pin-deps-base
-  @just pin-deps-dev
-  @just pin-deps-test
-
-pin-deps-base:
-  @uv pip compile {{REQS_DIR}}/base.in -o {{REQS_DIR}}/base.txt
-
-pin-deps-dev:
-  @uv pip compile {{REQS_DIR}}/dev.in -o {{REQS_DIR}}/dev.txt
-
-pin-deps-test:
-  @uv pip compile {{REQS_DIR}}/test.in -o {{REQS_DIR}}/test.txt
-
-# bump dependency versions in line with constraints in requirements/*.in files
+# bump dependency versions in line with constraints in pyproject.toml
 update-deps:
-  @just update-deps-base
-  @just update-deps-dev
-  @just update-deps-test
+  @just update-deps
   @just update-pre-commit
 
 update-deps-base:
-  @uv pip compile {{REQS_DIR}}/base.in --upgrade -o {{REQS_DIR}}/base.txt
-
-update-deps-dev:
-  @uv pip compile {{REQS_DIR}}/dev.in --upgrade -o {{REQS_DIR}}/dev.txt
-
-update-deps-test:
-  @uv pip compile {{REQS_DIR}}/test.in --upgrade -o {{REQS_DIR}}/test.txt
+  @uv lock --upgrade
 
 update-pre-commit:
   @pre-commit autoupdate
@@ -184,7 +160,7 @@ run: stop && stop
   just dotenv={{dotenv}} migrate &
   . {{VENV_DIR}}/bin/activate
   if [ -z ${CI:-} ]; then . ./local/read_dotenv.sh {{dotenv}}; fi
-  uv pip sync {{REQS_DIR}}/dev.txt
+  uv sync --extra=dev
   uvicorn depositduck.main:webapp --reload
 
 # stop all running services
@@ -212,7 +188,7 @@ test: venv
   set -euo pipefail
   . {{VENV_DIR}}/bin/activate
   if [ -z ${CI:-} ]; then . ./local/read_dotenv.sh {{dotenv}}; fi
-  uv pip sync {{REQS_DIR}}/test.txt
+  uv sync --extra=test
   if [ -z ${CI:-} ]; then
     python -m coverage run -m pytest tests/unit/ -s -vvv -W always --pdb
   else
@@ -225,7 +201,7 @@ coverage: venv
   set -euo pipefail
   . {{VENV_DIR}}/bin/activate
   if [ -z ${CI:-} ]; then . ./local/read_dotenv.sh {{dotenv}}; fi
-  uv pip sync {{REQS_DIR}}/test.txt
+  uv sync --extra=test
   report=$(python -m coverage report)
   echo "$report"
   percentage=$(echo "$report" | tail -n 1 | awk '{ print $NF }' | sed 's/\%//')
@@ -241,7 +217,7 @@ e2e: venv _wipe_db && stop
   just dotenv={{dotenv}} run &
   . {{VENV_DIR}}/bin/activate
   if [ -z ${CI:-} ]; then . ./local/read_dotenv.sh {{dotenv}}; fi
-  uv pip sync {{REQS_DIR}}/test.txt
+  uv sync --extra=test
   python -m playwright install --with-deps chromium
   # TODO: remove/improve
   sleep 1
