@@ -156,7 +156,7 @@ async def validate_filter_prospect_form(
         context,
         block_name="submit_button",
     )
-    combined_html = field_response.body.decode() + submit_button_response.body.decode()
+    combined_html = field_response.body.decode() + submit_button_response.body.decode()  # type: ignore
     return Response(content=combined_html, media_type="text/html")
 
 
@@ -263,7 +263,7 @@ async def validate_unsuitable_prospect_funnel_form(
         context,
         block_name="submit_button",
     )
-    combined_html = field_response.body.decode() + submit_button_response.body.decode()
+    combined_html = field_response.body.decode() + submit_button_response.body.decode()  # type: ignore
     return Response(content=combined_html, media_type="text/html")
 
 
@@ -353,7 +353,7 @@ async def validate_signup_form(
         context,
         block_name="submit_button",
     )
-    combined_html = field_response.body.decode() + submit_button_response.body.decode()
+    combined_html = field_response.body.decode() + submit_button_response.body.decode()  # type: ignore
     return Response(content=combined_html, media_type="text/html")
 
 
