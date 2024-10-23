@@ -149,7 +149,7 @@ _stop_server:
   @lsof -t -i :8000 | xargs -I {} kill -9 {}
 
 # run the application locally, with the database in the background
-run: stop && stop
+run deps="dev": stop && stop
   #!/usr/bin/env bash
   set -euo pipefail
   if [ -z ${CI:-} ]; then
@@ -160,7 +160,7 @@ run: stop && stop
   just dotenv={{dotenv}} migrate &
   . {{VENV_DIR}}/bin/activate
   if [ -z ${CI:-} ]; then . ./local/read_dotenv.sh {{dotenv}}; fi
-  uv sync --extra=dev
+  uv sync --extra={{deps}}
   uvicorn depositduck.main:webapp --reload
 
 # stop all running services
@@ -214,10 +214,9 @@ coverage: venv
 e2e: venv _wipe_db && stop
   #!/usr/bin/env bash
   set -euo pipefail
-  just dotenv={{dotenv}} run &
+  just dotenv={{dotenv}} run test&
   . {{VENV_DIR}}/bin/activate
   if [ -z ${CI:-} ]; then . ./local/read_dotenv.sh {{dotenv}}; fi
-  uv sync --extra=test
   python -m playwright install --with-deps chromium
   # TODO: remove/improve
   sleep 1
